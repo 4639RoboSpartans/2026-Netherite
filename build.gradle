@@ -190,8 +190,6 @@ spotless {
             exclude "**/build/**", "**/build-*/**"
         }
         toggleOffOn()
-        palantirJavaFormat()
-        removeUnusedImports()
         trimTrailingWhitespace()
         endWithNewline()
         licenseHeader("/* Copyright (c) 2025-2026 FRC 4639. */\n\n")

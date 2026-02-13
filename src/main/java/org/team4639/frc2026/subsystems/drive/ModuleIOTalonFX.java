@@ -2,18 +2,11 @@
 
 package org.team4639.frc2026.subsystems.drive;
 
-import static org.team4639.frc2026.util.PhoenixUtil.*;
-
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.TorqueCurrentFOC;
-import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -29,8 +22,10 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import java.util.Queue;
 import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
+import org.team4639.lib.util.PhoenixUtil;
+
+import java.util.Queue;
 
 /**
  * Module IO implementation for Talon FX drive motor controller, Talon FX turn motor controller, and
@@ -98,8 +93,8 @@ public class ModuleIOTalonFX implements ModuleIO {
         driveConfig.MotorOutput.Inverted = constants.DriveMotorInverted
                 ? InvertedValue.Clockwise_Positive
                 : InvertedValue.CounterClockwise_Positive;
-        tryUntilOk(5, () -> driveTalon.getConfigurator().apply(driveConfig, 0.25));
-        tryUntilOk(5, () -> driveTalon.setPosition(0.0, 0.25));
+        PhoenixUtil.tryUntilOk(5, () -> driveTalon.getConfigurator().apply(driveConfig, 0.25));
+        PhoenixUtil.tryUntilOk(5, () -> driveTalon.setPosition(0.0, 0.25));
 
         // Configure turn motor
         var turnConfig = new TalonFXConfiguration();
@@ -121,7 +116,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         turnConfig.MotorOutput.Inverted = constants.SteerMotorInverted
                 ? InvertedValue.Clockwise_Positive
                 : InvertedValue.CounterClockwise_Positive;
-        tryUntilOk(5, () -> turnTalon.getConfigurator().apply(turnConfig, 0.25));
+        PhoenixUtil.tryUntilOk(5, () -> turnTalon.getConfigurator().apply(turnConfig, 0.25));
 
         // Configure CANCoder
         CANcoderConfiguration cancoderConfig = constants.EncoderInitialConfigs;
