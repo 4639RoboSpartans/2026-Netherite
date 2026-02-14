@@ -63,4 +63,17 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
     public void setVoltage(double volts){
         rollerMotor.setVoltage(volts);
     }
+
+    @Override
+    public void applyNewGains(double[] newGains){
+        var config = new TalonFXConfiguration().Slot0;
+        config.kP = newGains[0];
+        config.kI = newGains[1];
+        config.kD = newGains[2];
+        config.kS = newGains[3];
+        config.kV = newGains[4];
+        config.kA = newGains[5];
+
+        rollerMotor.getConfigurator().apply(config);
+    }
 }

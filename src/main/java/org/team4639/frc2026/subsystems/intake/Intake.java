@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
+import org.team4639.lib.tunable.TunableNumber;
+import org.team4639.lib.util.LoggedTunableNumber;
 
 public class Intake extends SubsystemBase {
     private final RobotState state;
@@ -61,6 +63,14 @@ public class Intake extends SubsystemBase {
             Logger.recordOutput("Intake/SystemState", newState.toString());
             systemState = newState;
         }
+
+        LoggedTunableNumber.ifChanged(hashCode(), nums -> rollerIO.applyNewGains(nums),
+                PIDs.rollerkP,
+                PIDs.rollerkI,
+                PIDs.rollerkD,
+                PIDs.rollerkS,
+                PIDs.rollerkV,
+                PIDs.rollerkA);
     }
 
     public SystemState handleStateTransitions() {
