@@ -5,6 +5,7 @@ package org.team4639.frc2026.subsystems.intake;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
 
@@ -21,6 +22,11 @@ public class Intake extends SubsystemBase {
     private final double ZERO_VELOCITY_TIME_PERIOD = 0.25;
     private final double ZERO_VOLTAGE = 0.0;
     private final double INTAKE_SURFACE_VELOCITY_FEET_PER_SECOND = 28;
+
+    private final boolean usingStates = true;
+
+    @Getter
+    private final IntakeRollerSysID rollerSysID = new IntakeRollerSysID.IntakeRollerSysIDCTRE(this);
 
     public enum WantedState {
         IDLE,
@@ -125,5 +131,11 @@ public class Intake extends SubsystemBase {
     public void handleIntaking() {
         extensionIO.setVoltage(0);
         rollerIO.setSurfaceVelocityFeetPerSecond(INTAKE_SURFACE_VELOCITY_FEET_PER_SECOND);
+    }
+
+    public void setRollerVoltage(double volts){
+        if (!usingStates) {
+            rollerIO.setVoltage(volts);
+        }
     }
 }
