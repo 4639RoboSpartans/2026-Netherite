@@ -17,6 +17,7 @@ public class Intake extends SubsystemBase {
     private double zeroTimeStamp = Double.NaN;
 
     private final double ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND = 0;
+    private final double ENDSTOP_CURRENT_THRESHOLD = 20; // just a guess
     private final double ZERO_VELOCITY_TIME_PERIOD = 0.25;
     private final double ZERO_VOLTAGE = 0.0;
     private final double INTAKE_SURFACE_VELOCITY_FEET_PER_SECOND = 28;
@@ -61,7 +62,7 @@ public class Intake extends SubsystemBase {
             case INTAKE:
                 if (!DriverStation.isDisabled()) {
                     if (Math.abs(extensionInputs.velocity)
-                            < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND) {
+                            < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND && Math.abs(extensionInputs.current) > ENDSTOP_CURRENT_THRESHOLD) {
                         if (!Double.isFinite(zeroTimeStamp)) {
                             zeroTimeStamp = Timer.getFPGATimestamp();
                             return SystemState.EXTENDING;
@@ -82,7 +83,7 @@ public class Intake extends SubsystemBase {
             case IDLE:
                 if (!DriverStation.isDisabled()) {
                     if (Math.abs(extensionInputs.velocity)
-                            < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND) {
+                            < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND && Math.abs(extensionInputs.current) > ENDSTOP_CURRENT_THRESHOLD) {
                         if (!Double.isFinite(zeroTimeStamp)) {
                             zeroTimeStamp = Timer.getFPGATimestamp();
                             return SystemState.RETRACTING;
