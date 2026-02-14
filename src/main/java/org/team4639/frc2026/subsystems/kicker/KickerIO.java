@@ -12,7 +12,7 @@ public interface KickerIO {
 
     default void updateInputs(KickerIOInputs inputs) {}
 
-    default void applyNewGains() {}
+    default void applyNewGains(double[] newGains) {}
 
     @AutoLog
     class KickerIOInputs {
@@ -21,5 +21,6 @@ public interface KickerIO {
         public double motorCurrent;
         public double motorVelocity;
         public double motorTemperature;
+        public double motorPosition;
     }
 }

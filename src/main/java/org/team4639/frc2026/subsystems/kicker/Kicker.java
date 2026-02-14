@@ -2,10 +2,14 @@
 
 package org.team4639.frc2026.subsystems.kicker;
 
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
+import org.team4639.lib.util.LoggedTunableNumber;
+
+import static edu.wpi.first.units.Units.Volts;
 
 public class Kicker extends SubsystemBase {
     private final RobotState state;
@@ -14,6 +18,8 @@ public class Kicker extends SubsystemBase {
 
     private final double KICK_RPM = 0;
     private final double IDLE_RPM = 0;
+
+    private final boolean usingStates = true;
 
     public enum WantedState {
         IDLE,
@@ -55,6 +61,14 @@ public class Kicker extends SubsystemBase {
                 handleKick();
                 break;
         }
+
+        LoggedTunableNumber.ifChanged(hashCode(), io::applyNewGains,
+                PIDs.kickerKP,
+                PIDs.kickerKI,
+                PIDs.kickerKD,
+                PIDs.kickerKS,
+                PIDs.kickerKV,
+                PIDs.kickerKA);
     }
 
     private SystemState handleStateTransitions() {
@@ -74,5 +88,9 @@ public class Kicker extends SubsystemBase {
 
     private void setWantedState(WantedState wantedState) {
         this.wantedState = wantedState;
+    }
+
+    public void setVoltage(Voltage volts){
+        if (!usingStates) io.setVoltage(volts.in(Volts));
     }
 }
