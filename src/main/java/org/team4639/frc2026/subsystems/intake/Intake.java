@@ -25,8 +25,6 @@ public class Intake extends SubsystemBase {
     private final double ZERO_VOLTAGE = 0.0;
     private final double INTAKE_SURFACE_VELOCITY_FEET_PER_SECOND = 28;
 
-    private final boolean usingStates = true;
-
     @Getter
     private final IntakeRollerSysID rollerSysID = new IntakeRollerSysID.IntakeRollerSysIDCTRE(this);
 
@@ -144,8 +142,6 @@ public class Intake extends SubsystemBase {
     }
 
     public void setRollerVoltage(double volts){
-        if (!usingStates) {
-            rollerIO.setVoltage(volts);
-        }
+        rollerIO.setVoltage(volts);
     }
 }
