@@ -2,10 +2,13 @@
 
 package org.team4639.frc2026.subsystems.spindexer;
 
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
+
+import static edu.wpi.first.units.Units.Volts;
 
 public class Spindexer extends SubsystemBase {
     private final RobotState state;
@@ -14,6 +17,10 @@ public class Spindexer extends SubsystemBase {
 
     private final double KICK_RPM = 0;
     private final double IDLE_RPM = 0;
+
+    private final boolean usingStates = true;
+
+    private final SpindexerSysID sysID = new SpindexerSysID.SpindexerSysIDWPI(this, inputs);
 
     public enum WantedState {
         IDLE,
@@ -74,5 +81,9 @@ public class Spindexer extends SubsystemBase {
 
     private void setWantedState(WantedState wantedState) {
         this.wantedState = wantedState;
+    }
+
+    public void setVoltage(Voltage volts){
+        io.setVoltage(volts.in(Volts));
     }
 }

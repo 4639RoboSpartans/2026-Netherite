@@ -21,5 +21,6 @@ public interface SpindexerIO {
         public double motorCurrent;
         public double motorVelocity;
         public double motorTemperature;
+        public double motorPosition;
     }
 }

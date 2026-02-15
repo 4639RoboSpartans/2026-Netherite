@@ -43,6 +43,7 @@ public class SpindexerIOTalonFX implements SpindexerIO {
         inputs.motorCurrent = spindexerMotor.getStatorCurrent().getValueAsDouble();
         inputs.motorVelocity = spindexerMotor.getVelocity().getValueAsDouble();
         inputs.motorTemperature = spindexerMotor.getDeviceTemp().getValueAsDouble();
+        inputs.motorPosition = spindexerMotor.getPosition().getValueAsDouble();
     }
 
     @Override
