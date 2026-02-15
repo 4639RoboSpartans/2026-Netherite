@@ -5,6 +5,7 @@ package org.team4639.frc2026.subsystems.kicker;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
 import org.team4639.lib.util.LoggedTunableNumber;
@@ -20,6 +21,9 @@ public class Kicker extends SubsystemBase {
     private final double IDLE_RPM = 0;
 
     private final boolean usingStates = true;
+
+    @Getter
+    private final KickerSysID sysID = new KickerSysID.KickerSysIDWPI(this, inputs);
 
     public enum WantedState {
         IDLE,

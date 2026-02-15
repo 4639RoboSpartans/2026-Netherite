@@ -1,3 +1,5 @@
+/* Copyright (c) 2025-2026 FRC 4639. */
+
 package org.team4639.frc2026.subsystems.kicker;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -7,11 +9,11 @@ import org.littletonrobotics.junction.Logger;
 
 import static edu.wpi.first.units.Units.*;
 
-public abstract class KickerSysID {
+public sealed abstract class KickerSysID {
     @Getter
     private SysIdRoutine routine;
 
-    public static class KickerSysIDCTRE extends KickerSysID{
+    public static final class KickerSysIDCTRE extends KickerSysID{
         public KickerSysIDCTRE(Kicker kicker){
             super();
             super.routine = new SysIdRoutine(
@@ -30,7 +32,7 @@ public abstract class KickerSysID {
         }
     }
 
-    public static class KickerSysIDWPI extends KickerSysID{
+    public static final class KickerSysIDWPI extends KickerSysID{
         public KickerSysIDWPI(Kicker kicker, KickerIO.KickerIOInputs inputs){
             super();
             super.routine = new SysIdRoutine(
