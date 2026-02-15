@@ -20,8 +20,6 @@ public class Kicker extends SubsystemBase {
     private final double KICK_RPM = 0;
     private final double IDLE_RPM = 0;
 
-    private final boolean usingStates = true;
-
     @Getter
     private final KickerSysID sysID = new KickerSysID.KickerSysIDWPI(this, inputs);
 
@@ -94,7 +92,7 @@ public class Kicker extends SubsystemBase {
         this.wantedState = wantedState;
     }
 
-    public void setVoltage(Voltage volts){
-        if (!usingStates) io.setVoltage(volts.in(Volts));
+    protected void setVoltage(Voltage volts){
+        io.setVoltage(volts.in(Volts));
     }
 }

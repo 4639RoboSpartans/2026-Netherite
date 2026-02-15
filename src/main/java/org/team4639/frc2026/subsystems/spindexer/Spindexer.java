@@ -18,8 +18,6 @@ public class Spindexer extends SubsystemBase {
     private final double KICK_RPM = 0;
     private final double IDLE_RPM = 0;
 
-    private final boolean usingStates = true;
-
     private final SpindexerSysID sysID = new SpindexerSysID.SpindexerSysIDWPI(this, inputs);
 
     public enum WantedState {
@@ -83,7 +81,7 @@ public class Spindexer extends SubsystemBase {
         this.wantedState = wantedState;
     }
 
-    public void setVoltage(Voltage volts){
+    protected void setVoltage(Voltage volts){
         io.setVoltage(volts.in(Volts));
     }
 }
