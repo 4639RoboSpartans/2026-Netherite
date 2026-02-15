@@ -47,6 +47,8 @@ public class Intake extends SubsystemBase {
         this.extensionIO = extensionIO;
         this.rollerIO = rollerIO;
         this.state = state;
+
+        setDefaultCommand(run(this::runStateMachine));
     }
 
     @Override
@@ -55,12 +57,6 @@ public class Intake extends SubsystemBase {
         rollerIO.updateInputs(rollerInputs);
         Logger.processInputs("Intake Extension", extensionInputs);
         Logger.processInputs("Intake Rollers", rollerInputs);
-
-        SystemState newState = handleStateTransitions();
-        if (newState != systemState) {
-            Logger.recordOutput("Intake/SystemState", newState.toString());
-            systemState = newState;
-        }
 
         LoggedTunableNumber.ifChanged(hashCode(), nums -> rollerIO.applyNewGains(nums),
                 PIDs.rollerkP,
@@ -143,5 +139,20 @@ public class Intake extends SubsystemBase {
 
     public void setRollerVoltage(double volts){
         rollerIO.setVoltage(volts);
+    }
+
+    private void runStateMachine() {
+        SystemState newState = handleStateTransitions();
+        if (newState != systemState) {
+            Logger.recordOutput("Intake/SystemState", newState.toString());
+            systemState = newState;
+        }
+
+        switch(systemState){
+            case IDLE -> handleIdle();
+            case EXTENDING -> handleExtending();
+            case RETRACTING -> handleRetracting();
+            case INTAKE -> handleIntaking();
+        }
     }
 }
