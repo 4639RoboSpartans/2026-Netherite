@@ -11,4 +11,8 @@ public class PIDs {
     public static final LoggedTunableNumber hoodKs = new LoggedTunableNumber("Hood/kS").initDefault(0);
     public static final LoggedTunableNumber hoodKv = new LoggedTunableNumber("Hood/kV").initDefault(0);
     public static final LoggedTunableNumber hoodKa = new LoggedTunableNumber("Hood/kA").initDefault(0);
+
+    public static final LoggedTunableNumber hoodKpSim = new LoggedTunableNumber("Hood/kPSim").initDefault(0.02);
+    public static final LoggedTunableNumber hoodKiSim = new LoggedTunableNumber("Hood/kISim").initDefault(0);
+    public static final LoggedTunableNumber hoodKdSim = new LoggedTunableNumber("Hood/kDSim").initDefault(0);
 }

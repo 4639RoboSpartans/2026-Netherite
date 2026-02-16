@@ -21,8 +21,8 @@ import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.Constants.Mode;
-import org.team4639.frc2026.constants.shooter.ShooterScoringData;
 import org.team4639.frc2026.constants.shooter.ScoringState;
+import org.team4639.frc2026.constants.shooter.ShooterScoringData;
 import org.team4639.frc2026.subsystems.drive.Drive;
 import org.team4639.frc2026.subsystems.hood.Hood;
 import org.team4639.frc2026.subsystems.hood.HoodIO;
@@ -69,7 +69,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer {
     // Odometry
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(Drive.getModuleTranslations());
     private SwerveModulePosition[] lastWheelPositions = new SwerveModulePosition[] {
-        new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()
+            new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()
     };
     // Assume gyro starts at zero
     private Rotation2d gyroOffset = Rotation2d.kZero;
@@ -96,9 +96,8 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer {
 
     private final TimeInterpolatableBuffer<Pose2d> choreoSetpoints = TimeInterpolatableBuffer.createBuffer(0.05);
 
-    private ScoringState shooterState = new ScoringState(Rotations.per(Minute).of(0.0), Rotations.of(0), Rotations.of(0));
-
-    private final Transform2d robotToTurret = new Transform2d(Units.inchesToMeters(5.9), 0, Rotation2d.kZero);
+    @Getter
+    private ScoringState scoringState = new ScoringState(Rotations.per(Minute).of(0.0), Rotations.of(0), Rotations.of(0));
 
     @Setter
     private Pair<Hood.WantedState, Hood.SystemState> hoodStates;
@@ -106,8 +105,6 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer {
     private Pair<Shooter.WantedState, Shooter.SystemState> shooterStates;
     @Setter
     private Pair<Turret.WantedState, Turret.SystemState> turretStates;
-
-    private Rotation2d turretRotation = Rotation2d.kZero;
 
     /**
      * Returns the pose relative to the blue alliance wall.
@@ -215,16 +212,16 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer {
     }
 
     public void updateShooterState(AngularVelocity shooterRPM, Angle hoodAngle, Angle turretAngle) {
-        AngularVelocity newShooterRPM = shooterState.shooterRPM();
+        AngularVelocity newShooterRPM = scoringState.shooterRPM();
         if (shooterRPM != null) newShooterRPM = shooterRPM;
         SmartDashboard.putNumber("Scoring/ShooterRPM", newShooterRPM.in(Rotations.per(Minute)));
-        Angle newHoodAngle = shooterState.hoodAngle();
+        Angle newHoodAngle = scoringState.hoodAngle();
         if (hoodAngle != null) newHoodAngle = hoodAngle;
         SmartDashboard.putNumber("Scoring/HoodAngle", newHoodAngle.in(Rotations));
-        Angle newTurretAngle = shooterState.turretAngle();
+        Angle newTurretAngle = scoringState.turretAngle();
         if (turretAngle != null) newTurretAngle = turretAngle;
         SmartDashboard.putNumber("Scoring/TurretAngle", newTurretAngle.in(Rotations));
-        shooterState = new ScoringState(newShooterRPM, newHoodAngle, newTurretAngle);
+        scoringState = new ScoringState(newShooterRPM, newHoodAngle, newTurretAngle);
     }
 
     private record OdometryObservation(
@@ -282,10 +279,6 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer {
         }
     }
 
-    public Pose2d getTurretPose() {
-        return estimatedPose.transformBy(robotToTurret).rotateBy(Rotation2d.fromRotations((this.shooterState.turretAngle().in(Rotations))));
-    }
-
     @Override
     public void accept(
             int cameraIndex,
@@ -314,10 +307,30 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer {
 
     public ScoringState calculateScoringState() {
         Translation2d hubTranslation = FieldConstants.Hub.topCenterPoint.toTranslation2d();
+        Pose2d turretPose = getEstimatedPose().transformBy(new Transform2d(Constants.SimConstants.originToTurretRotation.toTranslation2d(), new Rotation2d()));
         if (MathUtil.isNear(0, chassisSpeeds.vxMetersPerSecond, 0.01) || MathUtil.isNear(0, chassisSpeeds.vyMetersPerSecond, 0.01)) {
-            return ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(getTurretPose(), hubTranslation);
+            return ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(turretPose, hubTranslation);
         } else {
-            return ShooterScoringData.shooterLookupTable.convergeShooterStateSOTF(getTurretPose(), hubTranslation, chassisSpeeds, 10);
+            Rotation2d robotRotation = turretPose.getRotation();
+            Translation2d robotVelocity = new Translation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
+            Translation2d robotTangentialVelocityTranslation = Constants.SimConstants.originToTurretRotation.toTranslation2d()
+                    .rotateBy(robotRotation)
+                    .rotateBy(Rotation2d.fromDegrees(90))
+                    .times(chassisSpeeds.omegaRadiansPerSecond);
+            robotTangentialVelocityTranslation.rotateBy(robotRotation);
+            robotVelocity = robotVelocity.plus(robotTangentialVelocityTranslation);
+            return ShooterScoringData.shooterLookupTable.convergeShooterStateSOTFTurret(turretPose, hubTranslation, robotVelocity, 10);
         }
+    }
+
+    public Pose3d[] getComponentPoses() {
+        Pose3d turretPose = new Pose3d();
+        turretPose = turretPose.rotateAround(Constants.SimConstants.originToTurretRotation, new Rotation3d(new Rotation2d(scoringState.turretAngle())));
+        Pose3d hoodPose = new Pose3d();
+        Rotation2d hoodRotation = Rotation2d.fromDegrees(-scoringState.hoodAngle().in(Degrees) + org.team4639.frc2026.subsystems.hood.Constants.HOOD_MIN_ANGLE_DEGREES);
+        hoodPose = hoodPose.rotateAround(Constants.SimConstants.originToHoodRotation, new Rotation3d(VecBuilder.fill(0, 1, 0), -hoodRotation.getRadians()));
+        hoodPose = hoodPose.rotateAround(Constants.SimConstants.originToTurretRotation, new Rotation3d(new Rotation2d(scoringState.turretAngle())));
+        Pose3d intakePose = new Pose3d(new Translation3d(Units.inchesToMeters(10.396), 0, Units.inchesToMeters(-3.277)), new Rotation3d());
+        return new Pose3d[]{intakePose, turretPose, hoodPose};
     }
 }

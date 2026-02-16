@@ -120,6 +120,8 @@ public class Robot extends LoggedRobot {
                         .stream().map(GamePiece::getPose3d)
                 .toArray(Pose3d[]::new)
         );
+
+        robotContainer.publishComponentPoses();
     }
 
     /** This function is called once when the robot is disabled. */

@@ -9,9 +9,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.auto.AutoCommands;
 import org.team4639.frc2026.commands.DriveCommands;
 import org.team4639.frc2026.constants.ports.Netherite;
+import org.team4639.frc2026.subsystems.Superstructure;
 import org.team4639.frc2026.subsystems.drive.*;
 import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
 import org.team4639.frc2026.subsystems.hood.Hood;
@@ -45,6 +47,7 @@ public class RobotContainer {
     private final Hood hood;
     private final Shooter shooter;
     private final Turret turret;
+    private final Superstructure superstructure;
 
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
@@ -89,6 +92,8 @@ public class RobotContainer {
                         ),
                         RobotState.getInstance()
                 );
+
+                superstructure = new Superstructure(shooter, turret, hood, RobotState.getInstance());
 
                 configureButtonBindings();
 
@@ -149,6 +154,8 @@ public class RobotContainer {
                         RobotState.getInstance()
                 );
 
+                superstructure = new Superstructure(shooter, turret, hood, RobotState.getInstance());
+
                 configureSimButtonBindings();
 
                 break;
@@ -180,8 +187,11 @@ public class RobotContainer {
                         RobotState.getInstance()
                 );
 
+                superstructure = new Superstructure(shooter, turret, hood, RobotState.getInstance());
+
                 break;
         }
+
 
         // Set up auto routines
 
@@ -225,7 +235,12 @@ public class RobotContainer {
         // Default command, normal field-relative drive
         drive.setDefaultCommand(DriveCommands.joystickDrive(
                 drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> -controller.getRightX()));
-        controller.a().onTrue(Commands.runOnce(() -> SimRobot.getInstance().shootFuel(RobotState.getInstance().calculateScoringState())));
+        controller.a().and(superstructure.scoringAtSetpointTrigger).whileTrue(
+                Commands.repeatingSequence(
+                        Commands.runOnce(() -> SimRobot.getInstance().shootFuel(RobotState.getInstance().getScoringState())),
+                        Commands.waitSeconds(0.5)
+                )
+        );
     }
 
     /**
@@ -235,5 +250,9 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         return autoChooser.get();
+    }
+
+    public void publishComponentPoses() {
+        Logger.recordOutput("ZeroedComponentPoses", RobotState.getInstance().getComponentPoses());
     }
 }

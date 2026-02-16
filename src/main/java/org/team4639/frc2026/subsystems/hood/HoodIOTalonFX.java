@@ -58,7 +58,7 @@ public class HoodIOTalonFX implements HoodIO {
 
     @Override
     public void setSetpointDegrees(double setpointDegrees) {
-        double rotation = (setpointDegrees - HOOD_MIN_ANGLE_DEGREES) * ENCODER_ROTATIONS_PER_DEGREE + HOOD_ENCODER_ROTATION_AT_MIN_ANGLE;
+        double rotation = (setpointDegrees - HOOD_MIN_ANGLE_DEGREES) * ENCODER_ROTATIONS_PER_DEGREE + HOOD_ENCODER_MIN_ROTATION;
         rotation = MathUtil.clamp(rotation, HOOD_ENCODER_MIN_ROTATION, HOOD_ENCODER_MAX_ROTATION);
         hoodMotor.setControl(request.withPosition(rotation));
     }
@@ -75,7 +75,7 @@ public class HoodIOTalonFX implements HoodIO {
         inputs.pivotVoltage = motorVoltage.getValueAsDouble();
         inputs.pivotCurrent = motorCurrent.getValueAsDouble();
         inputs.pivotTemperature = hoodMotor.getDeviceTemp().getValueAsDouble();
-        inputs.pivotPositionDegrees = hoodPosition.getValueAsDouble() / ENCODER_ROTATIONS_PER_DEGREE;
+        inputs.pivotPositionDegrees = (hoodPosition.getValueAsDouble() - HOOD_ENCODER_MIN_ROTATION) / ENCODER_ROTATIONS_PER_DEGREE + HOOD_MIN_ANGLE_DEGREES;
         inputs.pivotVelocityDegrees = hoodVelocity.getValueAsDouble() / ENCODER_ROTATIONS_PER_DEGREE;
     }
 

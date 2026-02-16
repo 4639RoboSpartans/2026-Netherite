@@ -2,6 +2,7 @@
 
 package org.team4639.frc2026.subsystems.hood;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -21,6 +22,8 @@ public class Hood extends FullSubsystem {
     private final double PASSING_HOOD_ANGLE = 0;
     private final double IDLE_HOOD_ANGLE = 0;
     private double SCORING_HOOD_ANGLE = 0;
+
+    private final double HOOD_TOLERANCE_DEGREES = 5;
 
     // Handle SysID and any other reasons not to use state
     @Getter
@@ -84,7 +87,8 @@ public class Hood extends FullSubsystem {
             LoggedTunableNumber.ifChanged(
                 hashCode(), io::applyNewGains,
                 PIDs.hoodKp, PIDs.hoodKi, PIDs.hoodKd,
-                PIDs.hoodKs, PIDs.hoodKv, PIDs.hoodKa
+                PIDs.hoodKs, PIDs.hoodKv, PIDs.hoodKa,
+                PIDs.hoodKpSim, PIDs.hoodKiSim, PIDs.hoodKdSim
             );
         }
     }
@@ -120,9 +124,9 @@ public class Hood extends FullSubsystem {
         this.wantedState = wantedState;
     }
 
-    public void setWantedState(WantedState wantedState, double scoringAngle) {
+    public void setWantedState(WantedState wantedState, double scoringAngleRotations) {
         setWantedState(wantedState);
-        this.SCORING_HOOD_ANGLE = scoringAngle;
+        this.SCORING_HOOD_ANGLE = Rotations.of(scoringAngleRotations).in(Degrees);
     }
 
     /**
@@ -132,5 +136,17 @@ public class Hood extends FullSubsystem {
      */
     public void setVoltage(Voltage volts){
         if (!usingStates) io.setVoltage(volts.in(Volts));
+    }
+
+    public double getSetpointAngle() {
+        return switch (systemState) {
+            case SCORING -> SCORING_HOOD_ANGLE;
+            case PASSING -> PASSING_HOOD_ANGLE;
+            default -> Constants.HOOD_MIN_ANGLE_DEGREES;
+        };
+    }
+
+    public boolean atSetpoint() {
+        return MathUtil.isNear(getSetpointAngle(), inputs.pivotPositionDegrees, HOOD_TOLERANCE_DEGREES);
     }
 }

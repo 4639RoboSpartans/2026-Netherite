@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import lombok.Getter;
 import lombok.Setter;
 import org.ironmaple.simulation.SimulatedArena;
@@ -65,7 +66,7 @@ public class SimRobot extends VirtualSubsystem {
                 // Specify the position of the chassis when the note is launched
                 swerveDriveSimulation.getSimulatedDriveTrainPose().getTranslation(),
                 // Specify the translation of the shooter from the robot center (in the shooter’s reference frame)
-                new Translation2d(0, 0),
+                new Translation2d(-Units.inchesToMeters(5.84), 0).rotateBy(swerveDriveSimulation.getSimulatedDriveTrainPose().getRotation()),
                 // Specify the field-relative speed of the chassis, adding it to the initial velocity of the projectile
                 swerveDriveSimulation.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
                 // The shooter facing direction is the same as the robot’s facing direction
@@ -75,7 +76,7 @@ public class SimRobot extends VirtualSubsystem {
                 // The launch speed is proportional to the RPM; assumed to be 16 meters/second at 6000 RPM
                 Meters.per(Second).of(scoringState.shooterRPM().in(Radians.per(Second)) * 0.0508),
                 // The angle at which the note is launched
-                scoringState.hoodAngle()
+                Rotations.of(0.25).minus(scoringState.hoodAngle())
         );
         fuelOnFly.setHitTargetCallBack(() -> System.out.println("FUEL hits HUB!"));
         SimulatedArena.getInstance().addGamePieceProjectile(fuelOnFly);
