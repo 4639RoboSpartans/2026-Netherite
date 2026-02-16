@@ -26,6 +26,10 @@ public class TurretIOSim implements TurretIO {
     private double appliedVolts = 0.0;
     private double goalRotation = 0.0;
 
+    public TurretIOSim() {
+        applyNewGains();
+    }
+
     @Override
     public void updateInputs(TurretIO.TurretIOInputs inputs) {
         setRotorRotationSetpoint(goalRotation);

@@ -86,7 +86,9 @@ public class Shooter extends FullSubsystem {
             LoggedTunableNumber.ifChanged(
                 hashCode(), io::applyNewGains,
                 PIDs.shooterKp, PIDs.shooterKi, PIDs.shooterKd,
-                PIDs.shooterKs, PIDs.shooterKv, PIDs.shooterKa
+                PIDs.shooterKs, PIDs.shooterKv, PIDs.shooterKa,
+                PIDs.shooterKpSim, PIDs.shooterKiSim, PIDs.shooterKdSim,
+                PIDs.shooterKsSim, PIDs.shooterKvSim, PIDs.shooterKaSim
             );
         }
     }
