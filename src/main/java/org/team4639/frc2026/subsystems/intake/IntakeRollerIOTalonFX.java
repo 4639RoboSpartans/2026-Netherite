@@ -44,6 +44,7 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
         inputs.current = rollerMotor.getStatorCurrent().getValueAsDouble();
         inputs.temperature = rollerMotor.getDeviceTemp().getValueAsDouble();
         inputs.velocity = rollerMotor.getVelocity().getValueAsDouble();
+        inputs.position = rollerMotor.getPosition().getValueAsDouble();
     }
 
     @Override
@@ -53,5 +54,23 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
         double targetRotorVelocityRadiansPerSecond = targetRollerVelocityRadiansPerSecond * Constants.ROTOR_TO_ROLLER_REDUCTION;
         double targetRotorVelocityRotationsPerSecond = RadiansPerSecond.of(targetRotorVelocityRadiansPerSecond).in(RotationsPerSecond);
         rollerMotor.setControl(request.withVelocity(targetRotorVelocityRotationsPerSecond));
+    }
+
+    @Override
+    public void setVoltage(double volts){
+        rollerMotor.setVoltage(volts);
+    }
+
+    @Override
+    public void applyNewGains(double[] newGains){
+        var config = new TalonFXConfiguration().Slot0;
+        config.kP = newGains[0];
+        config.kI = newGains[1];
+        config.kD = newGains[2];
+        config.kS = newGains[3];
+        config.kV = newGains[4];
+        config.kA = newGains[5];
+
+        rollerMotor.getConfigurator().apply(config);
     }
 }

@@ -8,7 +8,14 @@ public interface IntakeRollerIO {
 
     default void setSurfaceVelocityFeetPerSecond(double targetVelocity) {}
 
+    default void setVoltage(double volts) {}
+
     default void updateInputs(IntakeRollerIOInputs inputs) {}
+
+    /**
+     * newGains in order: kP, kI, kD, kS, kV, kA
+     */
+    default void applyNewGains(double[] newGains) {}
 
     @AutoLog
     class IntakeRollerIOInputs {
@@ -17,5 +24,6 @@ public interface IntakeRollerIO {
         public double current;
         public double temperature;
         public double velocity;
+        public double position;
     }
 }
