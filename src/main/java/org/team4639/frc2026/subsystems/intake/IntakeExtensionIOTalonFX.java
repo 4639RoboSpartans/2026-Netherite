@@ -19,7 +19,7 @@ public class IntakeExtensionIOTalonFX implements IntakeExtensionIO {
     private final VoltageOut request = new VoltageOut(0);
 
     public IntakeExtensionIOTalonFX(PortConfiguration ports) {
-        extensionMotor = Phoenix6Factory.createDefaultTalon(ports.intakeExtensionMotorID, false);
+        extensionMotor = Phoenix6Factory.createDefaultTalon(ports.IntakeExtensionMotorID, false);
 
         config.CurrentLimits.SupplyCurrentLimit = 20;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -42,6 +42,7 @@ public class IntakeExtensionIOTalonFX implements IntakeExtensionIO {
         inputs.current = extensionMotor.getStatorCurrent().getValueAsDouble();
         inputs.temperature = extensionMotor.getDeviceTemp().getValueAsDouble();
         inputs.velocity = extensionMotor.getVelocity().getValueAsDouble();
+        inputs.position = extensionMotor.getPosition().getValueAsDouble();
     }
 
     @Override

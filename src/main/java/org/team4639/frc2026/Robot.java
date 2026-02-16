@@ -92,6 +92,8 @@ public class Robot extends LoggedRobot {
         VirtualSubsystem.runAllPeriodicAfterScheduler();
         FullSubsystem.runAllPeriodicAfterScheduler();
         LoggedTracer.record("PeriodicAfterScheduler");
+
+        robotContainer.publishComponentPoses();
     }
 
     /** This function is called once when the robot is disabled. */

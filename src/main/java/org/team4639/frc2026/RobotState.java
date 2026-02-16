@@ -5,10 +5,7 @@ package org.team4639.frc2026;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -17,11 +14,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -30,6 +22,8 @@ import org.team4639.frc2026.subsystems.drive.Drive;
 import org.team4639.frc2026.subsystems.vision.Vision.VisionConsumer;
 import org.team4639.lib.util.VirtualSubsystem;
 import org.team4639.lib.util.geometry.AllianceFlipUtil;
+
+import java.util.*;
 
 /**
  * RobotState handles all information involving the current state of the robot.
@@ -77,6 +71,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer {
      * Pose <b>relative to our alliance wall</b>
      */
     private Pose2d estimatedPose = Pose2d.kZero;
+    private double intakeExtensionFraction = 0.0;
 
     // RobotState Field and Pose Publishers
     private final String ROBOT_FIELD_INTERNAL_KEY = "/Internal/Robot Pose";
@@ -189,6 +184,10 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer {
         estimatedPose = estimateAtTime.plus(scaledTransform).plus(sampleToOdometryTransform);
     }
 
+    public void updateIntakePosition(double intakeExtensionFraction) {
+        this.intakeExtensionFraction = intakeExtensionFraction;
+    }
+
     private record OdometryObservation(
             SwerveModulePosition[] wheelPositions, Optional<Rotation2d> gyroAngle, double timestamp) {}
 
@@ -250,5 +249,13 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer {
                 AllianceFlipUtil.apply(visionRobotPoseMeters),
                 timestampSeconds,
                 visionMeasurementStdDevs));
+    }
+
+    public Pose3d[] getComponentPoses() {
+        Pose3d turretPose = new Pose3d();
+        Pose3d hoodPose = new Pose3d();
+        Pose3d intakePose = new Pose3d();
+        intakePose = intakePose.transformBy(new Transform3d(Constants.SimConstants.intakeExtendedTranslation.times(intakeExtensionFraction), new Rotation3d()));
+        return new Pose3d[]{intakePose, turretPose, hoodPose};
     }
 }
