@@ -235,7 +235,7 @@ public class RobotContainer {
         // Default command, normal field-relative drive
         drive.setDefaultCommand(DriveCommands.joystickDrive(
                 drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> -controller.getRightX()));
-        controller.a().and(superstructure.scoringAtSetpointTrigger).whileTrue(
+        controller.leftStick().and(superstructure.scoringAtSetpointTrigger).whileTrue(
                 Commands.repeatingSequence(
                         Commands.runOnce(() -> SimRobot.getInstance().shootFuel(RobotState.getInstance().getScoringState())),
                         Commands.waitSeconds(0.5)
