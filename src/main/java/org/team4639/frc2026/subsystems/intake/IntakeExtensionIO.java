@@ -19,5 +19,6 @@ public interface IntakeExtensionIO {
         public double current;
         public double temperature;
         public double velocity;
+        public double position;
     }
 }

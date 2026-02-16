@@ -20,11 +20,8 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
 
     private final VelocityVoltage request = new VelocityVoltage(0);
 
-    private final double ROTOR_TO_ROLLER_REDUCTION = 24.0 / 12.0;
-    private final double ROLLER_RADIUS = 1.0;
-
     public IntakeRollerIOTalonFX(PortConfiguration ports) {
-        rollerMotor = Phoenix6Factory.createDefaultTalon(ports.intakeRollersMotorID, false);
+        rollerMotor = Phoenix6Factory.createDefaultTalon(ports.IntakeRollersMotorID, false);
 
         config.CurrentLimits.SupplyCurrentLimit = 40;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -53,8 +50,8 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
     @Override
     public void setSurfaceVelocityFeetPerSecond(double targetVelocity) {
         double targetSurfaceVelocityInchPerSecond = FeetPerSecond.of(targetVelocity).in(InchesPerSecond);
-        double targetRollerVelocityRadiansPerSecond = targetSurfaceVelocityInchPerSecond / ROLLER_RADIUS;
-        double targetRotorVelocityRadiansPerSecond = targetRollerVelocityRadiansPerSecond * ROTOR_TO_ROLLER_REDUCTION;
+        double targetRollerVelocityRadiansPerSecond = targetSurfaceVelocityInchPerSecond / Constants.ROLLER_RADIUS;
+        double targetRotorVelocityRadiansPerSecond = targetRollerVelocityRadiansPerSecond * Constants.ROTOR_TO_ROLLER_REDUCTION;
         double targetRotorVelocityRotationsPerSecond = RadiansPerSecond.of(targetRotorVelocityRadiansPerSecond).in(RotationsPerSecond);
         rollerMotor.setControl(request.withVelocity(targetRotorVelocityRotationsPerSecond));
     }
