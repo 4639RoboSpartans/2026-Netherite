@@ -1,3 +1,5 @@
+/* Copyright (c) 2025-2026 FRC 4639. */
+
 package org.team4639.frc2026.subsystems.spindexer;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -7,7 +9,7 @@ import org.littletonrobotics.junction.Logger;
 
 import static edu.wpi.first.units.Units.*;
 
-public sealed class SpindexerSysID {
+public sealed abstract class SpindexerSysID {
     @Getter
     private SysIdRoutine routine;
 
