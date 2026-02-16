@@ -30,6 +30,7 @@ import org.team4639.frc2026.subsystems.shooter.Shooter;
 import org.team4639.frc2026.subsystems.shooter.ShooterIO;
 import org.team4639.frc2026.subsystems.turret.Turret;
 import org.team4639.frc2026.subsystems.turret.TurretIO;
+import org.team4639.frc2026.subsystems.vision.TurretCamera;
 import org.team4639.frc2026.subsystems.vision.Vision.VisionConsumer;
 import org.team4639.lib.util.VirtualSubsystem;
 import org.team4639.lib.util.geometry.AllianceFlipUtil;
@@ -46,7 +47,7 @@ import static edu.wpi.first.units.Units.*;
  * however there are methods available to access the true on-field pose
  * mainly for interplay with vision, but they should be used sparingly.
  */
-public class RobotState extends VirtualSubsystem implements VisionConsumer {
+public class RobotState extends VirtualSubsystem implements VisionConsumer, TurretCamera.TurretVisionConsumer {
     // Singleton
     private static RobotState instance = new RobotState();
 
@@ -106,6 +107,9 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer {
     @Setter
     private Pair<Turret.WantedState, Turret.SystemState> turretStates;
 
+    @Getter
+    private Pose2d turretPose = new Pose2d();
+
     /**
      * Returns the pose relative to the blue alliance wall.
      * Should be used sparingly, for all internal calculations,
@@ -119,7 +123,6 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer {
     }
 
     private void addOdometryMeasurement(OdometryObservation observation) {
-
         Twist2d twist = kinematics.toTwist2d(lastWheelPositions, observation.wheelPositions());
         lastWheelPositions = observation.wheelPositions();
 
@@ -146,6 +149,14 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer {
         // Calculate diff from last odometry pose and add onto pose estimate
         Twist2d finalTwist = lastOdometryPose.log(odometryPose);
         estimatedPose = estimatedPose.exp(finalTwist);
+
+        turretPose =
+                estimatedPose.transformBy(
+                        new Transform2d(
+                                Constants.SimConstants.originToTurretRotation.toTranslation2d(),
+                                Rotation2d.fromRotations(getScoringState().turretAngle().in(Rotations))
+                        )
+                );
     }
 
     private void addVisionObservation(VisionObservation observation) {
@@ -205,6 +216,13 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer {
         // Recalculate current estimate by applying scaled transform to old estimate
         // then replaying odometry data
         estimatedPose = estimateAtTime.plus(scaledTransform).plus(sampleToOdometryTransform);
+        turretPose =
+                estimatedPose.transformBy(
+                        new Transform2d(
+                                Constants.SimConstants.originToTurretRotation.toTranslation2d(),
+                                Rotation2d.fromRotations(getScoringState().turretAngle().in(Rotations))
+                        )
+                );
     }
 
     public void updateChassisSpeeds(ChassisSpeeds chassisSpeeds) {
@@ -222,6 +240,17 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer {
         if (turretAngle != null) newTurretAngle = turretAngle;
         SmartDashboard.putNumber("Scoring/TurretAngle", newTurretAngle.in(Rotations));
         scoringState = new ScoringState(newShooterRPM, newHoodAngle, newTurretAngle);
+    }
+
+    @Override
+    public void acceptTurretVision(int cameraIndex, Pose2d visionTurretPoseMeters, double timestampSeconds, Matrix<N3, N1> visionMeasurementStdDevs) {
+        // transform turret
+        var estimatedRobotPose = visionTurretPoseMeters.transformBy(
+                new Transform2d(Constants.SimConstants.originToTurretRotation.toTranslation2d(),
+                Rotation2d.fromRotations(getScoringState().turretAngle().in(Rotations))).inverse()
+        );
+
+        accept(999, estimatedRobotPose, timestampSeconds, visionMeasurementStdDevs);
     }
 
     private record OdometryObservation(
