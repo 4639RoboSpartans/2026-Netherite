@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.SignalLogger;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.subsystems.shooter.ShooterIO.ShooterIOInputs;
 
@@ -71,7 +72,7 @@ public abstract sealed class ShooterSysID {
                     Volts.per(Second).of(0.25),
                     Volts.of(3),
                     null,
-                    (state) -> Logger.recordOutput("SysIdTestState", state.toString())
+                    (state) -> SignalLogger.writeString("SysIdTestState", state.toString())
                 ),
                 new SysIdRoutine.Mechanism(
                     shooter::setVoltage,
