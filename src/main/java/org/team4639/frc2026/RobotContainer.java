@@ -93,6 +93,8 @@ public class RobotContainer {
                         RobotState.getInstance()
                 );
 
+                superstructure = new Superstructure(shooter, turret, hood, RobotState.getInstance());
+
                 configureButtonBindings();
 
                 break;
@@ -152,6 +154,8 @@ public class RobotContainer {
                         RobotState.getInstance()
                 );
 
+                superstructure = new Superstructure(shooter, turret, hood, RobotState.getInstance());
+
                 configureSimButtonBindings();
 
                 break;
@@ -183,10 +187,11 @@ public class RobotContainer {
                         RobotState.getInstance()
                 );
 
+                superstructure = new Superstructure(shooter, turret, hood, RobotState.getInstance());
+
                 break;
         }
 
-        superstructure = new Superstructure(shooter, turret, hood, RobotState.getInstance());
 
         // Set up auto routines
 
@@ -230,7 +235,7 @@ public class RobotContainer {
         // Default command, normal field-relative drive
         drive.setDefaultCommand(DriveCommands.joystickDrive(
                 drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> -controller.getRightX()));
-        controller.a().onTrue(Commands.runOnce(() -> SimRobot.getInstance().shootFuel(RobotState.getInstance().getScoringState())));
+        controller.a().and(superstructure.scoringAtSetpointTrigger).onTrue(Commands.runOnce(() -> SimRobot.getInstance().shootFuel(RobotState.getInstance().getScoringState())));
     }
 
     /**

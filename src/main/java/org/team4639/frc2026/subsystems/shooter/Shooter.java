@@ -2,6 +2,7 @@
 
 package org.team4639.frc2026.subsystems.shooter;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -21,6 +22,8 @@ public class Shooter extends FullSubsystem {
     private final double PASSING_RPM = 0;
     private final double IDLE_VOLTAGE = 0;
     private double SCORING_RPM = 0;
+
+    private final double SHOOTING_RPM_TOLERANCE = 10;
 
     private final boolean usingStates = true;
     private final ShooterSysID sysID = new ShooterSysID.ShooterSysIDWPI(this, inputs);
@@ -140,5 +143,17 @@ public class Shooter extends FullSubsystem {
      */
     protected void setVoltage(Voltage volts) {
         io.setVoltage(volts.in(Volts));
+    }
+
+    public double getSetpointRPM() {
+        return switch (systemState) {
+            case SCORING -> SCORING_RPM;
+            case PASSING -> PASSING_RPM;
+            default -> 0;
+        };
+    }
+
+    public boolean atSetpoint() {
+        return MathUtil.isNear(getSetpointRPM(), inputs.leftRPM, SHOOTING_RPM_TOLERANCE);
     }
 }
