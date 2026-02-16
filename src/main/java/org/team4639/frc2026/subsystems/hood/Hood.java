@@ -25,10 +25,8 @@ public class Hood extends FullSubsystem {
 
     private final double HOOD_TOLERANCE_DEGREES = 5;
 
-    // Handle SysID and any other reasons not to use state
     @Getter
     private final HoodSysID sysID = new HoodSysID.HoodSysIDWPI(this, inputs);
-    private final boolean usingStates = true;
 
     public enum WantedState {
         IDLE,
@@ -48,6 +46,8 @@ public class Hood extends FullSubsystem {
     public Hood(HoodIO io, RobotState state) {
         this.io = io;
         this.state = state;
+
+        this.setDefaultCommand(this.run(this::runStateMachine));
     }
 
     @Override
@@ -59,29 +59,6 @@ public class Hood extends FullSubsystem {
 
     @Override
     public void periodic() {
-
-
-        SystemState newState = handleStateTransitions();
-        if (newState != systemState) {
-            Logger.recordOutput("Hood/SystemState", newState.toString());
-            systemState = newState;
-        }
-
-        if (DriverStation.isDisabled()) {
-            systemState = SystemState.IDLE;
-        }
-
-        if (usingStates) switch (systemState) {
-            case IDLE:
-                handleIdle();
-                break;
-            case SCORING:
-                handleScoring();
-                break;
-            case PASSING:
-                handlePassing();
-                break;
-        }
 
         if (org.team4639.frc2026.Constants.tuningMode) {
             LoggedTunableNumber.ifChanged(
@@ -148,5 +125,29 @@ public class Hood extends FullSubsystem {
 
     public boolean atSetpoint() {
         return MathUtil.isNear(getSetpointAngle(), inputs.pivotPositionDegrees, HOOD_TOLERANCE_DEGREES);
+    }
+
+    private void runStateMachine() {
+        SystemState newState = handleStateTransitions();
+        if (newState != systemState) {
+            Logger.recordOutput("Hood/SystemState", newState.toString());
+            systemState = newState;
+        }
+
+        if (DriverStation.isDisabled()) {
+            systemState = SystemState.IDLE;
+        }
+
+        switch (systemState) {
+            case IDLE:
+                handleIdle();
+                break;
+            case SCORING:
+                handleScoring();
+                break;
+            case PASSING:
+                handlePassing();
+                break;
+        }
     }
 }

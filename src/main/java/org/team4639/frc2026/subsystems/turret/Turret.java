@@ -52,6 +52,8 @@ public class Turret extends FullSubsystem {
         rightEncoderIO.updateInputs(rightEncoderInputs);
         initialTurretRotation = getTurretRotation();
         initialRotorRotation = turretInputs.motorPositionRotations;
+
+        setDefaultCommand(this.run(this::runStateMachine));
     }
 
     @Override
@@ -68,29 +70,6 @@ public class Turret extends FullSubsystem {
 
     @Override
     public void periodic() {
-
-
-        SystemState newState = handleStateTransitions();
-        if (newState != systemState) {
-            Logger.recordOutput("Turret/SystemState", newState);
-            systemState = newState;
-        }
-
-//        if (DriverStation.isDisabled()) {
-//            systemState = SystemState.IDLE;
-//        }
-
-        switch (systemState) {
-            case IDLE:
-                handleIdle();
-                break;
-            case SCORING:
-                handleScoring();
-                break;
-            case PASSING:
-                handlePassing();
-                break;
-        }
 
         if (org.team4639.frc2026.Constants.tuningMode) {
             LoggedTunableNumber.ifChanged(
@@ -207,5 +186,29 @@ public class Turret extends FullSubsystem {
         return MathUtil.isNear(getRotorSetpoint(), turretInputs.motorPositionRotations, Constants.ROTOR_ROTATION_TOLERANCE)
                 || MathUtil.isNear(getRotorSetpoint() + 1.0 / Constants.MOTOR_TO_TURRET_GEAR_RATIO, turretInputs.motorPositionRotations, Constants.ROTOR_ROTATION_TOLERANCE)
                 || MathUtil.isNear(getRotorSetpoint() - 1.0 / Constants.MOTOR_TO_TURRET_GEAR_RATIO, turretInputs.motorPositionRotations, Constants.ROTOR_ROTATION_TOLERANCE);
+    }
+
+    private void runStateMachine() {
+        SystemState newState = handleStateTransitions();
+        if (newState != systemState) {
+            Logger.recordOutput("Turret/SystemState", newState);
+            systemState = newState;
+        }
+
+//        if (DriverStation.isDisabled()) {
+//            systemState = SystemState.IDLE;
+//        }
+
+        switch (systemState) {
+            case IDLE:
+                handleIdle();
+                break;
+            case SCORING:
+                handleScoring();
+                break;
+            case PASSING:
+                handlePassing();
+                break;
+        }
     }
 }

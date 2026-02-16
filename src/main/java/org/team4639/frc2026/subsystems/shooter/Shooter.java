@@ -25,7 +25,6 @@ public class Shooter extends FullSubsystem {
 
     private final double SHOOTING_RPM_TOLERANCE = 100;
 
-    private final boolean usingStates = true;
     private final ShooterSysID sysID = new ShooterSysID.ShooterSysIDWPI(this, inputs);
 
     public enum WantedState {
@@ -55,35 +54,12 @@ public class Shooter extends FullSubsystem {
         io.updateInputs(inputs);
         Logger.processInputs("Shooter", inputs);
         state.updateShooterState(Rotations.per(Minute).of(inputs.leftRPM), null, null);
+
+        this.setDefaultCommand(this.run(this::runStateMachine));
     }
 
     @Override
     public void periodic() {
-
-        SystemState newState = handleStateTransitions();
-        if (newState != systemState) {
-            Logger.recordOutput("Shooter/SystemState", newState.toString());
-            systemState = newState;
-        }
-
-        if (DriverStation.isDisabled()) {
-            systemState = SystemState.OFF;
-        }
-
-        switch (systemState) {
-            case OFF:
-                handleOff();
-                break;
-            case IDLE:
-                handleIdle();
-                break;
-            case SCORING:
-                handleScoring();
-                break;
-            case PASSING:
-                handlePassing();
-                break;
-        }
 
         if (Constants.tuningMode) {
             LoggedTunableNumber.ifChanged(
@@ -155,5 +131,32 @@ public class Shooter extends FullSubsystem {
 
     public boolean atSetpoint() {
         return MathUtil.isNear(getSetpointRPM(), inputs.leftRPM, SHOOTING_RPM_TOLERANCE);
+    }
+
+    private void runStateMachine() {
+        SystemState newState = handleStateTransitions();
+        if (newState != systemState) {
+            Logger.recordOutput("Shooter/SystemState", newState.toString());
+            systemState = newState;
+        }
+
+        if (DriverStation.isDisabled()) {
+            systemState = SystemState.OFF;
+        }
+
+        switch (systemState) {
+            case OFF:
+                handleOff();
+                break;
+            case IDLE:
+                handleIdle();
+                break;
+            case SCORING:
+                handleScoring();
+                break;
+            case PASSING:
+                handlePassing();
+                break;
+        }
     }
 }
