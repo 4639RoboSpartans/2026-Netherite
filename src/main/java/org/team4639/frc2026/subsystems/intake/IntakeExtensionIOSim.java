@@ -28,6 +28,7 @@ public class IntakeExtensionIOSim implements IntakeExtensionIO {
         extensionSim.update(Robot.defaultPeriodSecs);
 
         inputs.voltage = appliedVolts;
+        inputs.current = extensionSim.getCurrentDrawAmps();
         inputs.velocity = Units.radiansToRotations(extensionSim.getVelocityRadPerSec()) / Constants.MOTOR_TO_RACK_GEAR_RATIO;
         inputs.position = Units.radiansToRotations(extensionSim.getAngleRads()) / Constants.MOTOR_TO_RACK_GEAR_RATIO;
     }
