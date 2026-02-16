@@ -23,7 +23,7 @@ public class Shooter extends FullSubsystem {
     private final double IDLE_VOLTAGE = 0;
     private double SCORING_RPM = 0;
 
-    private final double SHOOTING_RPM_TOLERANCE = 10;
+    private final double SHOOTING_RPM_TOLERANCE = 100;
 
     private final boolean usingStates = true;
     private final ShooterSysID sysID = new ShooterSysID.ShooterSysIDWPI(this, inputs);

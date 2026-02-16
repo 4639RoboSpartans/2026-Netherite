@@ -307,10 +307,19 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer {
 
     public ScoringState calculateScoringState() {
         Translation2d hubTranslation = FieldConstants.Hub.topCenterPoint.toTranslation2d();
+        Pose2d turretPose = getEstimatedPose().transformBy(new Transform2d(Constants.SimConstants.originToTurretRotation.toTranslation2d(), new Rotation2d()));
         if (MathUtil.isNear(0, chassisSpeeds.vxMetersPerSecond, 0.01) || MathUtil.isNear(0, chassisSpeeds.vyMetersPerSecond, 0.01)) {
-            return ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(getEstimatedPose(), hubTranslation);
+            return ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(turretPose, hubTranslation);
         } else {
-            return ShooterScoringData.shooterLookupTable.convergeShooterStateSOTF(getEstimatedPose(), hubTranslation, chassisSpeeds, 10);
+            Rotation2d robotRotation = turretPose.getRotation();
+            Translation2d robotVelocity = new Translation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
+            Translation2d robotTangentialVelocityTranslation = Constants.SimConstants.originToTurretRotation.toTranslation2d()
+                    .rotateBy(robotRotation)
+                    .rotateBy(Rotation2d.fromDegrees(90))
+                    .times(chassisSpeeds.omegaRadiansPerSecond);
+            robotTangentialVelocityTranslation.rotateBy(robotRotation);
+            robotVelocity = robotVelocity.plus(robotTangentialVelocityTranslation);
+            return ShooterScoringData.shooterLookupTable.convergeShooterStateSOTFTurret(turretPose, hubTranslation, robotVelocity, 10);
         }
     }
 

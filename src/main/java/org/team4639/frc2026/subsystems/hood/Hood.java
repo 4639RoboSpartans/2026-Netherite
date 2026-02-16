@@ -23,7 +23,7 @@ public class Hood extends FullSubsystem {
     private final double IDLE_HOOD_ANGLE = 0;
     private double SCORING_HOOD_ANGLE = 0;
 
-    private final double HOOD_TOLERANCE_DEGREES = 1;
+    private final double HOOD_TOLERANCE_DEGREES = 5;
 
     // Handle SysID and any other reasons not to use state
     @Getter
