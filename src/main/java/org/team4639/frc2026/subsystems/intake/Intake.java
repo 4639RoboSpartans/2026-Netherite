@@ -7,9 +7,13 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import lombok.Getter;
 import lombok.Setter;
+import org.ironmaple.simulation.IntakeSimulation;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
+import org.team4639.frc2026.SimRobot;
 import org.team4639.lib.util.LoggedTunableNumber;
+
+import static edu.wpi.first.units.Units.Inches;
 
 public class Intake extends SubsystemBase {
     private final RobotState state;
@@ -30,6 +34,8 @@ public class Intake extends SubsystemBase {
 
     @Getter
     private final IntakeRollerSysID rollerSysID = new IntakeRollerSysID.IntakeRollerSysIDCTRE(this);
+
+    private final IntakeSimulation intakeSimulation;
 
     public enum WantedState {
         IDLE,
@@ -56,6 +62,15 @@ public class Intake extends SubsystemBase {
         setHomedPositions(extensionInputs.position, Double.NaN);
 
         setDefaultCommand(run(this::runStateMachine));
+
+        intakeSimulation = IntakeSimulation.OverTheBumperIntake(
+                "Fuel",
+                SimRobot.getInstance().getSwerveDriveSimulation(),
+                Inches.of(27),
+                Inches.of(10),
+                IntakeSimulation.IntakeSide.FRONT,
+                35
+        );
     }
 
     @Override
@@ -139,21 +154,29 @@ public class Intake extends SubsystemBase {
     public void handleIdle() {
         extensionIO.stop();
         rollerIO.setSurfaceVelocityFeetPerSecond(0);
+        intakeSimulation.stopIntake();
     }
 
     public void handleExtending() {
         extensionIO.setVoltage(ZERO_VOLTAGE);
         rollerIO.setSurfaceVelocityFeetPerSecond(0);
+        intakeSimulation.stopIntake();
     }
 
     public void handleRetracting() {
         extensionIO.setVoltage(-ZERO_VOLTAGE);
         rollerIO.setSurfaceVelocityFeetPerSecond(0);
+        intakeSimulation.stopIntake();
     }
 
     public void handleIntaking() {
         extensionIO.setVoltage(0);
         rollerIO.setSurfaceVelocityFeetPerSecond(INTAKE_SURFACE_VELOCITY_FEET_PER_SECOND);
+        intakeSimulation.startIntake();
+    }
+
+    public boolean simLaunchFuel() {
+        return intakeSimulation.obtainGamePieceFromIntake();
     }
 
     public void setRollerVoltage(double volts){

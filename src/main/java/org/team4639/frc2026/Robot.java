@@ -2,9 +2,14 @@
 
 package org.team4639.frc2026;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.gamepieces.GamePiece;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -24,6 +29,10 @@ import org.team4639.lib.util.VirtualSubsystem;
 public class Robot extends LoggedRobot {
     private Command autonomousCommand;
     private RobotContainer robotContainer;
+
+    private final StructArrayPublisher<Pose3d> fuelPosesPublisher = NetworkTableInstance.getDefault()
+            .getStructArrayTopic("MyPoseArray", Pose3d.struct)
+            .publish();
 
     public Robot() {
         // Record metadata
@@ -92,6 +101,15 @@ public class Robot extends LoggedRobot {
         VirtualSubsystem.runAllPeriodicAfterScheduler();
         FullSubsystem.runAllPeriodicAfterScheduler();
         LoggedTracer.record("PeriodicAfterScheduler");
+
+        // Get the positions of the fuel (both on the field and in the air)
+        Pose3d[] fuelPoses = SimulatedArena.getInstance()
+                .getGamePiecesArrayByType("Fuel");
+        fuelPosesPublisher.accept(SimulatedArena.getInstance()
+                .getGamePiecesByType("Fuel")
+                        .stream().map(GamePiece::getPose3d)
+                .toArray(Pose3d[]::new)
+        );
 
         robotContainer.publishComponentPoses();
     }
