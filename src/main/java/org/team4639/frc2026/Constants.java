@@ -2,6 +2,8 @@
 
 package org.team4639.frc2026;
 
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -31,5 +33,11 @@ public final class Constants {
         public static final double ROBOT_MASS_KG = 74.088;
         public static final double ROBOT_MOI = 6.883;
         public static final double WHEEL_COF = 1.5;
+    }
+
+    public static final class SimConstants {
+        public static final Translation3d originToTurretRotation = new Translation3d(-Units.inchesToMeters(5.84), 0, Units.inchesToMeters(13.25));
+        public static final Translation3d originToHoodRotation = new Translation3d(-Units.inchesToMeters(1.834), 0, Units.inchesToMeters(16.625));
+        public static final Translation3d intakeExtendedTranslation = new Translation3d(Units.inchesToMeters(10.396), 0, Units.inchesToMeters(-3.277));
     }
 }

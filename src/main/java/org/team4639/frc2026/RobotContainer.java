@@ -9,9 +9,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.auto.AutoCommands;
 import org.team4639.frc2026.commands.DriveCommands;
 import org.team4639.frc2026.constants.ports.Netherite;
+import org.team4639.frc2026.subsystems.drive.*;
+import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
+import org.team4639.frc2026.subsystems.intake.*;
 import org.team4639.frc2026.subsystems.drive.Drive;
 import org.team4639.frc2026.subsystems.drive.GyroIO;
 import org.team4639.frc2026.subsystems.drive.GyroIOPigeon2;
@@ -45,6 +49,7 @@ public class RobotContainer {
     // Subsystems
     private final Drive drive;
     private final Vision vision;
+    private final Intake intake;
     private final Spindexer spindexer;
     private final Kicker kicker;
 
@@ -72,6 +77,14 @@ public class RobotContainer {
                 // No cameras on real robot yet
                 vision = new Vision(RobotState.getInstance());
 
+                intake = new Intake(
+                        new IntakeExtensionIOTalonFX(portConfiguration),
+                        new IntakeRollerIOTalonFX(portConfiguration),
+                        RobotState.getInstance()
+                );
+
+                // Configure the button bindings
+                configureButtonBindings();
                 spindexer = new Spindexer(new SpindexerIOTalonFX(portConfiguration), RobotState.getInstance());
 
                 kicker = new Kicker(new KickerIOTalonFX(portConfiguration), RobotState.getInstance());
@@ -124,6 +137,14 @@ public class RobotContainer {
                                         .getSwerveDriveSimulation()
                                         .getSimulatedDriveTrainPose())));
 
+                intake = new Intake(
+                        new IntakeExtensionIOSim(),
+                        new IntakeRollerIOSim(),
+                        RobotState.getInstance()
+                );
+
+                // Configure the button bindings
+                configureSimButtonBindings();
                 spindexer = new Spindexer(new SpindexerIO() {}, RobotState.getInstance());
 
                 kicker = new Kicker(new KickerIO() {}, RobotState.getInstance());
@@ -142,6 +163,11 @@ public class RobotContainer {
 
                 vision = new Vision(RobotState.getInstance());
 
+                intake = new Intake(
+                        new IntakeExtensionIO() {},
+                        new IntakeRollerIO() {},
+                        RobotState.getInstance()
+                );
                 spindexer = new Spindexer(new SpindexerIO() {}, RobotState.getInstance());
 
                 kicker = new Kicker(new KickerIO() {}, RobotState.getInstance());
@@ -170,9 +196,6 @@ public class RobotContainer {
                 "Drive SysId (Dynamic Forward)", () -> drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
         autoChooser.addOption(
                 "Drive SysId (Dynamic Reverse)", () -> drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-        // Configure the button bindings
-        configureButtonBindings();
     }
 
     /**
@@ -188,6 +211,21 @@ public class RobotContainer {
 
         //controller.a().whileTrue(DriveCommands.joystickDriveAtAngle(drive, () -> 1, () -> 0, () -> Rotation2d.kZero));
 
+        controller.a().onTrue(Commands.runOnce(() -> {
+            intake.setWantedState(Intake.WantedState.INTAKE);
+        }));
+
+        controller.b().onTrue(Commands.runOnce(() -> {
+            intake.setWantedState(Intake.WantedState.IDLE);
+        }));
+    }
+
+    private void configureSimButtonBindings() {
+        // Default command, normal field-relative drive
+        drive.setDefaultCommand(DriveCommands.joystickDrive(
+                drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> -controller.getRightX()));
+        controller.a().onTrue(Commands.runOnce(() -> intake.setWantedState(Intake.WantedState.INTAKE)));
+        controller.b().onTrue(Commands.runOnce(() -> intake.setWantedState(Intake.WantedState.IDLE)));
         controller.x().onTrue(Commands.runOnce(
                 () -> {
                     spindexer.setWantedState(Spindexer.WantedState.SPIN);
@@ -217,5 +255,9 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         return autoChooser.get();
+    }
+
+    public void publishComponentPoses() {
+        Logger.recordOutput("ZeroedComponentPoses", RobotState.getInstance().getComponentPoses());
     }
 }
