@@ -16,6 +16,20 @@ import org.team4639.frc2026.constants.ports.Netherite;
 import org.team4639.frc2026.subsystems.drive.*;
 import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
 import org.team4639.frc2026.subsystems.intake.*;
+import org.team4639.frc2026.subsystems.drive.Drive;
+import org.team4639.frc2026.subsystems.drive.GyroIO;
+import org.team4639.frc2026.subsystems.drive.GyroIOPigeon2;
+import org.team4639.frc2026.subsystems.drive.GyroIOSim;
+import org.team4639.frc2026.subsystems.drive.ModuleIO;
+import org.team4639.frc2026.subsystems.drive.ModuleIOTalonFX;
+import org.team4639.frc2026.subsystems.drive.ModuleIOTalonFXSim;
+import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
+import org.team4639.frc2026.subsystems.kicker.Kicker;
+import org.team4639.frc2026.subsystems.kicker.KickerIO;
+import org.team4639.frc2026.subsystems.kicker.KickerIOTalonFX;
+import org.team4639.frc2026.subsystems.spindexer.Spindexer;
+import org.team4639.frc2026.subsystems.spindexer.SpindexerIO;
+import org.team4639.frc2026.subsystems.spindexer.SpindexerIOTalonFX;
 import org.team4639.frc2026.subsystems.vision.Vision;
 import org.team4639.frc2026.subsystems.vision.VisionConstants;
 import org.team4639.frc2026.subsystems.vision.VisionIOPhotonVisionSim;
@@ -36,6 +50,8 @@ public class RobotContainer {
     private final Drive drive;
     private final Vision vision;
     private final Intake intake;
+    private final Spindexer spindexer;
+    private final Kicker kicker;
 
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
@@ -69,6 +85,9 @@ public class RobotContainer {
 
                 // Configure the button bindings
                 configureButtonBindings();
+                spindexer = new Spindexer(new SpindexerIOTalonFX(portConfiguration), RobotState.getInstance());
+
+                kicker = new Kicker(new KickerIOTalonFX(portConfiguration), RobotState.getInstance());
 
                 break;
 
@@ -126,6 +145,9 @@ public class RobotContainer {
 
                 // Configure the button bindings
                 configureSimButtonBindings();
+                spindexer = new Spindexer(new SpindexerIO() {}, RobotState.getInstance());
+
+                kicker = new Kicker(new KickerIO() {}, RobotState.getInstance());
 
                 break;
 
@@ -146,6 +168,9 @@ public class RobotContainer {
                         new IntakeRollerIO() {},
                         RobotState.getInstance()
                 );
+                spindexer = new Spindexer(new SpindexerIO() {}, RobotState.getInstance());
+
+                kicker = new Kicker(new KickerIO() {}, RobotState.getInstance());
                 break;
         }
 
@@ -201,6 +226,26 @@ public class RobotContainer {
                 drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> -controller.getRightX()));
         controller.a().onTrue(Commands.runOnce(() -> intake.setWantedState(Intake.WantedState.INTAKE)));
         controller.b().onTrue(Commands.runOnce(() -> intake.setWantedState(Intake.WantedState.IDLE)));
+        controller.x().onTrue(Commands.runOnce(
+                () -> {
+                    spindexer.setWantedState(Spindexer.WantedState.SPIN);
+                    kicker.setWantedState(Kicker.WantedState.KICK);
+                }
+        ));
+        controller.x().onFalse(Commands.runOnce(
+                () -> {
+                    spindexer.setWantedState(Spindexer.WantedState.IDLE);
+                    kicker.setWantedState(Kicker.WantedState.IDLE);
+                }
+        ));
+
+        /*controller.x().whileTrue(kicker.getSysID().getRoutine().quasistatic(SysIdRoutine.Direction.kForward));
+
+        controller.y().whileTrue(kicker.getSysID().getRoutine().quasistatic(SysIdRoutine.Direction.kReverse));
+        controller.a().whileTrue(kicker.getSysID().getRoutine().dynamic(SysIdRoutine.Direction.kForward));
+
+        controller.b().whileTrue(kicker.getSysID().getRoutine().dynamic(SysIdRoutine.Direction.kReverse));*/
+
     }
 
     /**

@@ -9,7 +9,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import java.util.Arrays;
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
-import org.team4639.frc2026.util.PhoenixUtil;
+import org.team4639.lib.util.PhoenixUtil;
 
 /**
  * Physics sim implementation of module IO. The sim models are configured using a set of module constants from Phoenix.

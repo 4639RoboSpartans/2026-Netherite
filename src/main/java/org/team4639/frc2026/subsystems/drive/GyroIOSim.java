@@ -6,7 +6,7 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import edu.wpi.first.math.util.Units;
 import org.ironmaple.simulation.drivesims.GyroSimulation;
-import org.team4639.frc2026.util.PhoenixUtil;
+import org.team4639.lib.util.PhoenixUtil;
 
 public class GyroIOSim implements GyroIO {
     private final GyroSimulation gyroSimulation;

@@ -7,7 +7,6 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.*;
 import org.team4639.frc2026.util.CanDeviceId;
-import org.team4639.frc2026.util.PhoenixUtil;
 
 /**
  * Creates FXTalons objects and configures all the parameters we care about to factory defaults.
