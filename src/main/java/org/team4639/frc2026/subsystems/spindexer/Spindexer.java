@@ -5,6 +5,7 @@ package org.team4639.frc2026.subsystems.spindexer;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
 
@@ -15,9 +16,10 @@ public class Spindexer extends SubsystemBase {
     private final SpindexerIO io;
     private final SpindexerIOInputsAutoLogged inputs = new SpindexerIOInputsAutoLogged();
 
-    private final double KICK_RPM = 0;
+    private final double KICK_RPM = -960;
     private final double IDLE_RPM = 0;
 
+    @Getter
     private final SpindexerSysID sysID = new SpindexerSysID.SpindexerSysIDWPI(this, inputs);
 
     public enum WantedState {
@@ -41,10 +43,10 @@ public class Spindexer extends SubsystemBase {
     @Override
     public void periodic() {
         io.updateInputs(inputs);
-        Logger.processInputs("Kicker", inputs);
+        Logger.processInputs("Spindexer", inputs);
         SystemState newState = handleStateTransitions();
         if (newState != systemState) {
-            Logger.recordOutput("Kicker/SystemState", newState.toString());
+            Logger.recordOutput("Spindexer/SystemState", newState.toString());
             systemState = newState;
         }
 
@@ -77,7 +79,7 @@ public class Spindexer extends SubsystemBase {
         io.setRotorVelocityRPM(KICK_RPM);
     }
 
-    private void setWantedState(WantedState wantedState) {
+    public void setWantedState(WantedState wantedState) {
         this.wantedState = wantedState;
     }
 

@@ -3,11 +3,13 @@
 package org.team4639.frc2026.util;
 
 public class PortConfiguration {
-    public CanDeviceId intakeExtensionMotorID;
-    public CanDeviceId intakeRollersMotorID;
+    public CanDeviceId IntakeExtensionMotorID;
+    public CanDeviceId IntakeRollersMotorID;
     public CanDeviceId SpindexerMotorID;
     public CanDeviceId KickerMotorID;
     public CanDeviceId TurretMotorID;
+    public CanDeviceId TurretLeftEncoderID;
+    public CanDeviceId TurretRightEncoderID;
     public CanDeviceId HoodMotorID;
     public CanDeviceId HoodEncoderID;
     public CanDeviceId shooterMotorLeftID;

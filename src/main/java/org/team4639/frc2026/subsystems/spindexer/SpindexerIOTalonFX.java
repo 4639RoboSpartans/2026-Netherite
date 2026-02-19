@@ -19,7 +19,7 @@ public class SpindexerIOTalonFX implements SpindexerIO {
     private final VelocityVoltage velocityControl = new VelocityVoltage(0);
 
     public SpindexerIOTalonFX(PortConfiguration ports) {
-        spindexerMotor = Phoenix6Factory.createDefaultTalon(ports.KickerMotorID, false);
+        spindexerMotor = Phoenix6Factory.createDefaultTalon(ports.SpindexerMotorID, false);
 
         TalonFXConfiguration config = new TalonFXConfiguration();
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -27,6 +27,9 @@ public class SpindexerIOTalonFX implements SpindexerIO {
         config.CurrentLimits.SupplyCurrentLimit = 40;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
         config.CurrentLimits.StatorCurrentLimit = 80;
+        config.Slot0.kV = 0.087712 * 9/8;
+        config.Slot0.kA = 0.23735;
+        //config.Slot0.kP = 1;
 
         PhoenixUtil.tryUntilOk(5, () -> spindexerMotor.getConfigurator().apply(config));
     }
@@ -53,6 +56,6 @@ public class SpindexerIOTalonFX implements SpindexerIO {
 
     @Override
     public void setRotorVelocityRPM(double targetVelocity) {
-        spindexerMotor.setControl(velocityControl.withVelocity(targetVelocity / 60));
+        spindexerMotor.setControl(velocityControl.withVelocity(targetVelocity * 9. / 60));
     }
 }
