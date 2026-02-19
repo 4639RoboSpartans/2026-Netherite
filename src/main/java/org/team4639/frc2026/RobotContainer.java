@@ -184,7 +184,15 @@ public class RobotContainer {
         drive.setDefaultCommand(DriveCommands.joystickDrive(
                 drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> -controller.getRightX()));
 
-        controller.a().whileTrue(DriveCommands.joystickDriveAtAngle(drive, () -> 1, () -> 0, () -> Rotation2d.kZero));
+        //controller.a().whileTrue(DriveCommands.joystickDriveAtAngle(drive, () -> 1, () -> 0, () -> Rotation2d.kZero));
+
+        controller.a().onTrue(Commands.runOnce(() -> {
+            intake.setWantedState(Intake.WantedState.INTAKE);
+        }));
+
+        controller.b().onTrue(Commands.runOnce(() -> {
+            intake.setWantedState(Intake.WantedState.IDLE);
+        }));
     }
 
     private void configureSimButtonBindings() {

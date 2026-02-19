@@ -10,10 +10,7 @@ import lombok.Setter;
 import org.ironmaple.simulation.IntakeSimulation;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
-import org.team4639.frc2026.SimRobot;
 import org.team4639.lib.util.LoggedTunableNumber;
-
-import static edu.wpi.first.units.Units.Inches;
 
 public class Intake extends SubsystemBase {
     private final RobotState state;
@@ -23,10 +20,11 @@ public class Intake extends SubsystemBase {
     private final IntakeRollerIOInputsAutoLogged rollerInputs = new IntakeRollerIOInputsAutoLogged();
     private double zeroTimeStamp = Double.NaN;
 
-    private final double ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND = 0.1;
-    private final double ENDSTOP_CURRENT_THRESHOLD = 0; // just a guess
-    private final double ZERO_VELOCITY_TIME_PERIOD = 0.05;
-    private final double ZERO_VOLTAGE = 3;
+    private final double ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND = 5;
+    private final double ENDSTOP_CURRENT_THRESHOLD = 20; // just a guess
+    private final double ZERO_VELOCITY_TIME_PERIOD = 0.02;
+    private final double ZERO_VOLTAGE_OUT = 6;
+    private final double ZERO_VOLTAGE_IN = 3;
     private final double INTAKE_SURFACE_VELOCITY_FEET_PER_SECOND = 28;
 
     private double retractedRotorPosition = 0.0;
@@ -35,7 +33,7 @@ public class Intake extends SubsystemBase {
     @Getter
     private final IntakeRollerSysID rollerSysID = new IntakeRollerSysID.IntakeRollerSysIDCTRE(this);
 
-    private final IntakeSimulation intakeSimulation;
+    private IntakeSimulation intakeSimulation;
 
     public enum WantedState {
         IDLE,
@@ -62,15 +60,6 @@ public class Intake extends SubsystemBase {
         setHomedPositions(extensionInputs.position, Double.NaN);
 
         setDefaultCommand(run(this::runStateMachine));
-
-        intakeSimulation = IntakeSimulation.OverTheBumperIntake(
-                "Fuel",
-                SimRobot.getInstance().getSwerveDriveSimulation(),
-                Inches.of(27),
-                Inches.of(10),
-                IntakeSimulation.IntakeSide.FRONT,
-                35
-        );
     }
 
     @Override
@@ -101,7 +90,7 @@ public class Intake extends SubsystemBase {
             case INTAKE:
                 if (!DriverStation.isDisabled()) {
                     if (Math.abs(extensionInputs.velocity)
-                            < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND && Math.abs(extensionInputs.current) >= ENDSTOP_CURRENT_THRESHOLD) {
+                            < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND || Math.abs(extensionInputs.current) >= ENDSTOP_CURRENT_THRESHOLD) {
                         if (systemState == SystemState.INTAKE) {
                             return SystemState.INTAKE;
                         } else if (!Double.isFinite(zeroTimeStamp)) {
@@ -125,7 +114,7 @@ public class Intake extends SubsystemBase {
             case IDLE:
                 if (!DriverStation.isDisabled()) {
                     if (Math.abs(extensionInputs.velocity)
-                            < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND && Math.abs(extensionInputs.current) >= ENDSTOP_CURRENT_THRESHOLD) {
+                            < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND || Math.abs(extensionInputs.current) >= ENDSTOP_CURRENT_THRESHOLD) {
                         if (systemState == SystemState.IDLE) {
                             return SystemState.IDLE;
                         } else if (!Double.isFinite(zeroTimeStamp)) {
@@ -154,29 +143,30 @@ public class Intake extends SubsystemBase {
     public void handleIdle() {
         extensionIO.stop();
         rollerIO.setSurfaceVelocityFeetPerSecond(0);
-        intakeSimulation.stopIntake();
+        //intakeSimulation.stopIntake();
     }
 
     public void handleExtending() {
-        extensionIO.setVoltage(ZERO_VOLTAGE);
+        extensionIO.setVoltage(ZERO_VOLTAGE_OUT);
         rollerIO.setSurfaceVelocityFeetPerSecond(0);
-        intakeSimulation.stopIntake();
+        //intakeSimulation.stopIntake();
     }
 
     public void handleRetracting() {
-        extensionIO.setVoltage(-ZERO_VOLTAGE);
+        extensionIO.setVoltage(-ZERO_VOLTAGE_IN);
         rollerIO.setSurfaceVelocityFeetPerSecond(0);
-        intakeSimulation.stopIntake();
+       // intakeSimulation.stopIntake();
     }
 
     public void handleIntaking() {
         extensionIO.setVoltage(0);
         rollerIO.setSurfaceVelocityFeetPerSecond(INTAKE_SURFACE_VELOCITY_FEET_PER_SECOND);
-        intakeSimulation.startIntake();
+        //intakeSimulation.startIntake();
     }
 
     public boolean simLaunchFuel() {
-        return intakeSimulation.obtainGamePieceFromIntake();
+        //return intakeSimulation.obtainGamePieceFromIntake();
+        return true;
     }
 
     public void setRollerVoltage(double volts){
