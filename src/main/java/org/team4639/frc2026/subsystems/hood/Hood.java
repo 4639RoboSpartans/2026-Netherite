@@ -112,7 +112,7 @@ public class Hood extends FullSubsystem {
      * @param volts
      */
     public void setVoltage(Voltage volts){
-        if (!usingStates) io.setVoltage(volts.in(Volts));
+        io.setVoltage(volts.in(Volts));
     }
 
     public double getSetpointAngle() {
