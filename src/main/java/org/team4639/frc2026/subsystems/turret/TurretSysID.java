@@ -2,11 +2,6 @@
 
 package org.team4639.frc2026.subsystems.turret;
 
-import static edu.wpi.first.units.Units.Minute;
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Volts;
-
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.subsystems.shooter.Shooter;
 import org.team4639.frc2026.subsystems.shooter.ShooterIO.ShooterIOInputs;
@@ -14,6 +9,8 @@ import org.team4639.frc2026.subsystems.shooter.ShooterIO.ShooterIOInputs;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import static edu.wpi.first.units.Units.*;
 
 @RequiredArgsConstructor
 public abstract sealed class TurretSysID {
@@ -27,9 +24,9 @@ public abstract sealed class TurretSysID {
             super(turret, inputs);
             super.routine = new SysIdRoutine(
                     new SysIdRoutine.Config(
-                            Volts.per(Second).of(0.25),
-                            Volts.of(3),
-                            null,
+                            Volts.per(Second).of(0.5),
+                            Volts.of(6),
+                            Seconds.of(16),
                             (state) -> Logger.recordOutput("SysIdTestState", state.toString())
                     ),
                     new SysIdRoutine.Mechanism(

@@ -6,6 +6,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.units.measure.Voltage;
 import lombok.Getter;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
 import org.team4639.lib.util.FullSubsystem;
@@ -130,6 +131,7 @@ public class Turret extends FullSubsystem {
     }
 
     // CRT, should only be used on startup to seed position and not while turret is moving
+    @AutoLogOutput(key = "TurretRotationsCRT")
     public double getTurretRotation() {
         double leftEncoderRotations = leftEncoderInputs.positionRotations;
         double rightEncoderRotations = rightEncoderInputs.positionRotations;
@@ -151,6 +153,7 @@ public class Turret extends FullSubsystem {
         return (closestLeft + closestRight) / Constants.SHARED_GEAR_TO_TURRET_GEAR_RATIO;
     }
 
+    @AutoLogOutput(key = "TurretRotations")
     public double getTurretRotationFromRotorRotation() {
         return initialTurretRotation + ((turretInputs.motorPositionRotations - initialRotorRotation) * Constants.MOTOR_TO_TURRET_GEAR_RATIO);
     }
