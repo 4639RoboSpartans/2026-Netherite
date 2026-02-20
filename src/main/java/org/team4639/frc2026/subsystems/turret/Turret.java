@@ -4,12 +4,15 @@ package org.team4639.frc2026.subsystems.turret;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.units.measure.Voltage;
+import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
 import org.team4639.lib.util.FullSubsystem;
 import org.team4639.lib.util.LoggedTunableNumber;
 
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Volts;
 
 public class Turret extends FullSubsystem {
     private final RobotState state;
@@ -26,6 +29,9 @@ public class Turret extends FullSubsystem {
 
     private final double initialTurretRotation;
     private final double initialRotorRotation;
+
+    @Getter
+    private final TurretSysID sysID = new TurretSysID.TurretSysIDWPI(this, turretInputs);
 
     public enum WantedState {
         IDLE,
@@ -52,6 +58,8 @@ public class Turret extends FullSubsystem {
         rightEncoderIO.updateInputs(rightEncoderInputs);
         initialTurretRotation = getTurretRotation();
         initialRotorRotation = turretInputs.motorPositionRotations;
+
+        setDefaultCommand(this.run(this::runStateMachine));
     }
 
     @Override
@@ -70,6 +78,20 @@ public class Turret extends FullSubsystem {
     public void periodic() {
 
 
+
+
+        if (org.team4639.frc2026.Constants.tuningMode) {
+            LoggedTunableNumber.ifChanged(
+                hashCode(), turretIO::applyNewGains,
+                PIDs.turretKp, PIDs.turretKi, PIDs.turretKd,
+                PIDs.turretKs, PIDs.turretKv, PIDs.turretKa,
+                PIDs.turretKpSim, PIDs.turretKiSim, PIDs.turretKdSim,
+                PIDs.turretKsSim, PIDs.turretKvSim, PIDs.turretKaSim
+            );
+        }
+    }
+
+    private void runStateMachine() {
         SystemState newState = handleStateTransitions();
         if (newState != systemState) {
             Logger.recordOutput("Turret/SystemState", newState);
@@ -90,16 +112,6 @@ public class Turret extends FullSubsystem {
             case PASSING:
                 handlePassing();
                 break;
-        }
-
-        if (org.team4639.frc2026.Constants.tuningMode) {
-            LoggedTunableNumber.ifChanged(
-                hashCode(), turretIO::applyNewGains,
-                PIDs.turretKp, PIDs.turretKi, PIDs.turretKd,
-                PIDs.turretKs, PIDs.turretKv, PIDs.turretKa,
-                PIDs.turretKpSim, PIDs.turretKiSim, PIDs.turretKdSim,
-                PIDs.turretKsSim, PIDs.turretKvSim, PIDs.turretKaSim
-            );
         }
     }
 
@@ -207,5 +219,9 @@ public class Turret extends FullSubsystem {
         return MathUtil.isNear(getRotorSetpoint(), turretInputs.motorPositionRotations, Constants.ROTOR_ROTATION_TOLERANCE)
                 || MathUtil.isNear(getRotorSetpoint() + 1.0 / Constants.MOTOR_TO_TURRET_GEAR_RATIO, turretInputs.motorPositionRotations, Constants.ROTOR_ROTATION_TOLERANCE)
                 || MathUtil.isNear(getRotorSetpoint() - 1.0 / Constants.MOTOR_TO_TURRET_GEAR_RATIO, turretInputs.motorPositionRotations, Constants.ROTOR_ROTATION_TOLERANCE);
+    }
+
+    protected void setVoltage(Voltage volts){
+        turretIO.setVoltage(volts.in(Volts));
     }
 }
