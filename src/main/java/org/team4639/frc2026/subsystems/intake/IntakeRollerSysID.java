@@ -6,6 +6,8 @@ import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import lombok.Getter;
 
+import org.littletonrobotics.junction.Logger;
+
 import static edu.wpi.first.units.Units.*;
 
 public abstract class IntakeRollerSysID {
@@ -17,7 +19,7 @@ public abstract class IntakeRollerSysID {
             super();
             super.routine = new SysIdRoutine(
                     new SysIdRoutine.Config(
-                            Volts.per(Second).of(12.0/10),
+                            Volts.per(Second).of(6.0/10),
                             Volts.of(7),
                             null,
                             state -> SignalLogger.writeString("SysIDTestState", state.toString())
@@ -36,10 +38,10 @@ public abstract class IntakeRollerSysID {
             super();
             super.routine = new SysIdRoutine(
                     new SysIdRoutine.Config(
-                            Volts.per(Second).of(12.0/10),
+                            Volts.per(Second).of(6.0/10),
                             Volts.of(7),
                             null,
-                            state -> SignalLogger.writeString("SysIDTestState", state.toString())
+                            state -> Logger.recordOutput("SysIDTestState", state.toString())
                     ),
                     new SysIdRoutine.Mechanism(
                             voltage -> intake.setRollerVoltage(voltage.in(Volts)),

@@ -212,7 +212,7 @@ public class RobotContainer {
                 drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> -controller.getRightX()));
 
         // Default command, normal field-relative drive
-        /*StateMachine2 indexing = new StateMachine2().activeDuring(StateMachine2.ActiveMode.TELEOP);
+        StateMachine2 indexing = new StateMachine2().activeDuring(StateMachine2.ActiveMode.TELEOP).publishToNT("IndexingStates");
         indexing.template(state -> {
             state.onExit(
                     new InstantCommand(() -> kicker.setWantedState(Kicker.WantedState.IDLE)),
@@ -235,7 +235,7 @@ public class RobotContainer {
         INDEXING_ON.onTrigger(controller.x(), () -> INDEXING_OFF);
         INDEXING_OFF.onTrigger(controller.x(), () -> INDEXING_ON);
 
-        StateMachine2 sintake = new StateMachine2().activeDuring(StateMachine2.ActiveMode.TELEOP);
+        StateMachine2 sintake = new StateMachine2().activeDuring(StateMachine2.ActiveMode.TELEOP).publishToNT("Intake States");
 
         var INTAKE_IN = sintake.defaultState("IN")
                 .onEnter(new InstantCommand(() -> intake.setWantedState(Intake.WantedState.IDLE)));
@@ -249,12 +249,14 @@ public class RobotContainer {
                 .onEnter(new InstantCommand(() -> intake.setWantedState(Intake.WantedState.IDLE)))
                 .withDeadline(Commands.waitSeconds(1.0), () -> INTAKE_OUT);
 
-        INTAKE_OUT.onTrigger(controller.b(), () -> INTAKE_AGITATE);*/
+        INTAKE_OUT.onTrigger(controller.b(), () -> INTAKE_AGITATE);
+
+        /*intake.setWantedState(Intake.WantedState.INTAKE);
 
         controller.x().whileTrue(intake.getRollerSysID().getRoutine().quasistatic(SysIdRoutine.Direction.kForward));
         controller.y().whileTrue(intake.getRollerSysID().getRoutine().quasistatic(SysIdRoutine.Direction.kReverse));
         controller.a().whileTrue(intake.getRollerSysID().getRoutine().dynamic(SysIdRoutine.Direction.kForward));
-        controller.b().whileTrue(intake.getRollerSysID().getRoutine().dynamic(SysIdRoutine.Direction.kReverse));
+        controller.b().whileTrue(intake.getRollerSysID().getRoutine().dynamic(SysIdRoutine.Direction.kReverse));*/
     }
 
     private void configureSimButtonBindings() {

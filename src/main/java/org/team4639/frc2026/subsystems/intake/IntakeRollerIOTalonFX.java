@@ -29,6 +29,10 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
         config.CurrentLimits.StatorCurrentLimitEnable = true;
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
+        config.Slot0.kS = 0.25526;
+        config.Slot0.kV = 0.094566;
+        config.Slot0.kA = 0.002791;
+
         PhoenixUtil.tryUntilOk(5, () -> rollerMotor.getConfigurator().apply(config));
     }
 
@@ -51,9 +55,9 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
     public void setSurfaceVelocityFeetPerSecond(double targetVelocity) {
         double targetSurfaceVelocityInchPerSecond = FeetPerSecond.of(targetVelocity).in(InchesPerSecond);
         double targetRollerVelocityRadiansPerSecond = targetSurfaceVelocityInchPerSecond / Constants.ROLLER_RADIUS;
-        double targetRotorVelocityRadiansPerSecond = targetRollerVelocityRadiansPerSecond * Constants.ROTOR_TO_ROLLER_REDUCTION;
+        double targetRotorVelocityRadiansPerSecond = targetRollerVelocityRadiansPerSecond / Constants.ROTOR_TO_ROLLER_REDUCTION;
         double targetRotorVelocityRotationsPerSecond = RadiansPerSecond.of(targetRotorVelocityRadiansPerSecond).in(RotationsPerSecond);
-        rollerMotor.setControl(request.withVelocity(targetRotorVelocityRotationsPerSecond));
+        rollerMotor.setControl(request.withVelocity(-targetRotorVelocityRotationsPerSecond));
     }
 
     @Override
@@ -63,7 +67,7 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
 
     @Override
     public void applyNewGains(double[] newGains){
-        var config = new TalonFXConfiguration().Slot0;
+        /*var config = new TalonFXConfiguration().Slot0;
         config.kP = newGains[0];
         config.kI = newGains[1];
         config.kD = newGains[2];
@@ -71,6 +75,6 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
         config.kV = newGains[4];
         config.kA = newGains[5];
 
-        rollerMotor.getConfigurator().apply(config);
+        rollerMotor.getConfigurator().apply(config);*/
     }
 }

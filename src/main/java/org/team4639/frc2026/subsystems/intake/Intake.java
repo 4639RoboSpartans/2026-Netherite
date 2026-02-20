@@ -25,13 +25,13 @@ public class Intake extends SubsystemBase {
     private final double ZERO_VELOCITY_TIME_PERIOD = 0.02;
     private final double ZERO_VOLTAGE_OUT = 6;
     private final double ZERO_VOLTAGE_IN = 3;
-    private final double INTAKE_SURFACE_VELOCITY_FEET_PER_SECOND = 28;
+    private final double INTAKE_SURFACE_VELOCITY_FEET_PER_SECOND = 28 * 3;
 
     private double retractedRotorPosition = 0.0;
     private double extendedRotorPosition = 1 / Constants.MOTOR_TO_RACK_GEAR_RATIO;
 
     @Getter
-    private final IntakeRollerSysID rollerSysID = new IntakeRollerSysID.IntakeRollerSysIDCTRE(this);
+    private final IntakeRollerSysID rollerSysID = new IntakeRollerSysID.IntakeRollerSysIDWPI(this, rollerInputs);
 
     private IntakeSimulation intakeSimulation;
 
@@ -49,7 +49,7 @@ public class Intake extends SubsystemBase {
 
     @Setter
     private WantedState wantedState = WantedState.IDLE;
-    private SystemState systemState = SystemState.IDLE;
+    private SystemState systemState = SystemState.RETRACTING;
 
     public Intake(IntakeExtensionIO extensionIO, IntakeRollerIO rollerIO, RobotState state) {
         this.extensionIO = extensionIO;
