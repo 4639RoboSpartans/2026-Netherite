@@ -57,7 +57,7 @@ public class Turret extends FullSubsystem {
         turretIO.updateInputs(turretInputs);
         leftEncoderIO.updateInputs(leftEncoderInputs);
         rightEncoderIO.updateInputs(rightEncoderInputs);
-        initialTurretRotation = getTurretRotation();
+        initialTurretRotation = getTurretRotation(leftEncoderInputs.positionRotations, rightEncoderInputs.positionRotations);
         initialRotorRotation = turretInputs.motorPositionRotations;
 
         setDefaultCommand(this.run(this::runStateMachine));
@@ -132,25 +132,47 @@ public class Turret extends FullSubsystem {
 
     // CRT, should only be used on startup to seed position and not while turret is moving
     @AutoLogOutput(key = "TurretRotationsCRT")
-    public double getTurretRotation() {
-        double leftEncoderRotations = leftEncoderInputs.positionRotations;
-        double rightEncoderRotations = rightEncoderInputs.positionRotations;
-        double leftMultiple = 1.0 / (Constants.SHARED_GEAR_TEETH / Constants.LEFT_ENCODER_GEAR_TEETH);
-        double rightMultiple = 1.0 / (Constants.SHARED_GEAR_TEETH / Constants.RIGHT_ENCODER_GEAR_TEETH);
-        double leftDrive = leftEncoderRotations * leftMultiple;
-        double rightDrive = rightEncoderRotations * rightMultiple;
-        int iterations = 0;
-        double closestLeft = leftDrive, closestRight = rightDrive;
-        while (!MathUtil.isNear(leftDrive, rightDrive, 0.01) && iterations < 100) {
-            if (leftDrive < rightDrive) leftDrive += leftMultiple;
-            else rightDrive += rightMultiple;
-            iterations++;
-            if (Math.abs(leftDrive - rightDrive) < Math.abs(closestLeft - closestRight)) {
-                closestLeft = leftDrive;
-                closestRight = rightDrive;
+    public double getTurretRotation(double leftEncoderRotations, double rightEncoderRotations) {
+        double abs1 =
+                MathUtil.inputModulus(
+                        leftEncoderRotations,
+                        0.0,
+                        1.0) % 1;
+        double abs2 =
+                MathUtil.inputModulus(
+                        rightEncoderRotations,
+                        0.0,
+                        1.0) % 1;
+        double ratio1 = Constants.SHARED_GEAR_TO_TURRET_GEAR_RATIO * Constants.SHARED_GEAR_TEETH / Constants.LEFT_ENCODER_GEAR_TEETH;
+        double ratio2 = Constants.SHARED_GEAR_TO_TURRET_GEAR_RATIO * Constants.SHARED_GEAR_TEETH / Constants.RIGHT_ENCODER_GEAR_TEETH;
+        double bestErr = Double.MAX_VALUE;
+        double bestRot = Double.NaN;
+
+        double nMinD = Math.min(ratio1 * Constants.TURRET_MIN_ROTATIONS, ratio1 * Constants.TURRET_MAX_ROTATIONS) - abs1;
+        double nMaxD = Math.max(ratio1 * Constants.TURRET_MIN_ROTATIONS, ratio1 * Constants.TURRET_MAX_ROTATIONS) - abs1;
+        int minN = (int) Math.floor(nMinD) - 1;
+        int maxN = (int) Math.ceil(nMaxD) + 1;
+
+        for (int n = minN; n <= maxN; n++) {
+            double mechRot = (abs1 + n) / ratio1;
+            if (mechRot < Constants.TURRET_MIN_ROTATIONS - 1e-6 || mechRot > Constants.TURRET_MAX_ROTATIONS + 1e-6) {
+                continue;
+            }
+
+            double predicted2 = MathUtil.inputModulus(ratio2 * mechRot, 0.0, 1.0);
+            double err = modularError(predicted2, abs2);
+
+            if (err < bestErr) {
+                bestErr = err;
+                bestRot = mechRot;
             }
         }
-        return (closestLeft + closestRight) / Constants.SHARED_GEAR_TO_TURRET_GEAR_RATIO;
+        return bestRot;
+    }
+
+    private static double modularError(double a, double b) {
+        double diff = Math.abs(a - b);
+        return diff > 0.5 ? 1.0 - diff : diff;
     }
 
     @AutoLogOutput(key = "TurretRotationsCRT2")
