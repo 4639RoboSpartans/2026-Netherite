@@ -7,9 +7,9 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import org.team4639.frc2026.util.PhoenixUtil;
 import org.team4639.frc2026.util.PortConfiguration;
 import org.team4639.lib.util.Phoenix6Factory;
+import org.team4639.lib.util.PhoenixUtil;
 
 import static edu.wpi.first.units.Units.*;
 
