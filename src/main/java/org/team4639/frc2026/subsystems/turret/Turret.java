@@ -148,14 +148,14 @@ public class Turret extends FullSubsystem {
         double bestErr = Double.MAX_VALUE;
         double bestRot = Double.NaN;
 
-        double nMinD = Math.min(ratio1 * Constants.TURRET_MIN_ROTATIONS, ratio1 * Constants.TURRET_MAX_ROTATIONS) - abs1;
-        double nMaxD = Math.max(ratio1 * Constants.TURRET_MIN_ROTATIONS, ratio1 * Constants.TURRET_MAX_ROTATIONS) - abs1;
+        double nMinD = Math.min(ratio1 * Constants.TURRET_EXTENDED_MIN_ROTATIONS, ratio1 * Constants.TURRET_EXTENDED_MAX_ROTATIONS) - abs1;
+        double nMaxD = Math.max(ratio1 * Constants.TURRET_EXTENDED_MIN_ROTATIONS, ratio1 * Constants.TURRET_EXTENDED_MAX_ROTATIONS) - abs1;
         int minN = (int) Math.floor(nMinD) - 1;
         int maxN = (int) Math.ceil(nMaxD) + 1;
 
         for (int n = minN; n <= maxN; n++) {
             double mechRot = (abs1 + n) / ratio1;
-            if (mechRot < Constants.TURRET_MIN_ROTATIONS - 1e-6 || mechRot > Constants.TURRET_MAX_ROTATIONS + 1e-6) {
+            if (mechRot < Constants.TURRET_EXTENDED_MIN_ROTATIONS - 1e-6 || mechRot > Constants.TURRET_EXTENDED_MAX_ROTATIONS + 1e-6) {
                 continue;
             }
 
@@ -176,10 +176,7 @@ public class Turret extends FullSubsystem {
     }
 
     @AutoLogOutput(key = "TurretRotationsCRT2")
-    public double getTurretRotation2() {
-        double leftEncoderRotations = leftEncoderInputs.positionRotations;
-        double rightEncoderRotations = rightEncoderInputs.positionRotations;
-
+    public double getTurretRotation2(double leftEncoderRotations, double rightEncoderRotations) {
         double sharedGearEstimateFromLeftPos = leftEncoderRotations * Constants.LEFT_ENCODER_GEAR_TEETH / Constants.SHARED_GEAR_TEETH;
         double sharedGearEstimateFromRightPos = rightEncoderRotations * Constants.RIGHT_ENCODER_GEAR_TEETH / Constants.SHARED_GEAR_TEETH;
 

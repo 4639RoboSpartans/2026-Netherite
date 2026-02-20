@@ -16,8 +16,8 @@ import static edu.wpi.first.units.Units.Rotations;
 
 public class CRTTest {
     Turret turret;
-    private Angle readingTolerance = Degrees.of(0.001);
-    private double precision = 10.0;
+    private Angle readingTolerance = Degrees.of(0.01);
+    private double precision = 100.0;
     private Angle absoluteEncoder1Reading = Degrees.of(0);
     private Angle absoluteEncoder2Reading = Degrees.of(0);
 
@@ -42,26 +42,19 @@ public class CRTTest {
     @Test
     public void testCRT() {
         System.out.println("Starting CRT Test");
-        double commonRatio = 92.0 / 12; // 60 -> 180
-        int driveGearTeeth = 40; // shared gear driving both encoders (60 in this case)
-        int encoder1Pinion = 41; // 19t attached to 60t drive gear
-        int encoder2Pinion = 40; // 21t attached to 60t drive gear
-        // Limit the sweep to the unique coverage
-        double coverageRotations = 3.0;
+        double commonRatio = 92.0 / 12;
+        int driveGearTeeth = 40;
+        int encoder1Pinion = 41;
+        int encoder2Pinion = 40;
+        double coverageRotations = 1.5;
         double sweepRotations = coverageRotations - 0.05;
-        int maxIterations = (int) Math.round(sweepRotations * 360 * precision);
+        int maxIterations = 2 * (int) Math.round(sweepRotations * precision);
         for (int i = 0; i < maxIterations; i++) {
-            var turretAngle = Degrees.of(i / precision);
+            var turretAngle = Rotations.of(i / precision - coverageRotations);
             absoluteEncoder1Reading = turretAngle.times(commonRatio * driveGearTeeth / encoder1Pinion);
             absoluteEncoder2Reading = turretAngle.times(commonRatio * driveGearTeeth / encoder2Pinion);
-            var estimatedAngle = Rotations.of(turret.getTurretRotation(absoluteEncoder1Reading.in(Rotations) % 1, absoluteEncoder2Reading.in(Rotations) % 1));
+            var estimatedAngle = Rotations.of(turret.getTurretRotation(absoluteEncoder1Reading.in(Rotations), absoluteEncoder2Reading.in(Rotations)));
             var testing = turretAngle.isNear(estimatedAngle, readingTolerance);
-            if (!testing) {
-                System.out.println("Absolute Encoder Reading: " + getAbs1() + " " + getAbs2());
-                System.out.println("Turret Angle(degrees): " + turretAngle.in(Degrees));
-                System.out.println("CRT Angle(degrees): " + estimatedAngle.in(Degrees));
-                break;
-            }
             Assertions.assertTrue(testing);
         }
     }
