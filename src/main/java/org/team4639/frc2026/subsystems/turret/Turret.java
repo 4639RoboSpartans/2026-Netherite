@@ -4,12 +4,16 @@ package org.team4639.frc2026.subsystems.turret;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.units.measure.Voltage;
+import lombok.Getter;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
 import org.team4639.lib.util.FullSubsystem;
 import org.team4639.lib.util.LoggedTunableNumber;
 
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Volts;
 
 public class Turret extends FullSubsystem {
     private final RobotState state;
@@ -26,6 +30,9 @@ public class Turret extends FullSubsystem {
 
     private final double initialTurretRotation;
     private final double initialRotorRotation;
+
+    @Getter
+    private final TurretSysID sysID = new TurretSysID.TurretSysIDWPI(this, turretInputs);
 
     public enum WantedState {
         IDLE,
@@ -71,6 +78,9 @@ public class Turret extends FullSubsystem {
     @Override
     public void periodic() {
 
+
+
+
         if (org.team4639.frc2026.Constants.tuningMode) {
             LoggedTunableNumber.ifChanged(
                 hashCode(), turretIO::applyNewGains,
@@ -79,6 +89,30 @@ public class Turret extends FullSubsystem {
                 PIDs.turretKpSim, PIDs.turretKiSim, PIDs.turretKdSim,
                 PIDs.turretKsSim, PIDs.turretKvSim, PIDs.turretKaSim
             );
+        }
+    }
+
+    private void runStateMachine() {
+        SystemState newState = handleStateTransitions();
+        if (newState != systemState) {
+            Logger.recordOutput("Turret/SystemState", newState);
+            systemState = newState;
+        }
+
+//        if (DriverStation.isDisabled()) {
+//            systemState = SystemState.IDLE;
+//        }
+
+        switch (systemState) {
+            case IDLE:
+                handleIdle();
+                break;
+            case SCORING:
+                handleScoring();
+                break;
+            case PASSING:
+                handlePassing();
+                break;
         }
     }
 
@@ -97,6 +131,7 @@ public class Turret extends FullSubsystem {
     }
 
     // CRT, should only be used on startup to seed position and not while turret is moving
+    @AutoLogOutput(key = "TurretRotationsCRT")
     public double getTurretRotation() {
         double leftEncoderRotations = leftEncoderInputs.positionRotations;
         double rightEncoderRotations = rightEncoderInputs.positionRotations;
@@ -118,6 +153,7 @@ public class Turret extends FullSubsystem {
         return (closestLeft + closestRight) / Constants.SHARED_GEAR_TO_TURRET_GEAR_RATIO;
     }
 
+    @AutoLogOutput(key = "TurretRotations")
     public double getTurretRotationFromRotorRotation() {
         return initialTurretRotation + ((turretInputs.motorPositionRotations - initialRotorRotation) * Constants.MOTOR_TO_TURRET_GEAR_RATIO);
     }
@@ -188,27 +224,7 @@ public class Turret extends FullSubsystem {
                 || MathUtil.isNear(getRotorSetpoint() - 1.0 / Constants.MOTOR_TO_TURRET_GEAR_RATIO, turretInputs.motorPositionRotations, Constants.ROTOR_ROTATION_TOLERANCE);
     }
 
-    private void runStateMachine() {
-        SystemState newState = handleStateTransitions();
-        if (newState != systemState) {
-            Logger.recordOutput("Turret/SystemState", newState);
-            systemState = newState;
-        }
-
-//        if (DriverStation.isDisabled()) {
-//            systemState = SystemState.IDLE;
-//        }
-
-        switch (systemState) {
-            case IDLE:
-                handleIdle();
-                break;
-            case SCORING:
-                handleScoring();
-                break;
-            case PASSING:
-                handlePassing();
-                break;
-        }
+    protected void setVoltage(Voltage volts){
+        turretIO.setVoltage(volts.in(Volts));
     }
 }

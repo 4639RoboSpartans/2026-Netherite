@@ -111,17 +111,6 @@ public class Robot extends LoggedRobot {
         VirtualSubsystem.runAllPeriodicAfterScheduler();
         FullSubsystem.runAllPeriodicAfterScheduler();
         LoggedTracer.record("PeriodicAfterScheduler");
-
-        // Get the positions of the fuel (both on the field and in the air)
-        Pose3d[] fuelPoses = SimulatedArena.getInstance()
-                .getGamePiecesArrayByType("Fuel");
-        fuelPosesPublisher.accept(SimulatedArena.getInstance()
-                .getGamePiecesByType("Fuel")
-                        .stream().map(GamePiece::getPose3d)
-                .toArray(Pose3d[]::new)
-        );
-
-        robotContainer.publishComponentPoses();
     }
 
     /** This function is called once when the robot is disabled. */

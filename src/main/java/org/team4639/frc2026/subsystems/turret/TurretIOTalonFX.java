@@ -39,6 +39,11 @@ public class TurretIOTalonFX implements TurretIO {
         config.CurrentLimits.StatorCurrentLimit = 80;
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
+        config.Slot0.kS = 0.4703;
+        config.Slot0.kV = 6.0897;
+        config.Slot0.kA = 0.54764;
+        config.Slot0.kP = 87.009;
+
         applyNewGains();
 
         motorPosition = turretMotor.getPosition();
@@ -81,5 +86,10 @@ public class TurretIOTalonFX implements TurretIO {
     public void applyNewGains() {
         updateGains();
         PhoenixUtil.tryUntilOk(5, () -> turretMotor.getConfigurator().apply(config));
+    }
+
+    @Override
+    public void setVoltage(double volts){
+        turretMotor.setVoltage(volts);
     }
 }
