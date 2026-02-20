@@ -6,10 +6,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.team4639.frc2026.auto.AutoCommands;
 import org.team4639.frc2026.commands.DriveCommands;
+import org.team4639.frc2026.constants.ports.Netherite;
 import org.team4639.frc2026.subsystems.drive.Drive;
 import org.team4639.frc2026.subsystems.drive.GyroIO;
 import org.team4639.frc2026.subsystems.drive.GyroIOPigeon2;
@@ -18,9 +20,16 @@ import org.team4639.frc2026.subsystems.drive.ModuleIO;
 import org.team4639.frc2026.subsystems.drive.ModuleIOTalonFX;
 import org.team4639.frc2026.subsystems.drive.ModuleIOTalonFXSim;
 import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
+import org.team4639.frc2026.subsystems.kicker.Kicker;
+import org.team4639.frc2026.subsystems.kicker.KickerIO;
+import org.team4639.frc2026.subsystems.kicker.KickerIOTalonFX;
+import org.team4639.frc2026.subsystems.spindexer.Spindexer;
+import org.team4639.frc2026.subsystems.spindexer.SpindexerIO;
+import org.team4639.frc2026.subsystems.spindexer.SpindexerIOTalonFX;
 import org.team4639.frc2026.subsystems.vision.Vision;
 import org.team4639.frc2026.subsystems.vision.VisionConstants;
 import org.team4639.frc2026.subsystems.vision.VisionIOPhotonVisionSim;
+import org.team4639.frc2026.util.PortConfiguration;
 import org.team4639.lib.util.LoggedLazyAutoChooser;
 import org.team4639.lib.util.geometry.AllianceFlipUtil;
 
@@ -31,9 +40,13 @@ import org.team4639.lib.util.geometry.AllianceFlipUtil;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+    private final PortConfiguration portConfiguration = Netherite.portConfiguration;
+
     // Subsystems
     private final Drive drive;
     private final Vision vision;
+    private final Spindexer spindexer;
+    private final Kicker kicker;
 
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
@@ -58,6 +71,10 @@ public class RobotContainer {
 
                 // No cameras on real robot yet
                 vision = new Vision(RobotState.getInstance());
+
+                spindexer = new Spindexer(new SpindexerIOTalonFX(portConfiguration), RobotState.getInstance());
+
+                kicker = new Kicker(new KickerIOTalonFX(portConfiguration), RobotState.getInstance());
 
                 break;
 
@@ -106,6 +123,11 @@ public class RobotContainer {
                                 () -> AllianceFlipUtil.apply(SimRobot.getInstance()
                                         .getSwerveDriveSimulation()
                                         .getSimulatedDriveTrainPose())));
+
+                spindexer = new Spindexer(new SpindexerIO() {}, RobotState.getInstance());
+
+                kicker = new Kicker(new KickerIO() {}, RobotState.getInstance());
+
                 break;
 
             default:
@@ -119,6 +141,10 @@ public class RobotContainer {
                         pose -> {});
 
                 vision = new Vision(RobotState.getInstance());
+
+                spindexer = new Spindexer(new SpindexerIO() {}, RobotState.getInstance());
+
+                kicker = new Kicker(new KickerIO() {}, RobotState.getInstance());
                 break;
         }
 
@@ -160,7 +186,28 @@ public class RobotContainer {
         drive.setDefaultCommand(DriveCommands.joystickDrive(
                 drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> -controller.getRightX()));
 
-        controller.a().whileTrue(DriveCommands.joystickDriveAtAngle(drive, () -> 1, () -> 0, () -> Rotation2d.kZero));
+        //controller.a().whileTrue(DriveCommands.joystickDriveAtAngle(drive, () -> 1, () -> 0, () -> Rotation2d.kZero));
+
+        controller.x().onTrue(Commands.runOnce(
+                () -> {
+                    spindexer.setWantedState(Spindexer.WantedState.SPIN);
+                    kicker.setWantedState(Kicker.WantedState.KICK);
+                }
+        ));
+        controller.x().onFalse(Commands.runOnce(
+                () -> {
+                    spindexer.setWantedState(Spindexer.WantedState.IDLE);
+                    kicker.setWantedState(Kicker.WantedState.IDLE);
+                }
+        ));
+
+        /*controller.x().whileTrue(kicker.getSysID().getRoutine().quasistatic(SysIdRoutine.Direction.kForward));
+
+        controller.y().whileTrue(kicker.getSysID().getRoutine().quasistatic(SysIdRoutine.Direction.kReverse));
+        controller.a().whileTrue(kicker.getSysID().getRoutine().dynamic(SysIdRoutine.Direction.kForward));
+
+        controller.b().whileTrue(kicker.getSysID().getRoutine().dynamic(SysIdRoutine.Direction.kReverse));*/
+
     }
 
     /**

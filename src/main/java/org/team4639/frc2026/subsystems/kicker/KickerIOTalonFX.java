@@ -27,6 +27,9 @@ public class KickerIOTalonFX implements KickerIO {
         config.CurrentLimits.SupplyCurrentLimit = 40;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
         config.CurrentLimits.StatorCurrentLimit = 80;
+        config.Slot0.kV = 0.10888;
+        config.Slot0.kS = 0.095981;
+        config.Slot0.kA = 0.0015124;
 
         PhoenixUtil.tryUntilOk(5, () -> kickerMotor.getConfigurator().apply(config));
     }
@@ -53,7 +56,7 @@ public class KickerIOTalonFX implements KickerIO {
 
     @Override
     public void setRotorVelocityRPM(double targetVelocity) {
-        kickerMotor.setControl(velocityControl.withVelocity(targetVelocity / 60));
+        kickerMotor.setControl(velocityControl.withVelocity(targetVelocity * (32. / 9) * (1. / 60)));
     }
 
     @Override
