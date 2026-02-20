@@ -45,9 +45,9 @@ public class RobotContainer {
     private final Drive drive;
     private final Vision vision;
     private final Hood hood;
-    private final Shooter shooter;
+   // private final Shooter shooter;
     private final Turret turret;
-    private final Superstructure superstructure;
+    //private final Superstructure superstructure;
 
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
@@ -77,7 +77,7 @@ public class RobotContainer {
                 vision = new Vision(RobotState.getInstance());
 
                 hood = new Hood(new HoodIOTalonFX(portConfiguration), RobotState.getInstance());
-                shooter = new Shooter(new ShooterIOSparkFlex(portConfiguration), RobotState.getInstance());
+                //shooter = new Shooter(new ShooterIOSparkFlex(portConfiguration), RobotState.getInstance());
                 turret = new Turret(
                         new TurretIOTalonFX(portConfiguration),
                         new EncoderIOCANCoder(
@@ -93,7 +93,7 @@ public class RobotContainer {
                         RobotState.getInstance()
                 );
 
-                superstructure = new Superstructure(shooter, turret, hood, RobotState.getInstance());
+                //superstructure = new Superstructure(shooter, turret, hood, RobotState.getInstance());
 
                 configureButtonBindings();
 
@@ -146,7 +146,7 @@ public class RobotContainer {
                                         .getSimulatedDriveTrainPose())));
 
                 hood = new Hood(new HoodIOSim(), RobotState.getInstance());
-                shooter = new Shooter(new ShooterIOSim(), RobotState.getInstance());
+                //shooter = new Shooter(new ShooterIOSim(), RobotState.getInstance());
                 turret = new Turret(
                         new TurretIOSim(),
                         new EncoderIOSim(),
@@ -154,7 +154,7 @@ public class RobotContainer {
                         RobotState.getInstance()
                 );
 
-                superstructure = new Superstructure(shooter, turret, hood, RobotState.getInstance());
+                //superstructure = new Superstructure(shooter, turret, hood, RobotState.getInstance());
 
                 configureSimButtonBindings();
 
@@ -179,7 +179,7 @@ public class RobotContainer {
                 vision = new Vision(RobotState.getInstance());
 
                 hood = new Hood(new HoodIO() {}, RobotState.getInstance());
-                shooter = new Shooter(new ShooterIO() {}, RobotState.getInstance());
+                //shooter = new Shooter(new ShooterIO() {}, RobotState.getInstance());
                 turret = new Turret(
                         new TurretIO() {},
                         new EncoderIO() {},
@@ -187,7 +187,7 @@ public class RobotContainer {
                         RobotState.getInstance()
                 );
 
-                superstructure = new Superstructure(shooter, turret, hood, RobotState.getInstance());
+                //superstructure = new Superstructure(shooter, turret, hood, RobotState.getInstance());
 
                 break;
         }
@@ -228,19 +228,18 @@ public class RobotContainer {
         drive.setDefaultCommand(DriveCommands.joystickDrive(
                 drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> -controller.getRightX()));
 
-        controller.a().whileTrue(DriveCommands.joystickDriveAtAngle(drive, () -> 1, () -> 0, () -> Rotation2d.kZero));
+        //controller.a().whileTrue(DriveCommands.joystickDriveAtAngle(drive, () -> 1, () -> 0, () -> Rotation2d.kZero));
+
+        controller.x().whileTrue(turret.getSysID().getRoutine().quasistatic(SysIdRoutine.Direction.kForward));
+        controller.y().whileTrue(turret.getSysID().getRoutine().quasistatic(SysIdRoutine.Direction.kReverse));
+        controller.a().whileTrue(turret.getSysID().getRoutine().dynamic(SysIdRoutine.Direction.kForward));
+        controller.b().whileTrue(turret.getSysID().getRoutine().dynamic(SysIdRoutine.Direction.kReverse));
     }
 
     private void configureSimButtonBindings() {
         // Default command, normal field-relative drive
         drive.setDefaultCommand(DriveCommands.joystickDrive(
                 drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> -controller.getRightX()));
-        controller.leftStick().and(superstructure.scoringAtSetpointTrigger).whileTrue(
-                Commands.repeatingSequence(
-                        Commands.runOnce(() -> SimRobot.getInstance().shootFuel(RobotState.getInstance().getScoringState())),
-                        Commands.waitSeconds(0.5)
-                )
-        );
     }
 
     /**
