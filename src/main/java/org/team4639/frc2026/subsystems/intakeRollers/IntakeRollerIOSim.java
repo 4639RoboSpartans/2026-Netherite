@@ -1,6 +1,6 @@
 /* Copyright (c) 2025-2026 FRC 4639. */
 
-package org.team4639.frc2026.subsystems.intake;
+package org.team4639.frc2026.subsystems.intakeRollers;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -14,7 +14,7 @@ import static edu.wpi.first.units.Units.*;
 
 public class IntakeRollerIOSim implements IntakeRollerIO {
     private final FlywheelSim rollerSim = new FlywheelSim(
-            LinearSystemId.createFlywheelSystem(DCMotor.getKrakenX44(1), 0.000001, Constants.ROTOR_TO_ROLLER_REDUCTION),
+            LinearSystemId.createFlywheelSystem(DCMotor.getKrakenX44(1), 0.000001, org.team4639.frc2026.subsystems.intakeRollers.Constants.ROTOR_TO_ROLLER_REDUCTION),
             DCMotor.getKrakenX44(1),
             0.001
     );
@@ -29,7 +29,7 @@ public class IntakeRollerIOSim implements IntakeRollerIO {
         rollerSim.update(Robot.defaultPeriodSecs);
 
         inputs.voltage = appliedVolts;
-        inputs.velocity = Units.radiansToRotations(rollerSim.getAngularVelocityRadPerSec()) / Constants.ROTOR_TO_ROLLER_REDUCTION;
+        inputs.velocity = Units.radiansToRotations(rollerSim.getAngularVelocityRadPerSec()) / org.team4639.frc2026.subsystems.intakeRollers.Constants.ROTOR_TO_ROLLER_REDUCTION;
     }
 
     @Override
@@ -37,10 +37,10 @@ public class IntakeRollerIOSim implements IntakeRollerIO {
         this.targetVelocity = targetVelocity;
         double targetSurfaceVelocityInchPerSecond = FeetPerSecond.of(targetVelocity).in(InchesPerSecond);
         double targetRollerVelocityRadiansPerSecond = targetSurfaceVelocityInchPerSecond / Constants.ROLLER_RADIUS;
-        double targetRotorVelocityRadiansPerSecond = targetRollerVelocityRadiansPerSecond / Constants.ROTOR_TO_ROLLER_REDUCTION;
+        double targetRotorVelocityRadiansPerSecond = targetRollerVelocityRadiansPerSecond / org.team4639.frc2026.subsystems.intakeRollers.Constants.ROTOR_TO_ROLLER_REDUCTION;
         double targetRotorVelocityRotationsPerSecond = RadiansPerSecond.of(targetRotorVelocityRadiansPerSecond).in(RotationsPerSecond);
         rollerFeedback.setSetpoint(targetRotorVelocityRotationsPerSecond);
-        appliedVolts = rollerFeedback.calculate(Units.radiansToRotations(rollerSim.getAngularVelocityRadPerSec()) / Constants.ROTOR_TO_ROLLER_REDUCTION)
+        appliedVolts = rollerFeedback.calculate(Units.radiansToRotations(rollerSim.getAngularVelocityRadPerSec()) / org.team4639.frc2026.subsystems.intakeRollers.Constants.ROTOR_TO_ROLLER_REDUCTION)
                 + rollerFeedforward.calculate(targetRotorVelocityRotationsPerSecond);
         rollerSim.setInputVoltage(appliedVolts);
     }

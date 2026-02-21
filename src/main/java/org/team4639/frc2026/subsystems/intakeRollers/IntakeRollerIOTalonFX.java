@@ -1,6 +1,6 @@
 /* Copyright (c) 2025-2026 FRC 4639. */
 
-package org.team4639.frc2026.subsystems.intake;
+package org.team4639.frc2026.subsystems.intakeRollers;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -51,7 +51,7 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
     public void setSurfaceVelocityFeetPerSecond(double targetVelocity) {
         double targetSurfaceVelocityInchPerSecond = FeetPerSecond.of(targetVelocity).in(InchesPerSecond);
         double targetRollerVelocityRadiansPerSecond = targetSurfaceVelocityInchPerSecond / Constants.ROLLER_RADIUS;
-        double targetRotorVelocityRadiansPerSecond = targetRollerVelocityRadiansPerSecond * Constants.ROTOR_TO_ROLLER_REDUCTION;
+        double targetRotorVelocityRadiansPerSecond = targetRollerVelocityRadiansPerSecond * org.team4639.frc2026.subsystems.intakeRollers.Constants.ROTOR_TO_ROLLER_REDUCTION;
         double targetRotorVelocityRotationsPerSecond = RadiansPerSecond.of(targetRotorVelocityRadiansPerSecond).in(RotationsPerSecond);
         rollerMotor.setControl(request.withVelocity(targetRotorVelocityRotationsPerSecond));
     }

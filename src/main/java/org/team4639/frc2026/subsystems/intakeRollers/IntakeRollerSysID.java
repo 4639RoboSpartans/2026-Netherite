@@ -1,6 +1,6 @@
 /* Copyright (c) 2025-2026 FRC 4639. */
 
-package org.team4639.frc2026.subsystems.intake;
+package org.team4639.frc2026.subsystems.intakeRollers;
 
 import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -13,7 +13,7 @@ public abstract class IntakeRollerSysID {
     private SysIdRoutine routine;
 
     public static class IntakeRollerSysIDCTRE extends IntakeRollerSysID{
-        public IntakeRollerSysIDCTRE(Intake intake){
+        public IntakeRollerSysIDCTRE(IntakeRollers intakeRollers){
             super();
             super.routine = new SysIdRoutine(
                     new SysIdRoutine.Config(
@@ -23,16 +23,16 @@ public abstract class IntakeRollerSysID {
                             state -> SignalLogger.writeString("SysIDTestState", state.toString())
                     ),
                     new SysIdRoutine.Mechanism(
-                            voltage -> intake.setRollerVoltage(voltage.in(Volts)),
+                            voltage -> intakeRollers.setRollerVoltage(voltage.in(Volts)),
                             null, // Signal Logger handles it,
-                            intake
+                            intakeRollers
                     )
             );
         }
     }
 
     public static class IntakeRollerSysIDWPI extends IntakeRollerSysID{
-        public IntakeRollerSysIDWPI(Intake intake, IntakeRollerIO.IntakeRollerIOInputs inputs){
+        public IntakeRollerSysIDWPI(IntakeRollers intakeRollers, IntakeRollerIO.IntakeRollerIOInputs inputs){
             super();
             super.routine = new SysIdRoutine(
                     new SysIdRoutine.Config(
@@ -42,14 +42,14 @@ public abstract class IntakeRollerSysID {
                             state -> SignalLogger.writeString("SysIDTestState", state.toString())
                     ),
                     new SysIdRoutine.Mechanism(
-                            voltage -> intake.setRollerVoltage(voltage.in(Volts)),
+                            voltage -> intakeRollers.setRollerVoltage(voltage.in(Volts)),
                             log -> {
                                 log.motor("roller")
                                         .angularPosition(Rotations.of(inputs.position))
                                         .angularVelocity(Rotations.of(inputs.velocity).per(Second))
                                         .voltage(Volts.of(inputs.voltage));
                             },
-                            intake
+                            intakeRollers
                     )
             );
         }

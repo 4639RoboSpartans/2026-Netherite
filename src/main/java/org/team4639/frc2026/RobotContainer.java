@@ -2,7 +2,6 @@
 
 package org.team4639.frc2026;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -15,15 +14,14 @@ import org.team4639.frc2026.commands.DriveCommands;
 import org.team4639.frc2026.constants.ports.Netherite;
 import org.team4639.frc2026.subsystems.drive.*;
 import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
-import org.team4639.frc2026.subsystems.intake.*;
-import org.team4639.frc2026.subsystems.drive.Drive;
-import org.team4639.frc2026.subsystems.drive.GyroIO;
-import org.team4639.frc2026.subsystems.drive.GyroIOPigeon2;
-import org.team4639.frc2026.subsystems.drive.GyroIOSim;
-import org.team4639.frc2026.subsystems.drive.ModuleIO;
-import org.team4639.frc2026.subsystems.drive.ModuleIOTalonFX;
-import org.team4639.frc2026.subsystems.drive.ModuleIOTalonFXSim;
-import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
+import org.team4639.frc2026.subsystems.intakeExtension.IntakeExtension;
+import org.team4639.frc2026.subsystems.intakeExtension.IntakeExtensionIO;
+import org.team4639.frc2026.subsystems.intakeExtension.IntakeExtensionIOSim;
+import org.team4639.frc2026.subsystems.intakeExtension.IntakeExtensionIOTalonFX;
+import org.team4639.frc2026.subsystems.intakeRollers.IntakeRollerIO;
+import org.team4639.frc2026.subsystems.intakeRollers.IntakeRollerIOSim;
+import org.team4639.frc2026.subsystems.intakeRollers.IntakeRollerIOTalonFX;
+import org.team4639.frc2026.subsystems.intakeRollers.IntakeRollers;
 import org.team4639.frc2026.subsystems.kicker.Kicker;
 import org.team4639.frc2026.subsystems.kicker.KickerIO;
 import org.team4639.frc2026.subsystems.kicker.KickerIOTalonFX;
@@ -49,7 +47,8 @@ public class RobotContainer {
     // Subsystems
     private final Drive drive;
     private final Vision vision;
-    private final Intake intake;
+    private final IntakeExtension intakeExtension;
+    private final IntakeRollers intakeRollers;
     private final Spindexer spindexer;
     private final Kicker kicker;
 
@@ -77,8 +76,12 @@ public class RobotContainer {
                 // No cameras on real robot yet
                 vision = new Vision(RobotState.getInstance());
 
-                intake = new Intake(
+                intakeExtension = new IntakeExtension(
                         new IntakeExtensionIOTalonFX(portConfiguration),
+                        RobotState.getInstance()
+                );
+
+                intakeRollers = new IntakeRollers(
                         new IntakeRollerIOTalonFX(portConfiguration),
                         RobotState.getInstance()
                 );
@@ -137,8 +140,12 @@ public class RobotContainer {
                                         .getSwerveDriveSimulation()
                                         .getSimulatedDriveTrainPose())));
 
-                intake = new Intake(
+                intakeExtension = new IntakeExtension(
                         new IntakeExtensionIOSim(),
+                        RobotState.getInstance()
+                );
+
+                intakeRollers = new IntakeRollers(
                         new IntakeRollerIOSim(),
                         RobotState.getInstance()
                 );
@@ -163,11 +170,16 @@ public class RobotContainer {
 
                 vision = new Vision(RobotState.getInstance());
 
-                intake = new Intake(
+                intakeExtension = new IntakeExtension(
                         new IntakeExtensionIO() {},
+                        RobotState.getInstance()
+                );
+
+                intakeRollers = new IntakeRollers(
                         new IntakeRollerIO() {},
                         RobotState.getInstance()
                 );
+
                 spindexer = new Spindexer(new SpindexerIO() {}, RobotState.getInstance());
 
                 kicker = new Kicker(new KickerIO() {}, RobotState.getInstance());
@@ -212,11 +224,11 @@ public class RobotContainer {
         //controller.a().whileTrue(DriveCommands.joystickDriveAtAngle(drive, () -> 1, () -> 0, () -> Rotation2d.kZero));
 
         controller.a().onTrue(Commands.runOnce(() -> {
-            intake.setWantedState(Intake.WantedState.INTAKE);
+            intakeExtension.setWantedState(IntakeExtension.WantedState.INTAKE);
         }));
 
         controller.b().onTrue(Commands.runOnce(() -> {
-            intake.setWantedState(Intake.WantedState.IDLE);
+            intakeExtension.setWantedState(IntakeExtension.WantedState.IDLE);
         }));
     }
 
@@ -224,8 +236,8 @@ public class RobotContainer {
         // Default command, normal field-relative drive
         drive.setDefaultCommand(DriveCommands.joystickDrive(
                 drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> -controller.getRightX()));
-        controller.a().onTrue(Commands.runOnce(() -> intake.setWantedState(Intake.WantedState.INTAKE)));
-        controller.b().onTrue(Commands.runOnce(() -> intake.setWantedState(Intake.WantedState.IDLE)));
+        controller.a().onTrue(Commands.runOnce(() -> intakeExtension.setWantedState(IntakeExtension.WantedState.INTAKE)));
+        controller.b().onTrue(Commands.runOnce(() -> intakeExtension.setWantedState(IntakeExtension.WantedState.IDLE)));
         controller.x().onTrue(Commands.runOnce(
                 () -> {
                     spindexer.setWantedState(Spindexer.WantedState.SPIN);
