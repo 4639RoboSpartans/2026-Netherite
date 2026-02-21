@@ -164,6 +164,10 @@ public class Turret extends FullSubsystem {
         double sharedGearEstimateFromLeftNeg = leftEncoderRotations * Constants.LEFT_ENCODER_GEAR_TEETH / Constants.SHARED_GEAR_TEETH;
         double sharedGearEstimateFromRightNeg = rightEncoderRotations * Constants.RIGHT_ENCODER_GEAR_TEETH / Constants.SHARED_GEAR_TEETH;
 
+        if (Math.abs(sharedGearEstimateFromLeftPos - sharedGearEstimateFromRightPos) < 0.01){
+            return sharedGearEstimateFromLeftPos* (12/92.0);
+        }
+
         boolean isPositive = true;
         for(int i = 0; i < 100; i++){
             if (sharedGearEstimateFromLeftPos < sharedGearEstimateFromRightPos){
