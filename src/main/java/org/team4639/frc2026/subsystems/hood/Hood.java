@@ -7,6 +7,7 @@ import edu.wpi.first.math.Pair;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import lombok.Getter;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
 import org.team4639.lib.util.FullSubsystem;
@@ -21,6 +22,8 @@ public class Hood extends FullSubsystem {
 
     private final double PASSING_HOOD_ANGLE = 0;
     private final double IDLE_HOOD_ANGLE = 0;
+
+    @AutoLogOutput(key = "Hood Setpoint Degrees")
     private double SCORING_HOOD_ANGLE = 0;
 
     private final double HOOD_TOLERANCE_DEGREES = 5;

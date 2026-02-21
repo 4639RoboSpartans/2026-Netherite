@@ -4,15 +4,12 @@ package org.team4639.frc2026.subsystems.shooter;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
-import com.revrobotics.spark.SparkBase;
-import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkLowLevel;
-import com.revrobotics.spark.config.ClosedLoopConfig;
-import com.revrobotics.spark.config.FeedForwardConfig;
-import com.revrobotics.spark.config.SparkBaseConfig;
-import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.*;
+import com.revrobotics.spark.config.*;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.units.measure.Voltage;
+import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.util.PortConfiguration;
 
 import static edu.wpi.first.units.Units.Volts;
@@ -30,12 +27,15 @@ public class ShooterIOSparkFlex implements ShooterIO {
 
     private final double SHOOTER_GEAR_RATIO = 1.0;
 
+    private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0.074548, 0.10976, 0.044959);
+    private final PIDController pid = new PIDController(0.0090597, 0, 0);
+
     public ShooterIOSparkFlex(PortConfiguration ports) {
         shooterConfig.idleMode(SparkBaseConfig.IdleMode.kCoast);
         shooterConfig.smartCurrentLimit(40);
         shooterConfig.secondaryCurrentLimit(80);
 
-        updateGains();
+        //updateGains();
 
         shooterConfig.apply(closedLoopConfig);
         shooterConfig
@@ -47,14 +47,24 @@ public class ShooterIOSparkFlex implements ShooterIO {
                 .busVoltagePeriodMs(5)
                 .outputCurrentPeriodMs(5);
 
-        shooterConfig.encoder.velocityConversionFactor(1.0 / 60.0); // convert REV native RPM to RPS, better for velocity PID on spark
-
         leftShooter = new SparkFlex(ports.shooterMotorLeftID.getDeviceNumber(), SparkLowLevel.MotorType.kBrushless);
         rightShooter = new SparkFlex(ports.shooterMotorRightID.getDeviceNumber(), SparkLowLevel.MotorType.kBrushless);
 
         leaderConfig.apply(shooterConfig);
+
+        leaderConfig
+                .idleMode(SparkBaseConfig.IdleMode.kCoast)
+                .smartCurrentLimit(90, 90)
+                .apply(new EncoderConfig().velocityConversionFactor(1 / 60.0));
+        leaderConfig.closedLoop.feedForward.sva(0.074548, 0.10976, 0.044959);
+        leaderConfig
+                .closedLoop
+                .p(0.0090597)
+                .outputRange(-1, 1)
+                .feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+
         followerConfig.apply(shooterConfig);
-        followerConfig.follow(leftShooter.getDeviceId());
+        followerConfig.follow(leftShooter.getDeviceId(), true);
 
         leftShooter.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         rightShooter.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -81,13 +91,16 @@ public class ShooterIOSparkFlex implements ShooterIO {
     @Override
     public void setVoltage(double appliedVolts) {
         Voltage targetVoltage = Volts.of(appliedVolts);
-        rightShooter.setVoltage(targetVoltage);
+        leftShooter.setVoltage(targetVoltage);
     }
 
     @Override
     public void setRPM(double targetRPM) {
-        double applied = targetRPM * SHOOTER_GEAR_RATIO / 60.0;
-        closedLoopController.setSetpoint(applied, SparkBase.ControlType.kVelocity);
+        double applied = -targetRPM * SHOOTER_GEAR_RATIO / 60.0;
+        /*var err = closedLoopController.setSetpoint(applied, SparkBase.ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+        Logger.recordOutput("Shooter Setpoint RPS", closedLoopController.getSetpoint());
+        Logger.recordOutput("Shooter RevLib Error", err.toString());*/
+        leftShooter.setVoltage(ff.calculate(applied) + pid.calculate(leftShooter.getEncoder().getVelocity(), applied));
     }
 
     public void updateGains() {

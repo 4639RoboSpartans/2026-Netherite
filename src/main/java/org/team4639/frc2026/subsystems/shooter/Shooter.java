@@ -6,6 +6,8 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
+import lombok.Getter;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.Constants;
 import org.team4639.frc2026.RobotState;
@@ -21,10 +23,12 @@ public class Shooter extends FullSubsystem {
 
     private final double PASSING_RPM = 0;
     private final double IDLE_VOLTAGE = 0;
+    @AutoLogOutput(key = "Shooter Scoring RPM")
     private double SCORING_RPM = 0;
 
-    private final double SHOOTING_RPM_TOLERANCE = 100;
+    private final double SHOOTING_RPM_TOLERANCE = 10;
 
+    @Getter
     private final ShooterSysID sysID = new ShooterSysID.ShooterSysIDWPI(this, inputs);
 
     public enum WantedState {

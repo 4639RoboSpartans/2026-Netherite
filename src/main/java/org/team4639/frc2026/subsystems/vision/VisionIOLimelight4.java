@@ -13,6 +13,11 @@ public class VisionIOLimelight4 extends VisionIOLimelight {
     public VisionIOLimelight4(String name, Supplier<Rotation2d> rotationSupplier) {
         super(name, rotationSupplier);
         this.name = name;
+
+        NetworkTableInstance.getDefault()
+                .getTable(name)
+                .getEntry("imumode_set")
+                .setInteger(0);
     }
 
     @Override
@@ -23,7 +28,7 @@ public class VisionIOLimelight4 extends VisionIOLimelight {
             NetworkTableInstance.getDefault()
                     .getTable(name)
                     .getEntry("throttle_set")
-                    .setInteger(200);
+                    .setInteger(0);
         } else {
             NetworkTableInstance.getDefault()
                     .getTable(name)

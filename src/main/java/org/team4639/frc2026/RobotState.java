@@ -113,6 +113,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     private Pair<Turret.WantedState, Turret.SystemState> turretStates;
 
     @Getter
+    @AutoLogOutput(key = "Turret Pose")
     private Pose2d turretPose = new Pose2d();
 
     /**
@@ -156,7 +157,8 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         estimatedPose = estimatedPose.exp(finalTwist);
 
         turretPose =
-                estimatedPose.transformBy(
+                estimatedPose
+                        .transformBy(
                         new Transform2d(
                                 Constants.SimConstants.originToTurretRotation.toTranslation2d(),
                                 Rotation2d.fromRotations(getScoringState().turretAngle().in(Rotations))
@@ -255,7 +257,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
                 Rotation2d.fromRotations(getScoringState().turretAngle().in(Rotations))).inverse()
         );
 
-        accept(999, estimatedRobotPose, timestampSeconds, visionMeasurementStdDevs);
+        accept(999, AllianceFlipUtil.apply(estimatedRobotPose), timestampSeconds, visionMeasurementStdDevs);
     }
 
     public void updateIntakePosition(double intakeExtensionFraction) {
@@ -285,6 +287,8 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         SmartDashboard.putNumber("Scoring/CalculatedHoodAngle", scoringState.hoodAngle().in(Rotations));
         SmartDashboard.putNumber("Scoring/CalculatedTurretAngle", scoringState.turretAngle().in(Rotations));
         SmartDashboard.putNumber("Scoring/CalculatedTurretAngleFieldRelative", getEstimatedPose().getRotation().getMeasure().plus(scoringState.turretAngle()).in(Degrees));
+
+        SmartDashboard.putNumber("Turret to Goal", getTurretPose().getTranslation().getDistance(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
     }
 
     @Override

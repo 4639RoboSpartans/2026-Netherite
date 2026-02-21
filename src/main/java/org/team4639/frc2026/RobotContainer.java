@@ -12,17 +12,12 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.auto.AutoCommands;
 import org.team4639.frc2026.commands.DriveCommands;
 import org.team4639.frc2026.constants.ports.Netherite;
 import org.team4639.frc2026.subsystems.drive.*;
 import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
 import org.team4639.frc2026.subsystems.intake.*;
-import org.team4639.frc2026.constants.ports.Netherite;
-import org.team4639.frc2026.subsystems.Superstructure;
-import org.team4639.frc2026.subsystems.drive.*;
-import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
 import org.team4639.frc2026.subsystems.kicker.Kicker;
 import org.team4639.frc2026.subsystems.kicker.KickerIO;
 import org.team4639.frc2026.subsystems.kicker.KickerIOTalonFX;
@@ -41,9 +36,12 @@ import org.team4639.frc2026.subsystems.turret.*;
 import org.team4639.frc2026.subsystems.vision.*;
 import org.team4639.frc2026.util.PortConfiguration;
 import org.team4639.lib.statebased2.StateMachine2;
-import org.team4639.frc2026.util.PortConfiguration;
 import org.team4639.lib.util.LoggedLazyAutoChooser;
+import org.team4639.lib.util.LoggedTunableNumber;
 import org.team4639.lib.util.geometry.AllianceFlipUtil;
+
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Rotations;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -62,7 +60,7 @@ public class RobotContainer {
     private final Kicker kicker;
     private final TurretCamera turretCamera;
     private final Hood hood;
-   // private final Shooter shooter;
+    private final Shooter shooter;
     private final Turret turret;
     //private final Superstructure superstructure;
 
@@ -96,7 +94,7 @@ public class RobotContainer {
                 turretCamera = new TurretCamera(RobotState.getInstance(), new VisionIOLimelight4("limelight-turret", () -> RobotState.getInstance().getTurretPose().getRotation()));
 
                 hood = new Hood(new HoodIOTalonFX(portConfiguration), RobotState.getInstance());
-                //shooter = new Shooter(new ShooterIOSparkFlex(portConfiguration), RobotState.getInstance());
+                shooter = new Shooter(new ShooterIOSparkFlex(portConfiguration), RobotState.getInstance());
                 turret = new Turret(
                         new TurretIOTalonFX(portConfiguration),
                         new EncoderIOCANCoder(
@@ -114,8 +112,6 @@ public class RobotContainer {
 
                 //superstructure = new Superstructure(shooter, turret, hood, RobotState.getInstance());
 
-                configureButtonBindings();
-
                 intake = new Intake(
                         new IntakeExtensionIOTalonFX(portConfiguration),
                         new IntakeRollerIOTalonFX(portConfiguration),
@@ -123,11 +119,11 @@ public class RobotContainer {
                 );
 
                 // Configure the button bindings
-                configureButtonBindings();
                 spindexer = new Spindexer(new SpindexerIOTalonFX(portConfiguration), RobotState.getInstance());
 
                 kicker = new Kicker(new KickerIOTalonFX(portConfiguration), RobotState.getInstance());
 
+                configureButtonBindings();
                 break;
 
             case SIM:
@@ -177,7 +173,7 @@ public class RobotContainer {
                                         .getSimulatedDriveTrainPose())));
 
                 hood = new Hood(new HoodIOSim(), RobotState.getInstance());
-                //shooter = new Shooter(new ShooterIOSim(), RobotState.getInstance());
+                shooter = new Shooter(new ShooterIOSim(), RobotState.getInstance());
                 turret = new Turret(
                         new TurretIOSim(),
                         new EncoderIOSim(),
@@ -225,7 +221,7 @@ public class RobotContainer {
                 vision = new Vision(RobotState.getInstance());
 
                 hood = new Hood(new HoodIO() {}, RobotState.getInstance());
-                //shooter = new Shooter(new ShooterIO() {}, RobotState.getInstance());
+                shooter = new Shooter(new ShooterIO() {}, RobotState.getInstance());
                 turret = new Turret(
                         new TurretIO() {},
                         new EncoderIO() {},
@@ -288,10 +284,100 @@ public class RobotContainer {
 
         //controller.a().whileTrue(DriveCommands.joystickDriveAtAngle(drive, () -> 1, () -> 0, () -> Rotation2d.kZero));
 
-        controller.x().whileTrue(turret.getSysID().getRoutine().quasistatic(SysIdRoutine.Direction.kForward));
-        controller.y().whileTrue(turret.getSysID().getRoutine().quasistatic(SysIdRoutine.Direction.kReverse));
-        controller.a().whileTrue(turret.getSysID().getRoutine().dynamic(SysIdRoutine.Direction.kForward));
-        controller.b().whileTrue(turret.getSysID().getRoutine().dynamic(SysIdRoutine.Direction.kReverse));
+        StateMachine2 scoringStates = new StateMachine2(drive, hood, shooter, turret, kicker, spindexer).activeDuring(StateMachine2.ActiveMode.TELEOP).publishToNT("SCORING");
+
+        LoggedTunableNumber hoodAngle = new LoggedTunableNumber("Desired Hood Degrees").initDefault(20);
+        LoggedTunableNumber shooterRPM = new LoggedTunableNumber("Desired Shooter RPM").initDefault(0);
+
+        var IDLE = scoringStates.defaultState("IDLE")
+                .onEnter(new InstantCommand((() -> {
+                    hood.setWantedState(Hood.WantedState.IDLE);
+                    shooter.setWantedState(Shooter.WantedState.IDLE);
+                    turret.setWantedState(Turret.WantedState.IDLE);
+                    kicker.setWantedState(Kicker.WantedState.IDLE);
+                    spindexer.setWantedState(Spindexer.WantedState.IDLE);
+                }))).whileRunning(
+                        DriveCommands.joystickDrive(
+                                drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> -controller.getRightX())
+                );
+
+        var SPINUP = scoringStates.state("SPINUP")
+                .onEnter(new InstantCommand((() -> {
+                    turret.setWantedState(Turret.WantedState.IDLE);
+                    kicker.setWantedState(Kicker.WantedState.IDLE);
+                    spindexer.setWantedState(Spindexer.WantedState.IDLE);
+                }))).whileRunning(
+                        /*DriveCommands.joystickDriveAtAngle(
+                                drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(),
+                                () -> Rotation2d.fromRadians(Math.atan2(
+                                        FieldConstants.Hub.innerCenterPoint.getY() - RobotState.getInstance().getEstimatedPose().getY(),
+                                        FieldConstants.Hub.innerCenterPoint.getX() - RobotState.getInstance().getEstimatedPose().getX()
+                                ))
+                                ),*/
+                        Commands.run(() -> {
+                            hood.setWantedState(Hood.WantedState.SCORING, Degrees.of(hoodAngle.get()).in(Rotations));
+                            shooter.setWantedState(Shooter.WantedState.SCORING, shooterRPM.get());
+                        })
+
+                );
+
+        var SHOOT = scoringStates.state("SHOOT")
+                .onEnter(new InstantCommand((() -> {
+                    turret.setWantedState(Turret.WantedState.IDLE);
+                    kicker.setWantedState(Kicker.WantedState.KICK);
+                    spindexer.setWantedState(Spindexer.WantedState.SPIN);
+                }))).whileRunning(
+                        /*DriveCommands.joystickDriveAtAngle(
+                                drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(),
+                                () -> Rotation2d.fromRadians(Math.atan2(
+                                        FieldConstants.Hub.innerCenterPoint.getY() - RobotState.getInstance().getEstimatedPose().getY(),
+                                        FieldConstants.Hub.innerCenterPoint.getX() - RobotState.getInstance().getEstimatedPose().getX()
+                                ))
+                        ),*/
+                        Commands.run(() -> {
+                            hood.setWantedState(Hood.WantedState.SCORING, Degrees.of(hoodAngle.get()).in(Rotations));
+                            shooter.setWantedState(Shooter.WantedState.SCORING, shooterRPM.get());
+                        })
+                );
+
+        StateMachine2 intakeStates = new StateMachine2(intake).activeDuring(StateMachine2.ActiveMode.TELEOP).publishToNT("INTAKE");
+
+        var INTAKE_IDLE = intakeStates.defaultState("IDLE")
+                .onEnter(new InstantCommand(() -> {
+                    intake.setWantedState(Intake.WantedState.IDLE);
+                }));
+
+        var INTAKE_INTAKE = intakeStates.state("INTAKE")
+                .onEnter(new InstantCommand(() -> {
+                    intake.setWantedState(Intake.WantedState.INTAKE);
+                }));
+
+        var INTAKE_AGITATE = intakeStates.state("AGITATE")
+                .onEnter(new InstantCommand(() -> {
+                    intake.setWantedState(Intake.WantedState.IDLE);
+                })).withDeadline(Commands.waitSeconds(0.8), () -> INTAKE_INTAKE);
+
+        IDLE.onTrigger(controller.rightBumper(), () -> SPINUP);
+
+        SPINUP.withEndCondition(() -> {
+           return hood.atSetpoint() && shooter.atSetpoint();
+        }, () -> SHOOT);
+
+        SPINUP.onTrigger(controller.rightBumper(), () -> IDLE);
+
+        SHOOT.onTrigger(controller.rightBumper(), () -> IDLE);
+
+        INTAKE_IDLE.onTrigger(controller.a(), () -> INTAKE_INTAKE);
+
+        INTAKE_INTAKE.onTrigger(controller.b(), () -> INTAKE_AGITATE);
+
+        INTAKE_INTAKE.onTrigger(controller.a(), () -> INTAKE_IDLE);
+
+        /*controller.x().whileTrue(shooter.getSysID().getRoutine().dynamic(SysIdRoutine.Direction.kForward));
+        controller.y().whileTrue(shooter.getSysID().getRoutine().dynamic(SysIdRoutine.Direction.kReverse));
+        controller.a().whileTrue(shooter.getSysID().getRoutine().quasistatic(SysIdRoutine.Direction.kForward));
+        controller.b().whileTrue(shooter.getSysID().getRoutine().quasistatic(SysIdRoutine.Direction.kReverse));*/
+
     }
 
     private void configureSimButtonBindings() {
