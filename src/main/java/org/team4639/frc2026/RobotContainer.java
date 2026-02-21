@@ -55,8 +55,6 @@ import org.team4639.lib.util.geometry.AllianceFlipUtil;
 public class RobotContainer {
     private final PortConfiguration portConfiguration = Netherite.portConfiguration;
 
-    private final PortConfiguration portConfiguration = Netherite.portConfiguration;
-
     // Subsystems
     private final Drive drive;
     private final Vision vision;
@@ -290,83 +288,7 @@ public class RobotContainer {
     }
 
     private void configureSimButtonBindings() {
-        // Default command, normal field-relative drive
-        drive.setDefaultCommand(DriveCommands.joystickDrive(
-                drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> -controller.getRightX()));
-        // Default command, normal field-relative drive
-        StateMachine2 indexing = new StateMachine2().activeDuring(StateMachine2.ActiveMode.TELEOP).publishToNT("IndexingStates");
-        indexing.template(state -> {
-            state.onExit(
-                    new InstantCommand(() -> kicker.setWantedState(Kicker.WantedState.IDLE)),
-                    new InstantCommand(() -> spindexer.setWantedState(Spindexer.WantedState.IDLE))
-            );
-            return state;
-        });
-        var INDEXING_OFF = indexing.defaultState("OFF")
-                .onEnter(
-                        new InstantCommand(() -> kicker.setWantedState(Kicker.WantedState.IDLE)),
-                        new InstantCommand(() -> spindexer.setWantedState(Spindexer.WantedState.IDLE))
-                );
-
-        var INDEXING_ON = indexing.state("ON")
-                .onEnter(
-                        new InstantCommand(() -> kicker.setWantedState(Kicker.WantedState.KICK)),
-                        new InstantCommand(() -> spindexer.setWantedState(Spindexer.WantedState.SPIN))
-                );
-
-        INDEXING_ON.onTrigger(controller.x(), () -> INDEXING_OFF);
-        INDEXING_OFF.onTrigger(controller.x(), () -> INDEXING_ON);
-
-        StateMachine2 sintake = new StateMachine2().activeDuring(StateMachine2.ActiveMode.TELEOP).publishToNT("Intake States");
-
-        var INTAKE_IN = sintake.defaultState("IN")
-                .onEnter(new InstantCommand(() -> intake.setWantedState(Intake.WantedState.IDLE)));
-        var INTAKE_OUT = sintake.state("OUT")
-                .onEnter(new InstantCommand(() -> intake.setWantedState(Intake.WantedState.INTAKE)));
-
-        INTAKE_IN.onTrigger(controller.a(), () -> INTAKE_OUT);
-        INTAKE_OUT.onTrigger(controller.a(), () -> INTAKE_IN);
-
-        var INTAKE_AGITATE = sintake.state("AGITATE")
-                .onEnter(new InstantCommand(() -> intake.setWantedState(Intake.WantedState.IDLE)))
-                .withDeadline(Commands.waitSeconds(1.0), () -> INTAKE_OUT);
-
-        INTAKE_OUT.onTrigger(controller.b(), () -> INTAKE_AGITATE);
-
-        /*intake.setWantedState(Intake.WantedState.INTAKE);
-
-        controller.x().whileTrue(intake.getRollerSysID().getRoutine().quasistatic(SysIdRoutine.Direction.kForward));
-        controller.y().whileTrue(intake.getRollerSysID().getRoutine().quasistatic(SysIdRoutine.Direction.kReverse));
-        controller.a().whileTrue(intake.getRollerSysID().getRoutine().dynamic(SysIdRoutine.Direction.kForward));
-        controller.b().whileTrue(intake.getRollerSysID().getRoutine().dynamic(SysIdRoutine.Direction.kReverse));*/
-    }
-
-    private void configureSimButtonBindings() {
-        // Default command, normal field-relative drive
-        drive.setDefaultCommand(DriveCommands.joystickDrive(
-                drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> -controller.getRightX()));
-        controller.a().onTrue(Commands.runOnce(() -> intake.setWantedState(Intake.WantedState.INTAKE)));
-        controller.b().onTrue(Commands.runOnce(() -> intake.setWantedState(Intake.WantedState.IDLE)));
-        controller.x().onTrue(Commands.runOnce(
-                () -> {
-                    spindexer.setWantedState(Spindexer.WantedState.SPIN);
-                    kicker.setWantedState(Kicker.WantedState.KICK);
-                }
-        ));
-        controller.x().onFalse(Commands.runOnce(
-                () -> {
-                    spindexer.setWantedState(Spindexer.WantedState.IDLE);
-                    kicker.setWantedState(Kicker.WantedState.IDLE);
-                }
-        ));
-
-        /*controller.x().whileTrue(kicker.getSysID().getRoutine().quasistatic(SysIdRoutine.Direction.kForward));
-
-        controller.y().whileTrue(kicker.getSysID().getRoutine().quasistatic(SysIdRoutine.Direction.kReverse));
-        controller.a().whileTrue(kicker.getSysID().getRoutine().dynamic(SysIdRoutine.Direction.kForward));
-
-        controller.b().whileTrue(kicker.getSysID().getRoutine().dynamic(SysIdRoutine.Direction.kReverse));*/
-
+        
     }
 
     /**

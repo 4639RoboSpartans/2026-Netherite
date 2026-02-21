@@ -343,11 +343,11 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer {
         return new Pose3d[]{intakePose, turretPose, hoodPose};
     }
 
-    public Pose3d[] getComponentPoses() {
-        Pose3d turretPose = new Pose3d();
-        Pose3d hoodPose = new Pose3d();
-        Pose3d intakePose = new Pose3d();
-        intakePose = intakePose.transformBy(new Transform3d(Constants.SimConstants.intakeExtendedTranslation.times(intakeExtensionFraction), new Rotation3d()));
-        return new Pose3d[]{intakePose, turretPose, hoodPose};
-    }
+    // public Pose3d[] getComponentPoses() {
+    //     Pose3d turretPose = new Pose3d();
+    //     Pose3d hoodPose = new Pose3d();
+    //     Pose3d intakePose = new Pose3d();
+    //     intakePose = intakePose.transformBy(new Transform3d(Constants.SimConstants.intakeExtendedTranslation.times(intakeExtensionFraction), new Rotation3d()));
+    //     return new Pose3d[]{intakePose, turretPose, hoodPose};
+    // }
 }
