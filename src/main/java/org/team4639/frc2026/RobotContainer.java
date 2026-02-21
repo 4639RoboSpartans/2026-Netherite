@@ -3,6 +3,7 @@
 package org.team4639.frc2026;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -37,9 +38,7 @@ import org.team4639.frc2026.subsystems.shooter.ShooterIO;
 import org.team4639.frc2026.subsystems.shooter.ShooterIOSim;
 import org.team4639.frc2026.subsystems.shooter.ShooterIOSparkFlex;
 import org.team4639.frc2026.subsystems.turret.*;
-import org.team4639.frc2026.subsystems.vision.Vision;
-import org.team4639.frc2026.subsystems.vision.VisionConstants;
-import org.team4639.frc2026.subsystems.vision.VisionIOPhotonVisionSim;
+import org.team4639.frc2026.subsystems.vision.*;
 import org.team4639.frc2026.util.PortConfiguration;
 import org.team4639.lib.statebased2.StateMachine2;
 import org.team4639.frc2026.util.PortConfiguration;
@@ -61,6 +60,7 @@ public class RobotContainer {
     private final Intake intake;
     private final Spindexer spindexer;
     private final Kicker kicker;
+    private final TurretCamera turretCamera;
     private final Hood hood;
    // private final Shooter shooter;
     private final Turret turret;
@@ -92,6 +92,8 @@ public class RobotContainer {
 
                 // No cameras on real robot yet
                 vision = new Vision(RobotState.getInstance());
+
+                turretCamera = new TurretCamera(RobotState.getInstance(), new VisionIOLimelight4("limelight-turret", () -> RobotState.getInstance().getTurretPose().getRotation()));
 
                 hood = new Hood(new HoodIOTalonFX(portConfiguration), RobotState.getInstance());
                 //shooter = new Shooter(new ShooterIOSparkFlex(portConfiguration), RobotState.getInstance());
@@ -185,6 +187,8 @@ public class RobotContainer {
 
                 //superstructure = new Superstructure(shooter, turret, hood, RobotState.getInstance());
 
+                turretCamera = new TurretCamera(RobotState.getInstance(), new VisionIOPhotonVisionSim("Turret-Sim", new Transform3d(), () -> RobotState.getInstance().getTurretPose()));
+
                 configureSimButtonBindings();
 
 
@@ -230,6 +234,9 @@ public class RobotContainer {
                 );
 
                 //superstructure = new Superstructure(shooter, turret, hood, RobotState.getInstance());
+
+                turretCamera = new TurretCamera(RobotState.getInstance(), new VisionIO() {
+                });
 
 
                 intake = new Intake(
