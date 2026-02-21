@@ -10,9 +10,9 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import org.team4639.frc2026.util.PhoenixUtil;
 import org.team4639.frc2026.util.PortConfiguration;
 import org.team4639.lib.util.Phoenix6Factory;
+import org.team4639.lib.util.PhoenixUtil;
 
 public class ShooterIOTalonFX implements ShooterIO {
     private final TalonFX leftShooter;

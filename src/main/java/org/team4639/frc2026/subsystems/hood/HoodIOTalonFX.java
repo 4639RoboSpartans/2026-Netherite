@@ -15,9 +15,9 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import org.team4639.frc2026.util.PhoenixUtil;
 import org.team4639.frc2026.util.PortConfiguration;
 import org.team4639.lib.util.Phoenix6Factory;
+import org.team4639.lib.util.PhoenixUtil;
 
 import static org.team4639.frc2026.subsystems.hood.Constants.*;
 

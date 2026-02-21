@@ -288,7 +288,7 @@ public class RobotContainer {
     }
 
     private void configureSimButtonBindings() {
-        
+
     }
 
     /**

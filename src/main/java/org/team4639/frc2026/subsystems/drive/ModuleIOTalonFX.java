@@ -24,7 +24,8 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import java.util.Queue;
 import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
-import org.team4639.frc2026.util.PhoenixUtil;
+import org.team4639.lib.util.PhoenixUtil;
+
 
 /**
  * Module IO implementation for Talon FX drive motor controller, Talon FX turn motor controller, and
