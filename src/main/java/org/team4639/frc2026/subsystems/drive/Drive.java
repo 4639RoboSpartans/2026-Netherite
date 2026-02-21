@@ -2,8 +2,6 @@
 
 package org.team4639.frc2026.subsystems.drive;
 
-import static edu.wpi.first.units.Units.*;
-
 import choreo.trajectory.SwerveSample;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.ModuleConfig;
@@ -35,10 +33,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import java.util.Optional;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Consumer;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.Constants;
@@ -46,6 +40,14 @@ import org.team4639.frc2026.Constants.Mode;
 import org.team4639.frc2026.RobotState;
 import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
 import org.team4639.frc2026.util.LocalADStarAK;
+
+import java.util.Optional;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
+
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Volts;
 
 public class Drive extends SubsystemBase {
     // TunerConstants doesn't include these constants, so they are declared locally
@@ -197,6 +199,8 @@ public class Drive extends SubsystemBase {
                             modulePositions,
                             gyroInputs.connected ? Optional.of(rawGyroRotation) : Optional.empty(),
                             sampleTimestamps[i]);
+
+            RobotState.getInstance().updateChassisSpeeds(ChassisSpeeds.fromRobotRelativeSpeeds(getChassisSpeeds(), getRotation()));
         }
 
         // Update gyro alert

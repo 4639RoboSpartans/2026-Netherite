@@ -22,10 +22,9 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
-import org.team4639.lib.util.PhoenixUtil;
-
 import java.util.Queue;
+import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
+import org.team4639.frc2026.util.PhoenixUtil;
 
 /**
  * Module IO implementation for Talon FX drive motor controller, Talon FX turn motor controller, and
@@ -106,7 +105,10 @@ public class ModuleIOTalonFX implements ModuleIO {
             case FusedCANcoder -> FeedbackSensorSourceValue.FusedCANcoder;
             case SyncCANcoder -> FeedbackSensorSourceValue.SyncCANcoder;
             default -> throw new RuntimeException(
-                    "You have selected a turn feedback source that is not supported by the default implementation of ModuleIOTalonFX. Please check the AdvantageKit documentation for more information on alternative configurations: https://docs.advantagekit.org/getting-started/template-projects/talonfx-swerve-template#custom-module-implementations");};
+                    "You have selected a turn feedback source that is not supported by the default implementation of"
+                        + " ModuleIOTalonFX. Please check the AdvantageKit documentation for more information on"
+                        + " alternative configurations:"
+                        + " https://docs.advantagekit.org/getting-started/template-projects/talonfx-swerve-template#custom-module-implementations");};
         turnConfig.Feedback.RotorToSensorRatio = constants.SteerMotorGearRatio;
         turnConfig.MotionMagic.MotionMagicCruiseVelocity = 100.0 / constants.SteerMotorGearRatio;
         turnConfig.MotionMagic.MotionMagicAcceleration = turnConfig.MotionMagic.MotionMagicCruiseVelocity / 0.100;

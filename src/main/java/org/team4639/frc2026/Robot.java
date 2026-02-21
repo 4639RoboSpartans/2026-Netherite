@@ -2,6 +2,11 @@
 
 package org.team4639.frc2026;
 
+import com.ctre.phoenix6.SignalLogger;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
@@ -16,6 +21,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.littletonrobotics.urcl.URCL;
 import org.team4639.lib.util.FullSubsystem;
 import org.team4639.lib.util.LoggedTracer;
 import org.team4639.lib.util.VirtualSubsystem;
@@ -29,10 +35,6 @@ import org.team4639.lib.util.VirtualSubsystem;
 public class Robot extends LoggedRobot {
     private Command autonomousCommand;
     private RobotContainer robotContainer;
-
-    private final StructArrayPublisher<Pose3d> fuelPosesPublisher = NetworkTableInstance.getDefault()
-            .getStructArrayTopic("MyPoseArray", Pose3d.struct)
-            .publish();
 
     public Robot() {
         // Record metadata
@@ -74,6 +76,12 @@ public class Robot extends LoggedRobot {
         // Start AdvantageKit logger
         Logger.start();
 
+        // Start CTRE Logger and URCL if tuning mode on
+        if (Constants.tuningMode) {
+                SignalLogger.enableAutoLogging(true);
+                URCL.start(DataLogManager.getLog());
+            }
+
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our autonomous chooser on the dashboard.
         robotContainer = new RobotContainer();
@@ -84,6 +92,7 @@ public class Robot extends LoggedRobot {
     public void robotPeriodic() {
         LoggedTracer.reset();
         VirtualSubsystem.runAllPeriodic();
+        FullSubsystem.runAllPeriodicBeforeScheduler();
         // Optionally switch the thread to high priority to improve loop
         // timing (see the template project documentation for details)
         Threads.setCurrentThreadPriority(true, 99);

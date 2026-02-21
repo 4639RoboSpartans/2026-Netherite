@@ -2,6 +2,8 @@
 
 package org.team4639.frc2026;
 
+import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -18,7 +20,7 @@ public final class Constants {
     public static final boolean tuningMode = true;
     public static final boolean disableHAL = false;
 
-    public static enum Mode {
+    public enum Mode {
         /** Running on a real robot. */
         REAL,
 

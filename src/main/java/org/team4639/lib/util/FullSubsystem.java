@@ -27,12 +27,20 @@ public abstract class FullSubsystem extends SubsystemBase {
      * This method is called periodically after the command scheduler, and should be used for applying
      * outputs.
      */
-    public abstract void periodicAfterScheduler();
+    public void periodicAfterScheduler() {}
 
     /** Run the "after periodic" methods for all subsystems. */
     public static void runAllPeriodicAfterScheduler() {
         for (FullSubsystem instance : instances) {
             instance.periodicAfterScheduler();
+        }
+    }
+
+    public void periodicBeforeScheduler() {}
+
+    public static void runAllPeriodicBeforeScheduler() {
+        for (FullSubsystem instance : instances) {
+            instance.periodicBeforeScheduler();
         }
     }
 }

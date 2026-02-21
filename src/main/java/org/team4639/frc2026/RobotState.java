@@ -2,28 +2,45 @@
 
 package org.team4639.frc2026;
 
+import edu.wpi.first.math.*;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
+import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.Constants.Mode;
+import org.team4639.frc2026.constants.shooter.ScoringState;
+import org.team4639.frc2026.constants.shooter.ShooterScoringData;
 import org.team4639.frc2026.subsystems.drive.Drive;
+import org.team4639.frc2026.subsystems.hood.Hood;
+import org.team4639.frc2026.subsystems.hood.HoodIO;
+import org.team4639.frc2026.subsystems.shooter.Shooter;
+import org.team4639.frc2026.subsystems.shooter.ShooterIO;
+import org.team4639.frc2026.subsystems.turret.Turret;
+import org.team4639.frc2026.subsystems.turret.TurretIO;
 import org.team4639.frc2026.subsystems.vision.Vision.VisionConsumer;
 import org.team4639.lib.util.VirtualSubsystem;
 import org.team4639.lib.util.geometry.AllianceFlipUtil;
 
 import java.util.*;
+
+import static edu.wpi.first.units.Units.*;
 
 /**
  * RobotState handles all information involving the current state of the robot.
@@ -56,7 +73,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer {
     // Odometry
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(Drive.getModuleTranslations());
     private SwerveModulePosition[] lastWheelPositions = new SwerveModulePosition[] {
-        new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()
+            new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition(), new SwerveModulePosition()
     };
     // Assume gyro starts at zero
     private Rotation2d gyroOffset = Rotation2d.kZero;
@@ -71,6 +88,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer {
      * Pose <b>relative to our alliance wall</b>
      */
     private Pose2d estimatedPose = Pose2d.kZero;
+    private ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
     private double intakeExtensionFraction = 0.0;
 
     // RobotState Field and Pose Publishers
@@ -82,6 +100,16 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer {
     private final String CHOREO_SETPOINT_KEY = "/Internal/Choreo Setpoint";
 
     private final TimeInterpolatableBuffer<Pose2d> choreoSetpoints = TimeInterpolatableBuffer.createBuffer(0.05);
+
+    @Getter
+    private ScoringState scoringState = new ScoringState(Rotations.per(Minute).of(0.0), Rotations.of(0), Rotations.of(0));
+
+    @Setter
+    private Pair<Hood.WantedState, Hood.SystemState> hoodStates;
+    @Setter
+    private Pair<Shooter.WantedState, Shooter.SystemState> shooterStates;
+    @Setter
+    private Pair<Turret.WantedState, Turret.SystemState> turretStates;
 
     /**
      * Returns the pose relative to the blue alliance wall.
@@ -184,6 +212,23 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer {
         estimatedPose = estimateAtTime.plus(scaledTransform).plus(sampleToOdometryTransform);
     }
 
+    public void updateChassisSpeeds(ChassisSpeeds chassisSpeeds) {
+        this.chassisSpeeds = chassisSpeeds;
+    }
+
+    public void updateShooterState(AngularVelocity shooterRPM, Angle hoodAngle, Angle turretAngle) {
+        AngularVelocity newShooterRPM = scoringState.shooterRPM();
+        if (shooterRPM != null) newShooterRPM = shooterRPM;
+        SmartDashboard.putNumber("Scoring/ShooterRPM", newShooterRPM.in(Rotations.per(Minute)));
+        Angle newHoodAngle = scoringState.hoodAngle();
+        if (hoodAngle != null) newHoodAngle = hoodAngle;
+        SmartDashboard.putNumber("Scoring/HoodAngle", newHoodAngle.in(Rotations));
+        Angle newTurretAngle = scoringState.turretAngle();
+        if (turretAngle != null) newTurretAngle = turretAngle;
+        SmartDashboard.putNumber("Scoring/TurretAngle", newTurretAngle.in(Rotations));
+        scoringState = new ScoringState(newShooterRPM, newHoodAngle, newTurretAngle);
+    }
+
     public void updateIntakePosition(double intakeExtensionFraction) {
         this.intakeExtensionFraction = intakeExtensionFraction;
     }
@@ -205,6 +250,12 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer {
         SmartDashboard.putData(ROBOT_FIELD_INTERNAL_KEY, robotFieldInternal);
         robotFieldTrue.setRobotPose(getTrueOnFieldPose());
         SmartDashboard.putData(ROBOT_FIELD_TRUE_KEY, robotFieldTrue);
+
+        ScoringState scoringState = calculateScoringState();
+        SmartDashboard.putNumber("Scoring/CalculatedRPM", scoringState.shooterRPM().in(Rotations.per(Minute)));
+        SmartDashboard.putNumber("Scoring/CalculatedHoodAngle", scoringState.hoodAngle().in(Rotations));
+        SmartDashboard.putNumber("Scoring/CalculatedTurretAngle", scoringState.turretAngle().in(Rotations));
+        SmartDashboard.putNumber("Scoring/CalculatedTurretAngleFieldRelative", getEstimatedPose().getRotation().getMeasure().plus(scoringState.turretAngle()).in(Degrees));
     }
 
     @Override
@@ -249,6 +300,47 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer {
                 AllianceFlipUtil.apply(visionRobotPoseMeters),
                 timestampSeconds,
                 visionMeasurementStdDevs));
+    }
+
+    public void accept(ShooterIO.ShooterIOInputs inputs){
+        // TODO: something with this
+    }
+
+    public void accept(HoodIO.HoodIOInputs inputs){
+        //TODO: something with this
+    }
+
+    public void accept(TurretIO.TurretIOInputs inputs){
+        //TODO: something with this
+    }
+
+    public ScoringState calculateScoringState() {
+        Translation2d hubTranslation = FieldConstants.Hub.topCenterPoint.toTranslation2d();
+        Pose2d turretPose = getEstimatedPose().transformBy(new Transform2d(Constants.SimConstants.originToTurretRotation.toTranslation2d(), new Rotation2d()));
+        if (MathUtil.isNear(0, chassisSpeeds.vxMetersPerSecond, 0.01) || MathUtil.isNear(0, chassisSpeeds.vyMetersPerSecond, 0.01)) {
+            return ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(turretPose, hubTranslation);
+        } else {
+            Rotation2d robotRotation = turretPose.getRotation();
+            Translation2d robotVelocity = new Translation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
+            Translation2d robotTangentialVelocityTranslation = Constants.SimConstants.originToTurretRotation.toTranslation2d()
+                    .rotateBy(robotRotation)
+                    .rotateBy(Rotation2d.fromDegrees(90))
+                    .times(chassisSpeeds.omegaRadiansPerSecond);
+            robotTangentialVelocityTranslation.rotateBy(robotRotation);
+            robotVelocity = robotVelocity.plus(robotTangentialVelocityTranslation);
+            return ShooterScoringData.shooterLookupTable.convergeShooterStateSOTFTurret(turretPose, hubTranslation, robotVelocity, 10);
+        }
+    }
+
+    public Pose3d[] getComponentPoses() {
+        Pose3d turretPose = new Pose3d();
+        turretPose = turretPose.rotateAround(Constants.SimConstants.originToTurretRotation, new Rotation3d(new Rotation2d(scoringState.turretAngle())));
+        Pose3d hoodPose = new Pose3d();
+        Rotation2d hoodRotation = Rotation2d.fromDegrees(-scoringState.hoodAngle().in(Degrees) + org.team4639.frc2026.subsystems.hood.Constants.HOOD_MIN_ANGLE_DEGREES);
+        hoodPose = hoodPose.rotateAround(Constants.SimConstants.originToHoodRotation, new Rotation3d(VecBuilder.fill(0, 1, 0), -hoodRotation.getRadians()));
+        hoodPose = hoodPose.rotateAround(Constants.SimConstants.originToTurretRotation, new Rotation3d(new Rotation2d(scoringState.turretAngle())));
+        Pose3d intakePose = new Pose3d(new Translation3d(Units.inchesToMeters(10.396), 0, Units.inchesToMeters(-3.277)), new Rotation3d());
+        return new Pose3d[]{intakePose, turretPose, hoodPose};
     }
 
     public Pose3d[] getComponentPoses() {
