@@ -26,7 +26,7 @@ public class Shooter extends FullSubsystem {
     @AutoLogOutput(key = "Shooter Scoring RPM")
     private double SCORING_RPM = 0;
 
-    private final double SHOOTING_RPM_TOLERANCE = 10;
+    private final double SHOOTING_RPM_TOLERANCE = 50;
 
     @Getter
     private final ShooterSysID sysID = new ShooterSysID.ShooterSysIDWPI(this, inputs);
@@ -134,7 +134,7 @@ public class Shooter extends FullSubsystem {
     }
 
     public boolean atSetpoint() {
-        return MathUtil.isNear(getSetpointRPM(), inputs.leftRPM, SHOOTING_RPM_TOLERANCE);
+        return MathUtil.isNear(getSetpointRPM(), -inputs.leftRPM, SHOOTING_RPM_TOLERANCE);
     }
 
     private void runStateMachine() {

@@ -17,7 +17,7 @@ public class Kicker extends SubsystemBase {
     private final KickerIO io;
     private final KickerIOInputsAutoLogged inputs = new KickerIOInputsAutoLogged();
 
-    private final double KICK_RPM = 500 * 2;
+    private final double KICK_RPM = 500 * 2 * 1.75;
     private final double IDLE_RPM = 0;
 
     @Getter

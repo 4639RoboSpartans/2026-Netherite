@@ -16,7 +16,7 @@ public class Spindexer extends SubsystemBase {
     private final SpindexerIO io;
     private final SpindexerIOInputsAutoLogged inputs = new SpindexerIOInputsAutoLogged();
 
-    private final double KICK_RPM = -960;
+    private final double KICK_RPM = -960 * 1.75;
     private final double IDLE_RPM = 0;
 
     @Getter

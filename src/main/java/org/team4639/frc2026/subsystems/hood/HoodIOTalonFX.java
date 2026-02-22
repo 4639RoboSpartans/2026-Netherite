@@ -41,7 +41,7 @@ public class HoodIOTalonFX implements HoodIO {
         hoodMotor = Phoenix6Factory.createDefaultTalon(ports.HoodMotorID);
         hoodEncoder = Phoenix6Factory.createCANcoder(ports.HoodEncoderID);
 
-        hoodEncoder.getConfigurator().apply(new MagnetSensorConfigs().withMagnetOffset(0.411865234375).withAbsoluteSensorDiscontinuityPoint(0.95));
+        hoodEncoder.getConfigurator().apply(new MagnetSensorConfigs().withMagnetOffset(-0.411865234375).withAbsoluteSensorDiscontinuityPoint(0.95));
 
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         config.Feedback.FeedbackRemoteSensorID = hoodEncoder.getDeviceID();

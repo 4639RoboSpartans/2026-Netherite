@@ -4,6 +4,8 @@ package org.team4639.lib.util.geometry;
 
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.DriverStation;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.Constants;
 import org.team4639.frc2026.FieldConstants;
 
@@ -41,8 +43,9 @@ public class AllianceFlipUtil {
     }
 
     public static boolean shouldFlip() {
-        return !Constants.disableHAL
-                && DriverStation.getAlliance().isPresent()
+        var ret = DriverStation.getAlliance().isPresent()
                 && DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
+        Logger.recordOutput("Should Flip", ret);
+        return ret;
     }
 }

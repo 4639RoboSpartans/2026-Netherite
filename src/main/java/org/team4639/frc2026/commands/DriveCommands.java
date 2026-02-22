@@ -27,8 +27,8 @@ import org.team4639.frc2026.subsystems.drive.Drive;
 
 public class DriveCommands {
     private static final double DEADBAND = 0.1;
-    private static final double ANGLE_KP = 5.0;
-    private static final double ANGLE_KD = 0.4;
+    private static final double ANGLE_KP = 10.0;
+    private static final double ANGLE_KD = 0.0;
     private static final double ANGLE_MAX_VELOCITY = 8.0;
     private static final double ANGLE_MAX_ACCELERATION = 20.0;
     private static final double FF_START_DELAY = 2.0; // Secs
@@ -112,8 +112,7 @@ public class DriveCommands {
                                     linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
                                     linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
                                     omega);
-                            boolean isFlipped = DriverStation.getAlliance().isPresent()
-                                    && DriverStation.getAlliance().get() == Alliance.Red;
+                            boolean isFlipped = false;
                             drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(
                                     speeds,
                                     isFlipped

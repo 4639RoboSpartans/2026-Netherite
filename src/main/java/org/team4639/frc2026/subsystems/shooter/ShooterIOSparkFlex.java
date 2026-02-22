@@ -32,8 +32,7 @@ public class ShooterIOSparkFlex implements ShooterIO {
 
     public ShooterIOSparkFlex(PortConfiguration ports) {
         shooterConfig.idleMode(SparkBaseConfig.IdleMode.kCoast);
-        shooterConfig.smartCurrentLimit(40);
-        shooterConfig.secondaryCurrentLimit(80);
+        shooterConfig.smartCurrentLimit(90, 90);
 
         //updateGains();
 
@@ -100,7 +99,7 @@ public class ShooterIOSparkFlex implements ShooterIO {
         /*var err = closedLoopController.setSetpoint(applied, SparkBase.ControlType.kVelocity, ClosedLoopSlot.kSlot0);
         Logger.recordOutput("Shooter Setpoint RPS", closedLoopController.getSetpoint());
         Logger.recordOutput("Shooter RevLib Error", err.toString());*/
-        leftShooter.setVoltage(ff.calculate(applied) + pid.calculate(leftShooter.getEncoder().getVelocity(), applied));
+        leftShooter.setVoltage(ff.calculate(applied) /*+ pid.calculate(leftShooter.getEncoder().getVelocity(), applied)*/);
     }
 
     public void updateGains() {

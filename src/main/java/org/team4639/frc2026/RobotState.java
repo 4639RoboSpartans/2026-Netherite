@@ -167,6 +167,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     }
 
     private void addVisionObservation(VisionObservation observation) {
+        Logger.recordOutput("Vision Obs Pose", observation.visionPose);
         // If measurement is old enough to be outside the pose buffer's timespan, skip.
         try {
             if (poseBuffer.getInternalBuffer().lastKey() - poseBufferSizeSec > observation.timestamp()) {
@@ -254,10 +255,11 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         // transform turret
         var estimatedRobotPose = visionTurretPoseMeters.transformBy(
                 new Transform2d(Constants.SimConstants.originToTurretRotation.toTranslation2d(),
-                Rotation2d.fromRotations(getScoringState().turretAngle().in(Rotations))).inverse()
+               /* Rotation2d.fromRotations(getScoringState().turretAngle().in(Rotations))).inverse()*/ //TODO: extremely temporary change this
+                        Rotation2d.k180deg).inverse()
         );
 
-        accept(999, AllianceFlipUtil.apply(estimatedRobotPose), timestampSeconds, visionMeasurementStdDevs);
+        accept(999, (estimatedRobotPose), timestampSeconds, visionMeasurementStdDevs);
     }
 
     public void updateIntakePosition(double intakeExtensionFraction) {
@@ -374,6 +376,11 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         hoodPose = hoodPose.rotateAround(Constants.SimConstants.originToTurretRotation, new Rotation3d(new Rotation2d(scoringState.turretAngle())));
         Pose3d intakePose = new Pose3d(new Translation3d(Units.inchesToMeters(10.396), 0, Units.inchesToMeters(-3.277)), new Rotation3d());
         return new Pose3d[]{intakePose, turretPose, hoodPose};
+    }
+
+    //only temporary
+    public double getTurretToGoal() {
+        return getTurretPose().getTranslation().getDistance(FieldConstants.Hub.innerCenterPoint.toTranslation2d());
     }
 
     // public Pose3d[] getComponentPoses() {

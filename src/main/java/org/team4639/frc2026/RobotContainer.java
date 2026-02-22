@@ -2,8 +2,10 @@
 
 package org.team4639.frc2026;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -283,6 +285,16 @@ public class RobotContainer {
                 drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> -controller.getRightX()));
 
         //controller.a().whileTrue(DriveCommands.joystickDriveAtAngle(drive, () -> 1, () -> 0, () -> Rotation2d.kZero));
+        InterpolatingDoubleTreeMap shooterMap = new InterpolatingDoubleTreeMap();
+
+        shooterMap.put(4.719, 3871.23);
+        shooterMap.put(2.70, 2702.700);
+        shooterMap.put(2.16, 2606.02);
+        shooterMap.put(2.97, 2902.2);
+        shooterMap.put(3.35, 3007.4);
+        shooterMap.put(3.64, 3155.3);
+        shooterMap.put(4.02, 3400.05);
+
 
         StateMachine2 scoringStates = new StateMachine2(drive, hood, shooter, turret, kicker, spindexer).activeDuring(StateMachine2.ActiveMode.TELEOP).publishToNT("SCORING");
 
@@ -307,16 +319,16 @@ public class RobotContainer {
                     kicker.setWantedState(Kicker.WantedState.IDLE);
                     spindexer.setWantedState(Spindexer.WantedState.IDLE);
                 }))).whileRunning(
-                        /*DriveCommands.joystickDriveAtAngle(
+                        DriveCommands.joystickDriveAtAngle(
                                 drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(),
                                 () -> Rotation2d.fromRadians(Math.atan2(
                                         FieldConstants.Hub.innerCenterPoint.getY() - RobotState.getInstance().getEstimatedPose().getY(),
                                         FieldConstants.Hub.innerCenterPoint.getX() - RobotState.getInstance().getEstimatedPose().getX()
-                                ))
-                                ),*/
+                                )).plus(Rotation2d.k180deg)
+                        ),
                         Commands.run(() -> {
-                            hood.setWantedState(Hood.WantedState.SCORING, Degrees.of(hoodAngle.get()).in(Rotations));
-                            shooter.setWantedState(Shooter.WantedState.SCORING, shooterRPM.get());
+                            hood.setWantedState(Hood.WantedState.IDLE);
+                            shooter.setWantedState(Shooter.WantedState.SCORING, /*shooterRPM.get()*/ shooterMap.get(shooterMap.get(RobotState.getInstance().getTurretToGoal())));
                         })
 
                 );
@@ -327,16 +339,16 @@ public class RobotContainer {
                     kicker.setWantedState(Kicker.WantedState.KICK);
                     spindexer.setWantedState(Spindexer.WantedState.SPIN);
                 }))).whileRunning(
-                        /*DriveCommands.joystickDriveAtAngle(
+                        DriveCommands.joystickDriveAtAngle(
                                 drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(),
                                 () -> Rotation2d.fromRadians(Math.atan2(
                                         FieldConstants.Hub.innerCenterPoint.getY() - RobotState.getInstance().getEstimatedPose().getY(),
                                         FieldConstants.Hub.innerCenterPoint.getX() - RobotState.getInstance().getEstimatedPose().getX()
-                                ))
-                        ),*/
+                                )).plus(Rotation2d.k180deg)
+                        ),
                         Commands.run(() -> {
-                            hood.setWantedState(Hood.WantedState.SCORING, Degrees.of(hoodAngle.get()).in(Rotations));
-                            shooter.setWantedState(Shooter.WantedState.SCORING, shooterRPM.get());
+                            hood.setWantedState(Hood.WantedState.IDLE);
+                            shooter.setWantedState(Shooter.WantedState.SCORING, shooterRPM.get() /*shooterMap.get(shooterMap.get(RobotState.getInstance().getTurretToGoal()))*/);
                         })
                 );
 
@@ -359,9 +371,11 @@ public class RobotContainer {
 
         IDLE.onTrigger(controller.rightBumper(), () -> SPINUP);
 
-        SPINUP.withEndCondition(() -> {
-           return hood.atSetpoint() && shooter.atSetpoint();
-        }, () -> SHOOT);
+        SPINUP.withEndCondition(() -> shooter.getSetpointRPM() != 0 && shooter.atSetpoint() &&
+                MathUtil.isNear(Rotation2d.fromRadians(Math.atan2(
+                        FieldConstants.Hub.innerCenterPoint.getY() - RobotState.getInstance().getEstimatedPose().getY(),
+                        FieldConstants.Hub.innerCenterPoint.getX() - RobotState.getInstance().getEstimatedPose().getX()
+                )).plus(Rotation2d.k180deg).getRotations(), RobotState.getInstance().getEstimatedPose().getRotation().getRotations(), 0.05), () -> SHOOT);
 
         SPINUP.onTrigger(controller.rightBumper(), () -> IDLE);
 
