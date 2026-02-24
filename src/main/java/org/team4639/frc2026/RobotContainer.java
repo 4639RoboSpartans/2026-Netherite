@@ -64,7 +64,6 @@ public class RobotContainer {
     private final Hood hood;
     private final Shooter shooter;
     private final Turret turret;
-    //private final Superstructure superstructure;
 
     // Controller
     private final CommandXboxController controller = new CommandXboxController(0);
@@ -78,9 +77,6 @@ public class RobotContainer {
     public RobotContainer() {
         switch (Constants.currentMode) {
             case REAL:
-                // Real robot, instantiate hardware IO implementations
-                // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
-                // a CANcoder
                 drive = new Drive(
                         new GyroIOPigeon2(),
                         new ModuleIOTalonFX(TunerConstants.FrontLeft),
@@ -90,13 +86,16 @@ public class RobotContainer {
                         pose -> {}
                 );
 
-                // No cameras on real robot yet
-                vision = new Vision(RobotState.getInstance());
+                intake = new Intake(
+                        new IntakeExtensionIOTalonFX(portConfiguration),
+                        new IntakeRollerIOTalonFX(portConfiguration),
+                        RobotState.getInstance()
+                );
 
-                turretCamera = new TurretCamera(RobotState.getInstance(), new VisionIOLimelight4("limelight-turret", () -> RobotState.getInstance().getTurretPose().getRotation()));
+                spindexer = new Spindexer(new SpindexerIOTalonFX(portConfiguration), RobotState.getInstance());
 
-                hood = new Hood(new HoodIOTalonFX(portConfiguration), RobotState.getInstance());
-                shooter = new Shooter(new ShooterIOSparkFlex(portConfiguration), RobotState.getInstance());
+                kicker = new Kicker(new KickerIOTalonFX(portConfiguration), RobotState.getInstance());
+
                 turret = new Turret(
                         new TurretIOTalonFX(portConfiguration),
                         new EncoderIOCANCoder(
@@ -112,25 +111,18 @@ public class RobotContainer {
                         RobotState.getInstance()
                 );
 
-                //superstructure = new Superstructure(shooter, turret, hood, RobotState.getInstance());
+                hood = new Hood(new HoodIOTalonFX(portConfiguration), RobotState.getInstance());
 
-                intake = new Intake(
-                        new IntakeExtensionIOTalonFX(portConfiguration),
-                        new IntakeRollerIOTalonFX(portConfiguration),
-                        RobotState.getInstance()
-                );
+                shooter = new Shooter(new ShooterIOSparkFlex(portConfiguration), RobotState.getInstance());
 
-                // Configure the button bindings
-                spindexer = new Spindexer(new SpindexerIOTalonFX(portConfiguration), RobotState.getInstance());
+                vision = new Vision(RobotState.getInstance());
 
-                kicker = new Kicker(new KickerIOTalonFX(portConfiguration), RobotState.getInstance());
+                turretCamera = new TurretCamera(RobotState.getInstance(), new VisionIOLimelight4("limelight-turret", () -> RobotState.getInstance().getTurretPose().getRotation()));
 
                 configureButtonBindings();
                 break;
 
             case SIM:
-                // Sim robot, instantiate physics sim IO implementations
-
                 SimRobot.getInstance().setupDriveSim();
 
                 drive = new Drive(
@@ -157,7 +149,30 @@ public class RobotContainer {
                                 SimRobot.getInstance()
                                         .getSwerveDriveSimulation()
                                         .getModules()[3]),
-                        SimRobot.getInstance()::resetPose);
+                        SimRobot.getInstance()::resetPose
+                );
+
+                intake = new Intake(
+                        new IntakeExtensionIOSim(),
+                        new IntakeRollerIOSim(),
+                        RobotState.getInstance()
+                );
+
+                spindexer = new Spindexer(new SpindexerIO() {}, RobotState.getInstance());
+
+                kicker = new Kicker(new KickerIO() {}, RobotState.getInstance());
+
+                turret = new Turret(
+                        new TurretIOSim(),
+                        new EncoderIOSim(),
+                        new EncoderIOSim(),
+                        RobotState.getInstance()
+                );
+
+                hood = new Hood(new HoodIOSim(), RobotState.getInstance());
+
+                shooter = new Shooter(new ShooterIOSim(), RobotState.getInstance());
+
                 // flip poses so that the vision sees the true on-field pose
                 vision = new Vision(
                         RobotState.getInstance(),
@@ -172,58 +187,34 @@ public class RobotContainer {
                                 VisionConstants.robotToCamera1,
                                 () -> AllianceFlipUtil.apply(SimRobot.getInstance()
                                         .getSwerveDriveSimulation()
-                                        .getSimulatedDriveTrainPose())));
-
-                hood = new Hood(new HoodIOSim(), RobotState.getInstance());
-                shooter = new Shooter(new ShooterIOSim(), RobotState.getInstance());
-                turret = new Turret(
-                        new TurretIOSim(),
-                        new EncoderIOSim(),
-                        new EncoderIOSim(),
-                        RobotState.getInstance()
+                                        .getSimulatedDriveTrainPose()))
                 );
-
-                //superstructure = new Superstructure(shooter, turret, hood, RobotState.getInstance());
 
                 turretCamera = new TurretCamera(RobotState.getInstance(), new VisionIOPhotonVisionSim("Turret-Sim", new Transform3d(), () -> RobotState.getInstance().getTurretPose()));
 
                 configureSimButtonBindings();
+                break;
 
+            default:
+                drive = new Drive(
+                        new GyroIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {},
+                        pose -> {}
+                );
 
                 intake = new Intake(
-                        new IntakeExtensionIOSim(),
-                        new IntakeRollerIOSim(),
+                        new IntakeExtensionIO() {},
+                        new IntakeRollerIO() {},
                         RobotState.getInstance()
                 );
 
-                // Configure the button bindings
-                configureSimButtonBindings();
                 spindexer = new Spindexer(new SpindexerIO() {}, RobotState.getInstance());
 
                 kicker = new Kicker(new KickerIO() {}, RobotState.getInstance());
 
-                break;
-
-            default:
-                // Replayed robot, disable IO implementations
-                drive = new Drive(
-                        new GyroIO() {
-                        },
-                        new ModuleIO() {
-                        },
-                        new ModuleIO() {
-                        },
-                        new ModuleIO() {
-                        },
-                        new ModuleIO() {
-                        },
-                        pose -> {
-                        });
-
-                vision = new Vision(RobotState.getInstance());
-
-                hood = new Hood(new HoodIO() {}, RobotState.getInstance());
-                shooter = new Shooter(new ShooterIO() {}, RobotState.getInstance());
                 turret = new Turret(
                         new TurretIO() {},
                         new EncoderIO() {},
@@ -231,20 +222,15 @@ public class RobotContainer {
                         RobotState.getInstance()
                 );
 
-                //superstructure = new Superstructure(shooter, turret, hood, RobotState.getInstance());
+                hood = new Hood(new HoodIO() {}, RobotState.getInstance());
 
-                turretCamera = new TurretCamera(RobotState.getInstance(), new VisionIO() {
-                });
+                shooter = new Shooter(new ShooterIO() {}, RobotState.getInstance());
 
+                vision = new Vision(RobotState.getInstance());
 
-                intake = new Intake(
-                        new IntakeExtensionIO() {},
-                        new IntakeRollerIO() {},
-                        RobotState.getInstance()
-                );
-                spindexer = new Spindexer(new SpindexerIO() {}, RobotState.getInstance());
+                turretCamera = new TurretCamera(RobotState.getInstance(), new VisionIO() {});
 
-                kicker = new Kicker(new KickerIO() {}, RobotState.getInstance());
+                configureButtonBindings();
                 break;
         }
 
@@ -287,7 +273,9 @@ public class RobotContainer {
     }
 
     private void configureSimButtonBindings() {
-
+        // Default command, normal field-relative drive
+        drive.setDefaultCommand(DriveCommands.joystickDrive(
+                drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> -controller.getRightX()));
     }
 
     /**
@@ -299,7 +287,4 @@ public class RobotContainer {
         return autoChooser.get();
     }
 
-    public void publishComponentPoses() {
-        Logger.recordOutput("ZeroedComponentPoses", RobotState.getInstance().getComponentPoses());
-    }
 }
