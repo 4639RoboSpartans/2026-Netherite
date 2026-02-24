@@ -1,11 +1,12 @@
 /* Copyright (c) 2025-2026 FRC 4639. */
 
-package org.team4639.frc2026.subsystems.intake;
+package org.team4639.frc2026.subsystems.extension;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import org.team4639.frc2026.Robot;
+import org.team4639.frc2026.subsystems.intake.Constants;
 
 public class IntakeExtensionIOSim implements IntakeExtensionIO {
     private final SingleJointedArmSim extensionSim = new SingleJointedArmSim(

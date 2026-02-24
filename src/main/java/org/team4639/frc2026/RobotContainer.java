@@ -2,23 +2,21 @@
 
 package org.team4639.frc2026;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.auto.AutoCommands;
 import org.team4639.frc2026.commands.DriveCommands;
 import org.team4639.frc2026.constants.ports.Netherite;
 import org.team4639.frc2026.subsystems.drive.*;
 import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
+import org.team4639.frc2026.subsystems.extension.Extension;
+import org.team4639.frc2026.subsystems.extension.IntakeExtensionIO;
+import org.team4639.frc2026.subsystems.extension.IntakeExtensionIOSim;
+import org.team4639.frc2026.subsystems.extension.IntakeExtensionIOTalonFX;
 import org.team4639.frc2026.subsystems.intake.*;
 import org.team4639.frc2026.subsystems.kicker.Kicker;
 import org.team4639.frc2026.subsystems.kicker.KickerIO;
@@ -37,13 +35,9 @@ import org.team4639.frc2026.subsystems.shooter.ShooterIOSparkFlex;
 import org.team4639.frc2026.subsystems.turret.*;
 import org.team4639.frc2026.subsystems.vision.*;
 import org.team4639.frc2026.util.PortConfiguration;
-import org.team4639.lib.statebased2.StateMachine2;
+import org.team4639.lib.oi.DeadbandXboxController;
 import org.team4639.lib.util.LoggedLazyAutoChooser;
-import org.team4639.lib.util.LoggedTunableNumber;
 import org.team4639.lib.util.geometry.AllianceFlipUtil;
-
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Rotations;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -58,6 +52,7 @@ public class RobotContainer {
     private final Drive drive;
     private final Vision vision;
     private final Intake intake;
+    private final Extension extension;
     private final Spindexer spindexer;
     private final Kicker kicker;
     private final TurretCamera turretCamera;
@@ -66,7 +61,7 @@ public class RobotContainer {
     private final Turret turret;
 
     // Controller
-    private final CommandXboxController controller = new CommandXboxController(0);
+    private final CommandXboxController controller = new DeadbandXboxController(0);
 
     // Dashboard inputs
     private final LoggedLazyAutoChooser autoChooser;
@@ -87,8 +82,12 @@ public class RobotContainer {
                 );
 
                 intake = new Intake(
-                        new IntakeExtensionIOTalonFX(portConfiguration),
                         new IntakeRollerIOTalonFX(portConfiguration),
+                        RobotState.getInstance()
+                );
+
+                extension = new Extension(
+                        new IntakeExtensionIOTalonFX(portConfiguration),
                         RobotState.getInstance()
                 );
 
@@ -153,8 +152,12 @@ public class RobotContainer {
                 );
 
                 intake = new Intake(
-                        new IntakeExtensionIOSim(),
                         new IntakeRollerIOSim(),
+                        RobotState.getInstance()
+                );
+
+                extension = new Extension(
+                        new IntakeExtensionIOSim(),
                         RobotState.getInstance()
                 );
 
@@ -206,8 +209,12 @@ public class RobotContainer {
                 );
 
                 intake = new Intake(
-                        new IntakeExtensionIO() {},
                         new IntakeRollerIO() {},
+                        RobotState.getInstance()
+                );
+
+                extension = new Extension(
+                        new IntakeExtensionIO() {},
                         RobotState.getInstance()
                 );
 
