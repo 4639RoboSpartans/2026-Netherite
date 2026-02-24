@@ -61,7 +61,8 @@ public class RobotContainer {
     private final Turret turret;
 
     // Controller
-    private final CommandXboxController controller = new DeadbandXboxController(0);
+    private final CommandXboxController driver = new DeadbandXboxController(0);
+    private final CommandXboxController operator = new DeadbandXboxController(1);
 
     // Dashboard inputs
     private final LoggedLazyAutoChooser autoChooser;
@@ -275,14 +276,14 @@ public class RobotContainer {
     private void configureButtonBindings() {
         // Default command, normal field-relative drive
         drive.setDefaultCommand(DriveCommands.joystickDriveWithX(
-                drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> -controller.getRightX()));
+                drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
 
     }
 
     private void configureSimButtonBindings() {
         // Default command, normal field-relative drive
         drive.setDefaultCommand(DriveCommands.joystickDriveWithX(
-                drive, () -> -controller.getLeftY(), () -> -controller.getLeftX(), () -> -controller.getRightX()));
+                drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
     }
 
     /**
