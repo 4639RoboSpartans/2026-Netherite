@@ -175,47 +175,6 @@ public class Turret extends FullSubsystem {
         return diff > 0.5 ? 1.0 - diff : diff;
     }
 
-    @AutoLogOutput(key = "TurretRotationsCRT2")
-    public double getTurretRotation2(double leftEncoderRotations, double rightEncoderRotations) {
-        double sharedGearEstimateFromLeftPos = leftEncoderRotations * Constants.LEFT_ENCODER_GEAR_TEETH / Constants.SHARED_GEAR_TEETH;
-        double sharedGearEstimateFromRightPos = rightEncoderRotations * Constants.RIGHT_ENCODER_GEAR_TEETH / Constants.SHARED_GEAR_TEETH;
-
-        double sharedGearEstimateFromLeftNeg = leftEncoderRotations * Constants.LEFT_ENCODER_GEAR_TEETH / Constants.SHARED_GEAR_TEETH;
-        double sharedGearEstimateFromRightNeg = rightEncoderRotations * Constants.RIGHT_ENCODER_GEAR_TEETH / Constants.SHARED_GEAR_TEETH;
-
-        if (Math.abs(sharedGearEstimateFromLeftPos - sharedGearEstimateFromRightPos) < 0.01){
-            return sharedGearEstimateFromLeftPos* (12/92.0);
-        }
-
-        boolean isPositive = true;
-        for(int i = 0; i < 100; i++){
-            if (sharedGearEstimateFromLeftPos < sharedGearEstimateFromRightPos){
-                sharedGearEstimateFromLeftPos += 1 * Constants.LEFT_ENCODER_GEAR_TEETH / Constants.SHARED_GEAR_TEETH;
-            } else {
-                sharedGearEstimateFromRightPos += 1 * Constants.RIGHT_ENCODER_GEAR_TEETH / Constants.SHARED_GEAR_TEETH;
-            }
-
-            if (Math.abs(sharedGearEstimateFromLeftPos - sharedGearEstimateFromRightPos) < 0.01){
-                isPositive = true;
-                break;
-            }
-
-            if (sharedGearEstimateFromLeftNeg > sharedGearEstimateFromRightNeg){
-                sharedGearEstimateFromLeftNeg -= 1 * Constants.LEFT_ENCODER_GEAR_TEETH / Constants.SHARED_GEAR_TEETH;
-            } else {
-                sharedGearEstimateFromRightNeg -= 1 * Constants.RIGHT_ENCODER_GEAR_TEETH / Constants.SHARED_GEAR_TEETH;
-            }
-
-            if (Math.abs(sharedGearEstimateFromLeftNeg - sharedGearEstimateFromRightNeg) < 0.01){
-                isPositive = false;
-                break;
-            }
-        }
-
-        return (isPositive
-                ? sharedGearEstimateFromLeftPos
-                : sharedGearEstimateFromLeftNeg) * (12/92.0);
-    }
 
     @AutoLogOutput(key = "TurretRotations")
     public double getTurretRotationFromRotorRotation() {
