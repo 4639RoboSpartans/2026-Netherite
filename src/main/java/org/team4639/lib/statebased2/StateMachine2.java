@@ -215,7 +215,7 @@ public class StateMachine2 extends VirtualSubsystem {
     public StateMachine2 activeDuring(ActiveMode... modes){
         this.activeModes.addAll(Arrays.asList(modes));
         this.isActive = new Trigger(() -> activeModes.stream().anyMatch(mode -> mode.active.getAsBoolean()));
-        this.isActive.onTrue(Commands.runOnce(() -> this.setState(this.defaultState)));
+        this.isActive.onFalse(Commands.runOnce(() -> this.setState(this.defaultState)));
         return this;
     }
 }

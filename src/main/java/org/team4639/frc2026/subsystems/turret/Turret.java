@@ -175,7 +175,6 @@ public class Turret extends FullSubsystem {
         return diff > 0.5 ? 1.0 - diff : diff;
     }
 
-
     @AutoLogOutput(key = "TurretRotations")
     public double getTurretRotationFromRotorRotation() {
         return initialTurretRotation + ((turretInputs.motorPositionRotations - initialRotorRotation) * Constants.MOTOR_TO_TURRET_GEAR_RATIO);

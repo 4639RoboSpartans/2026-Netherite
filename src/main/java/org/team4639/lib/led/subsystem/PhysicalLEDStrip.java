@@ -2,9 +2,7 @@
 
 package org.team4639.lib.led.subsystem;
 
-import edu.wpi.first.wpilibj.AddressableLED;
-import edu.wpi.first.wpilibj.AddressableLEDBuffer;
-import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import org.team4639.lib.led.pattern.LEDPattern;
@@ -36,6 +34,8 @@ public class PhysicalLEDStrip extends LEDStrip {
     public void update() {
         for (int i = 0; i < length; i++) {
             Color color = currentPattern.get(i, Timer.getFPGATimestamp());
+            // brightness adjustment based on battery voltage
+            color = Color.lerpRGB(Color.kBlack, color, (RobotController.getBatteryVoltage() - 10)/2.0);
             buffer.setLED(i, new Color8Bit(color));
         }
         led.setData(buffer);

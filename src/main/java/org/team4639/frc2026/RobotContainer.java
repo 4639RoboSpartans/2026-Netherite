@@ -21,6 +21,10 @@ import org.team4639.frc2026.subsystems.intake.*;
 import org.team4639.frc2026.subsystems.kicker.Kicker;
 import org.team4639.frc2026.subsystems.kicker.KickerIO;
 import org.team4639.frc2026.subsystems.kicker.KickerIOTalonFX;
+import org.team4639.frc2026.subsystems.ledkicker.LEDKicker;
+import org.team4639.frc2026.subsystems.ledkicker.LEDKickerIO;
+import org.team4639.frc2026.subsystems.ledkicker.LEDKickerIOHardware;
+import org.team4639.frc2026.subsystems.ledkicker.LEDKickerIOSim;
 import org.team4639.frc2026.subsystems.spindexer.Spindexer;
 import org.team4639.frc2026.subsystems.spindexer.SpindexerIO;
 import org.team4639.frc2026.subsystems.spindexer.SpindexerIOTalonFX;
@@ -59,6 +63,7 @@ public class RobotContainer {
     private final Hood hood;
     private final Shooter shooter;
     private final Turret turret;
+    private final LEDKicker ledkicker;
 
     // Controller
     private final CommandXboxController driver = new DeadbandXboxController(0);
@@ -118,6 +123,8 @@ public class RobotContainer {
                 vision = new Vision(RobotState.getInstance());
 
                 turretCamera = new TurretCamera(RobotState.getInstance(), new VisionIOLimelight4("limelight-turret", () -> RobotState.getInstance().getTurretPose().getRotation()));
+
+                ledkicker = new LEDKicker(new LEDKickerIOHardware(portConfiguration, 100));
 
                 configureButtonBindings();
                 break;
@@ -196,6 +203,8 @@ public class RobotContainer {
 
                 turretCamera = new TurretCamera(RobotState.getInstance(), new VisionIOPhotonVisionSim("Turret-Sim", new Transform3d(), () -> RobotState.getInstance().getTurretPose()));
 
+                ledkicker = new LEDKicker(new LEDKickerIOSim());
+
                 configureSimButtonBindings();
                 break;
 
@@ -237,6 +246,8 @@ public class RobotContainer {
                 vision = new Vision(RobotState.getInstance());
 
                 turretCamera = new TurretCamera(RobotState.getInstance(), new VisionIO() {});
+
+                ledkicker = new LEDKicker(new LEDKickerIO() {});
 
                 configureButtonBindings();
                 break;

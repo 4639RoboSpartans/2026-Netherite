@@ -14,4 +14,6 @@ public class PortConfiguration {
     public CanDeviceId HoodEncoderID;
     public CanDeviceId shooterMotorLeftID;
     public CanDeviceId shooterMotorRightID;
+
+    public int ledkicker;
 }

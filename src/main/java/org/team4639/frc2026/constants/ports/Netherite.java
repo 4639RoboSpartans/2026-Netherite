@@ -20,5 +20,8 @@ public class Netherite {
         portConfiguration.HoodEncoderID = new CanDeviceId(28);
         portConfiguration.shooterMotorLeftID = new CanDeviceId(29);
         portConfiguration.shooterMotorRightID = new CanDeviceId(30);
+
+        // non CAN objects
+        portConfiguration.ledkicker = 0;
     }
 }
