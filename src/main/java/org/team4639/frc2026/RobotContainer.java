@@ -3,11 +3,10 @@
 package org.team4639.frc2026;
 
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.team4639.frc2026.auto.AutoCommands;
@@ -44,11 +43,12 @@ import org.team4639.frc2026.subsystems.turret.*;
 import org.team4639.frc2026.subsystems.vision.*;
 import org.team4639.frc2026.util.PortConfiguration;
 import org.team4639.lib.oi.DeadbandXboxController;
+import org.team4639.lib.statebased2.StateMachine2;
 import org.team4639.lib.util.LoggedLazyAutoChooser;
+import org.team4639.lib.util.LoggedTunableNumber;
 import org.team4639.lib.util.geometry.AllianceFlipUtil;
 
-import static edu.wpi.first.units.Units.Minute;
-import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.*;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -100,7 +100,7 @@ public class RobotContainer {
                 );
 
                 extension = new Extension(
-                        new IntakeExtensionIOTalonFX(portConfiguration),
+                        new IntakeExtensionIO() {},
                         RobotState.getInstance()
                 );
 
@@ -297,7 +297,50 @@ public class RobotContainer {
         drive.setDefaultCommand(DriveCommands.joystickDriveWithX(
                 drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
 
-        ledkicker.setDefaultCommand(ledkicker.setPattern(Patterns.SHOOTING_AND_INTAKE).ignoringDisable(true));
+        ledkicker.setDefaultCommand(ledkicker.setPattern(Patterns.SHOOTER_REQUESTED_AND_INTAKE).ignoringDisable(true));
+
+        StateMachine2 scoring = new StateMachine2(shooter, hood, kicker, spindexer, kicker).activeDuring(StateMachine2.ActiveMode.TELEOP).publishToNT("Scoring");
+
+        LoggedTunableNumber desiredShooterRPM = new LoggedTunableNumber("Desired Shooter RPM").initDefault(0);
+
+        var S_IDLE = scoring.defaultState("IDLE")
+                .onEnter(new InstantCommand(() -> {
+                    shooter.setWantedState(Shooter.WantedState.IDLE);
+                    hood.setWantedState(Hood.WantedState.IDLE);
+                    turret.setWantedState(Turret.WantedState.SCORING, RobotState.getInstance().calculateClosestDriveAndTurretRotation()[1].getRotations(), 0);
+                    spindexer.setWantedState(Spindexer.WantedState.IDLE);
+                    kicker.setWantedState(Kicker.WantedState.IDLE);
+                }));
+
+        var S_SPINUP = scoring.state("SPINUP")
+                .whileRunning(new RunCommand(() -> {
+                    shooter.setWantedState(Shooter.WantedState.SCORING, desiredShooterRPM.get());
+                    hood.setWantedState(Hood.WantedState.SCORING, Units.degreesToRotations(org.team4639.frc2026.subsystems.hood.Constants.HOOD_MIN_ANGLE_DEGREES));
+                    turret.setWantedState(Turret.WantedState.SCORING, RobotState.getInstance().calculateClosestDriveAndTurretRotation()[1].getRotations(), 0);
+                    spindexer.setWantedState(Spindexer.WantedState.IDLE);
+                    kicker.setWantedState(Kicker.WantedState.IDLE);
+                }));
+
+        var S_SHOOT = scoring.state("SHOOT")
+                .whileRunning(
+                        new RunCommand(() -> {
+                            shooter.setWantedState(Shooter.WantedState.SCORING, desiredShooterRPM.get());
+                            hood.setWantedState(Hood.WantedState.SCORING, Units.degreesToRotations(org.team4639.frc2026.subsystems.hood.Constants.HOOD_MIN_ANGLE_DEGREES));
+                            turret.setWantedState(Turret.WantedState.SCORING, RobotState.getInstance().calculateClosestDriveAndTurretRotation()[1].getRotations(), 0);
+                            spindexer.setWantedState(Spindexer.WantedState.SPIN);
+                            kicker.setWantedState(Kicker.WantedState.KICK);
+                        })
+                );
+
+        S_IDLE.onTrigger(driver.rightBumper(), () -> S_SPINUP);
+        S_SPINUP.withEndCondition(() -> {
+            return shooter.atSetpoint() && hood.atSetpoint() && turret.atSetpoint();
+        }, () -> S_SHOOT);
+        S_SPINUP.onTrigger(driver.rightBumper(), () -> S_IDLE);
+        S_SHOOT.onTrigger(driver.rightBumper(), () -> S_IDLE);
+
+        driver.a().onTrue(new InstantCommand(() -> intake.setWantedState(Intake.WantedState.INTAKE)));
+        driver.b().onTrue(new InstantCommand(() -> intake.setWantedState(Intake.WantedState.IDLE)));
 
     }
 

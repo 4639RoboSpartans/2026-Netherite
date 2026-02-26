@@ -26,6 +26,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.Constants.Mode;
 import org.team4639.frc2026.constants.shooter.ScoringState;
+import org.team4639.frc2026.constants.shooter.ShooterLookupTable;
 import org.team4639.frc2026.constants.shooter.ShooterScoringData;
 import org.team4639.frc2026.subsystems.drive.Drive;
 import org.team4639.frc2026.subsystems.hood.Hood;
@@ -255,8 +256,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         // transform turret
         var estimatedRobotPose = visionTurretPoseMeters.transformBy(
                 new Transform2d(Constants.SimConstants.originToTurretRotation.toTranslation2d(),
-               /* Rotation2d.fromRotations(getScoringState().turretAngle().in(Rotations))).inverse()*/ //TODO: extremely temporary change this
-                        Rotation2d.k180deg).inverse()
+               Rotation2d.fromRotations(getScoringState().turretAngle().in(Rotations))).inverse()
         );
 
         accept(999, (estimatedRobotPose), timestampSeconds, visionMeasurementStdDevs);
@@ -280,6 +280,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     public void periodic() {
         // Send RobotState Data to SmartDashboard
         robotFieldInternal.setRobotPose(estimatedPose);
+        robotFieldInternal.getObject("Turret Pose").setPose(turretPose);
         SmartDashboard.putData(ROBOT_FIELD_INTERNAL_KEY, robotFieldInternal);
         robotFieldTrue.setRobotPose(getTrueOnFieldPose());
         SmartDashboard.putData(ROBOT_FIELD_TRUE_KEY, robotFieldTrue);
@@ -291,6 +292,8 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         SmartDashboard.putNumber("Scoring/CalculatedTurretAngleFieldRelative", getEstimatedPose().getRotation().getMeasure().plus(scoringState.turretAngle()).in(Degrees));
 
         SmartDashboard.putNumber("Turret to Goal", getTurretPose().getTranslation().getDistance(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
+
+        ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(getTurretPose(), FieldConstants.Hub.innerCenterPoint.toTranslation2d());
     }
 
     @Override

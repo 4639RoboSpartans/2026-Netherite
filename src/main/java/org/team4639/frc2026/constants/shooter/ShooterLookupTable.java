@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.numbers.N2;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
@@ -30,6 +31,7 @@ public record ShooterLookupTable(InterpolatingDoubleTreeMap scoringDistanceToRPM
         Translation2d robotToHubTranslation = hubTranslation.minus(robotTranslation);
         Rotation2d fieldRelativeHubDirection = robotToHubTranslation.getAngle();
         double distanceMeters = robotToHubTranslation.getNorm();
+        SmartDashboard.putNumber("Turret To Hub", distanceMeters);
         double shooterRPM = scoringDistanceToRPM.get(distanceMeters);
         double hoodAngle = scoringDistanceToHoodAngle.get(distanceMeters);
         return new ScoringState(Rotations.per(Minute).of(shooterRPM), Rotations.of(hoodAngle), fieldRelativeHubDirection.getMeasure());
