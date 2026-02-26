@@ -7,12 +7,14 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.team4639.frc2026.auto.AutoCommands;
 import org.team4639.frc2026.commands.DriveCommands;
 import org.team4639.frc2026.constants.led.Patterns;
 import org.team4639.frc2026.constants.ports.Netherite;
+import org.team4639.frc2026.constants.shooter.ScoringState;
 import org.team4639.frc2026.subsystems.drive.*;
 import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
 import org.team4639.frc2026.subsystems.extension.Extension;
@@ -44,6 +46,9 @@ import org.team4639.frc2026.util.PortConfiguration;
 import org.team4639.lib.oi.DeadbandXboxController;
 import org.team4639.lib.util.LoggedLazyAutoChooser;
 import org.team4639.lib.util.geometry.AllianceFlipUtil;
+
+import static edu.wpi.first.units.Units.Minute;
+import static edu.wpi.first.units.Units.Rotations;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -188,22 +193,23 @@ public class RobotContainer {
 
                 // flip poses so that the vision sees the true on-field pose
                 vision = new Vision(
-                        RobotState.getInstance(),
-                        new VisionIOPhotonVisionSim(
-                                VisionConstants.camera0Name,
-                                VisionConstants.robotToCamera0,
-                                () -> AllianceFlipUtil.apply(SimRobot.getInstance()
-                                        .getSwerveDriveSimulation()
-                                        .getSimulatedDriveTrainPose())),
-                        new VisionIOPhotonVisionSim(
-                                VisionConstants.camera1Name,
-                                VisionConstants.robotToCamera1,
-                                () -> AllianceFlipUtil.apply(SimRobot.getInstance()
-                                        .getSwerveDriveSimulation()
-                                        .getSimulatedDriveTrainPose()))
+                        RobotState.getInstance()//,
+//                        new VisionIOPhotonVisionSim(
+//                                VisionConstants.camera0Name,
+//                                VisionConstants.robotToCamera0,
+//                                () -> AllianceFlipUtil.apply(SimRobot.getInstance()
+//                                        .getSwerveDriveSimulation()
+//                                        .getSimulatedDriveTrainPose())),
+//                        new VisionIOPhotonVisionSim(
+//                                VisionConstants.camera1Name,
+//                                VisionConstants.robotToCamera1,
+//                                () -> AllianceFlipUtil.apply(SimRobot.getInstance()
+//                                        .getSwerveDriveSimulation()
+//                                        .getSimulatedDriveTrainPose()))
                 );
 
-                turretCamera = new TurretCamera(RobotState.getInstance(), new VisionIOPhotonVisionSim("Turret-Sim", new Transform3d(), () -> RobotState.getInstance().getTurretPose()));
+//                turretCamera = new TurretCamera(RobotState.getInstance(), new VisionIOPhotonVisionSim("Turret-Sim", new Transform3d(), () -> RobotState.getInstance().getTurretPose()));
+                turretCamera = new TurretCamera(RobotState.getInstance(), new VisionIO() {});
 
                 ledkicker = new LEDKicker(new LEDKickerIOSim());
 
@@ -291,7 +297,7 @@ public class RobotContainer {
         drive.setDefaultCommand(DriveCommands.joystickDriveWithX(
                 drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
 
-        ledkicker.setDefaultCommand(ledkicker.setPattern(Patterns.SHOOTING_AND_INTAKE));
+        ledkicker.setDefaultCommand(ledkicker.setPattern(Patterns.SHOOTING_AND_INTAKE).ignoringDisable(true));
 
     }
 
@@ -299,6 +305,40 @@ public class RobotContainer {
         // Default command, normal field-relative drive
         drive.setDefaultCommand(DriveCommands.joystickDriveWithX(
                 drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
+
+        driver.rightTrigger().whileTrue(
+                Commands.parallel(
+                        DriveCommands.joystickDriveWithX(
+                                drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()
+                        ),
+                        Commands.run(
+                                () -> {
+                                    ScoringState currentScoringState = RobotState.getInstance().getScoringState();
+                                    turret.setWantedState(Turret.WantedState.SCORING, RobotState.getInstance().calculateClosestDriveAndTurretRotation()[1].getRotations(), 0);
+                                    shooter.setWantedState(Shooter.WantedState.SCORING, currentScoringState.shooterRPM().in(Rotations.per(Minute)));
+                                    hood.setWantedState(Hood.WantedState.SCORING, currentScoringState.hoodAngle().in(Rotations));
+                                }
+                        )
+                )
+        );
+
+        driver.leftTrigger().whileTrue(
+                Commands.run(
+                        () -> intake.setWantedState(Intake.WantedState.INTAKE)
+                )
+        );
+
+        driver.leftBumper().onTrue(
+                Commands.run(
+                        () -> extension.setWantedState(Extension.WantedState.EXTENDED)
+                )
+        );
+
+        driver.rightBumper().onTrue(
+                Commands.run(
+                        () -> extension.setWantedState(Extension.WantedState.IDLE)
+                )
+        );
     }
 
     /**

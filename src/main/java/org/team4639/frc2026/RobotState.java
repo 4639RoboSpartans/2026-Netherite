@@ -367,6 +367,20 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         }
     }
 
+    public Rotation2d[] calculateClosestDriveAndTurretRotation() {
+        Rotation2d currentRobotRotationFieldRelative = getEstimatedPose().getRotation();
+        Rotation2d turretDirectionFieldRelative = new Rotation2d(scoringState.turretAngle());
+        double minDriveDirectionRadians = turretDirectionFieldRelative.getRadians();
+        double maxDriveDirectionRadians = turretDirectionFieldRelative.getRadians() + Math.PI * 3 / 4;
+        if (minDriveDirectionRadians < currentRobotRotationFieldRelative.getRadians() && currentRobotRotationFieldRelative.getRadians() < maxDriveDirectionRadians) {
+            return new Rotation2d[] {currentRobotRotationFieldRelative, turretDirectionFieldRelative.minus(currentRobotRotationFieldRelative)};
+        } else if (minDriveDirectionRadians > currentRobotRotationFieldRelative.getRadians()) {
+            return new Rotation2d[] {Rotation2d.fromRadians(minDriveDirectionRadians), turretDirectionFieldRelative.minus(Rotation2d.fromRadians(minDriveDirectionRadians))};
+        } else {
+            return new Rotation2d[] {Rotation2d.fromRadians(maxDriveDirectionRadians), turretDirectionFieldRelative.minus(Rotation2d.fromRadians(maxDriveDirectionRadians))};
+        }
+    }
+
     public Pose3d[] getComponentPoses() {
         Pose3d turretPose = new Pose3d();
         turretPose = turretPose.rotateAround(Constants.SimConstants.originToTurretRotation, new Rotation3d(new Rotation2d(scoringState.turretAngle())));
@@ -382,12 +396,4 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     public double getTurretToGoal() {
         return getTurretPose().getTranslation().getDistance(FieldConstants.Hub.innerCenterPoint.toTranslation2d());
     }
-
-    // public Pose3d[] getComponentPoses() {
-    //     Pose3d turretPose = new Pose3d();
-    //     Pose3d hoodPose = new Pose3d();
-    //     Pose3d intakePose = new Pose3d();
-    //     intakePose = intakePose.transformBy(new Transform3d(Constants.SimConstants.intakeExtendedTranslation.times(intakeExtensionFraction), new Rotation3d()));
-    //     return new Pose3d[]{intakePose, turretPose, hoodPose};
-    // }
 }

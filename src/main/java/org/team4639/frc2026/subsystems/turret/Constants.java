@@ -11,14 +11,14 @@ public class Constants {
     public static final double LEFT_ENCODER_GEAR_TEETH = 41;
     public static final double RIGHT_ENCODER_GEAR_TEETH = 40;
 
-    public static final double LEFT_ENCODER_OFFSET = -0.1775;
-    public static final double RIGHT_ENCODER_OFFSET = -0.1853;
+    public static final double LEFT_ENCODER_OFFSET = -0.386963;
+    public static final double RIGHT_ENCODER_OFFSET = -0.06597;
 
     public static final boolean LEFT_ENCODER_INVERTED = false;
     public static final boolean RIGHT_ENCODER_INVERTED = false;
 
-    public static final double TURRET_MIN_ROTATIONS = -0.6;
-    public static final double TURRET_MAX_ROTATIONS = 0.6;
+    public static final double TURRET_MIN_ROTATIONS = 0;
+    public static final double TURRET_MAX_ROTATIONS = 0.875;
 
     public static final double TURRET_EXTENDED_MIN_ROTATIONS = -1.5;
     public static final double TURRET_EXTENDED_MAX_ROTATIONS = 1.5;

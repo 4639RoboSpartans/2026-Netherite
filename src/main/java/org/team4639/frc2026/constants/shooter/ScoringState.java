@@ -8,6 +8,12 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 
+
+/**
+ * @param shooterRPM shooter flywheel RPM
+ * @param hoodAngle shooter angle relative to horizontal
+ * @param turretAngle turret angle field-relative
+ */
 public record ScoringState(AngularVelocity shooterRPM, Angle hoodAngle, Angle turretAngle) {
     @Override
     public String toString() {

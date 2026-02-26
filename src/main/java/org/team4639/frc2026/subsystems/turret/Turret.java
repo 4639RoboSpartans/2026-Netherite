@@ -190,18 +190,19 @@ public class Turret extends FullSubsystem {
     }
 
     public double getNearestTurretRotation(double clampedRotation) {
-        if (clampedRotation < 0.4 && clampedRotation > -0.4) {
-            return clampedRotation;
-        }
-        double currentTurretRotation = getTurretRotationFromRotorRotation();
-        if (currentTurretRotation * clampedRotation > 0) return clampedRotation;
-        if (currentTurretRotation < 0 && clampedRotation >= 0.4) {
-            return clampedRotation - 1;
-        } else if (currentTurretRotation > 0 && clampedRotation <= -0.4) {
-            return clampedRotation + 1;
-        } else {
-            return clampedRotation;
-        }
+//        if (clampedRotation < 0.4 && clampedRotation > -0.4) {
+//            return clampedRotation;
+//        }
+//        double currentTurretRotation = getTurretRotationFromRotorRotation();
+//        if (currentTurretRotation * clampedRotation > 0) return clampedRotation;
+//        if (currentTurretRotation < 0 && clampedRotation >= 0.4) {
+//            return clampedRotation - 1;
+//        } else if (currentTurretRotation > 0 && clampedRotation <= -0.4) {
+//            return clampedRotation + 1;
+//        } else {
+//            return clampedRotation;
+//        }
+        return clampedRotation;
     }
 
     private void handleIdle() {
@@ -209,12 +210,12 @@ public class Turret extends FullSubsystem {
     }
 
     private void handleScoring() {
-        double nearestTurretRotation = getNearestTurretRotation(SCORING_TURRET_ROTATION);
+        double nearestTurretRotation = getNearestTurretRotation(MathUtil.clamp(SCORING_TURRET_ROTATION, Constants.TURRET_MIN_ROTATIONS, Constants.TURRET_MAX_ROTATIONS));
         turretIO.setRotorRotationSetpoint(getRotorRotationsFromAbsoluteTurretRotation(nearestTurretRotation));
     }
 
     private void handlePassing() {
-        double nearestTurretRotation = getNearestTurretRotation(PASSING_TURRET_ROTATION);
+        double nearestTurretRotation = getNearestTurretRotation(MathUtil.clamp(SCORING_TURRET_ROTATION, Constants.TURRET_MIN_ROTATIONS, Constants.TURRET_MAX_ROTATIONS));
         turretIO.setRotorRotationSetpoint(getRotorRotationsFromAbsoluteTurretRotation(nearestTurretRotation));
     }
 
