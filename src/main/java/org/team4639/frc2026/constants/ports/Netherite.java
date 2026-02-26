@@ -22,6 +22,6 @@ public class Netherite {
         portConfiguration.shooterMotorRightID = new CanDeviceId(30);
 
         // non CAN objects
-        portConfiguration.ledkicker = 0;
+        portConfiguration.ledkicker = 9;
     }
 }
