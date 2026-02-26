@@ -6,10 +6,12 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.team4639.frc2026.auto.AutoCommands;
 import org.team4639.frc2026.commands.DriveCommands;
+import org.team4639.frc2026.constants.led.Patterns;
 import org.team4639.frc2026.constants.ports.Netherite;
 import org.team4639.frc2026.subsystems.drive.*;
 import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
@@ -124,7 +126,7 @@ public class RobotContainer {
 
                 turretCamera = new TurretCamera(RobotState.getInstance(), new VisionIOLimelight4("limelight-turret", () -> RobotState.getInstance().getTurretPose().getRotation()));
 
-                ledkicker = new LEDKicker(new LEDKickerIOHardware(portConfiguration, 100));
+                ledkicker = new LEDKicker(new LEDKickerIOHardware(portConfiguration, 150));
 
                 configureButtonBindings();
                 break;
@@ -288,6 +290,8 @@ public class RobotContainer {
         // Default command, normal field-relative drive
         drive.setDefaultCommand(DriveCommands.joystickDriveWithX(
                 drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
+
+        ledkicker.setDefaultCommand(ledkicker.setPattern(Patterns.SHOOTING_AND_INTAKE));
 
     }
 
