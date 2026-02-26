@@ -96,18 +96,18 @@ public class ShooterIOSparkFlex implements ShooterIO {
     @Override
     public void setRPM(double targetRPM) {
         double applied = -targetRPM * SHOOTER_GEAR_RATIO / 60.0;
-        /*var err = closedLoopController.setSetpoint(applied, SparkBase.ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+        var err = closedLoopController.setSetpoint(applied, SparkBase.ControlType.kVelocity, ClosedLoopSlot.kSlot0);
         Logger.recordOutput("Shooter Setpoint RPS", closedLoopController.getSetpoint());
-        Logger.recordOutput("Shooter RevLib Error", err.toString());*/
-        leftShooter.setVoltage(ff.calculate(applied) /*+ pid.calculate(leftShooter.getEncoder().getVelocity(), applied)*/);
+        Logger.recordOutput("Shooter RevLib Error", err.toString());
+        /*leftShooter.setVoltage(ff.calculate(applied)*/ /*+ pid.calculate(leftShooter.getEncoder().getVelocity(), applied)*/);
     }
 
     public void updateGains() {
-        closedLoopConfig.pid(PIDs.shooterKp.get(), PIDs.shooterKi.get(), PIDs.shooterKd.get());
+        /*closedLoopConfig.pid(PIDs.shooterKp.get(), PIDs.shooterKi.get(), PIDs.shooterKd.get());
         closedLoopConfig.apply(new FeedForwardConfig()
                 .kS(PIDs.shooterKs.get())
                 .kV(PIDs.shooterKv.get())
-                .kA(PIDs.shooterKa.get()));
+                .kA(PIDs.shooterKa.get()));*/
     }
 
     @Override

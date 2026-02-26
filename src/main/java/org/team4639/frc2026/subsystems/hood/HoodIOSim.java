@@ -68,6 +68,11 @@ public class HoodIOSim implements HoodIO {
     }
 
     @Override
+    public void setPosition(double positionDegrees){
+        hoodSim.setState(Units.degreesToRadians(positionDegrees), 0);
+    }
+
+    @Override
     public void applyNewGains() {
         updateGains();
     }

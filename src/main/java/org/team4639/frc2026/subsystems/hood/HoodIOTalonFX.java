@@ -13,6 +13,7 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -43,8 +44,8 @@ public class HoodIOTalonFX implements HoodIO {
 
         hoodEncoder.getConfigurator().apply(new MagnetSensorConfigs().withMagnetOffset(-0.411865234375).withAbsoluteSensorDiscontinuityPoint(0.95));
 
-        config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
-        config.Feedback.FeedbackRemoteSensorID = hoodEncoder.getDeviceID();
+        config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+        config.Feedback.SensorToMechanismRatio = 1.0 / MOTOR_TO_HOOD_GEAR_RATIO;
         config.CurrentLimits.SupplyCurrentLimit = 20.0;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -55,7 +56,7 @@ public class HoodIOTalonFX implements HoodIO {
 
         config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-        config.Slot0.kP = 20;
+        config.Slot0.kP = 100;
         applyNewGains();
 
         hoodPosition = hoodEncoder.getPosition();
@@ -66,9 +67,7 @@ public class HoodIOTalonFX implements HoodIO {
 
     @Override
     public void setSetpointDegrees(double setpointDegrees) {
-        double rotation = (setpointDegrees - HOOD_MIN_ANGLE_DEGREES) * ENCODER_ROTATIONS_PER_DEGREE + HOOD_ENCODER_MIN_ROTATION;
-        rotation = MathUtil.clamp(rotation, HOOD_ENCODER_MIN_ROTATION, HOOD_ENCODER_MAX_ROTATION);
-        hoodMotor.setControl(request.withPosition(rotation));
+        hoodMotor.setControl(request.withPosition(Units.degreesToRotations(setpointDegrees)));
 
         Logger.recordOutput("Hood Controller Setpoint", request.Position);
     }
@@ -107,7 +106,12 @@ public class HoodIOTalonFX implements HoodIO {
 
     @Override
     public void applyNewGains() {
-        updateGains();
-        PhoenixUtil.tryUntilOk(5, () -> hoodMotor.getConfigurator().apply(config));
+        /*updateGains();
+        PhoenixUtil.tryUntilOk(5, () -> hoodMotor.getConfigurator().apply(config));*/
+    }
+
+    @Override
+    public void setPosition(double positionDegrees){
+        hoodMotor.setPosition(Units.degreesToRotations(positionDegrees));
     }
 }

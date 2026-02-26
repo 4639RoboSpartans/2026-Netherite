@@ -13,6 +13,8 @@ public interface HoodIO {
 
     default void applyNewGains() {}
 
+    default void setPosition(double positionDegrees) {}
+
     @AutoLog
     class HoodIOInputs {
         public boolean hoodMotorConnected = true;

@@ -38,13 +38,14 @@ public class Hood extends FullSubsystem {
     }
 
     public enum SystemState {
+        HOME,
         IDLE,
         SCORING,
         PASSING
     }
 
     private WantedState wantedState = WantedState.IDLE;
-    private SystemState systemState = SystemState.IDLE;
+    private SystemState systemState = SystemState.HOME;
 
     public Hood(HoodIO io, RobotState state) {
         this.io = io;
@@ -82,10 +83,25 @@ public class Hood extends FullSubsystem {
 
     private SystemState handleStateTransitions() {
         return switch (wantedState) {
-            case IDLE -> SystemState.IDLE;
+            case IDLE -> {
+                if (systemState == SystemState.HOME){
+                    if (Math.abs(inputs.pivotCurrent) > 20){
+                        io.setPosition(Constants.HOOD_MIN_ANGLE_DEGREES);
+                        yield SystemState.IDLE;
+                    } else {
+                        yield SystemState.HOME;
+                    }
+                } else {
+                    yield SystemState.IDLE;
+                }
+            }
             case SCORING -> SystemState.SCORING;
             case PASSING -> SystemState.PASSING;
         };
+    }
+
+    private void handleHome() {
+        io.setVoltage(-3);
     }
 
     private void handleIdle() {
