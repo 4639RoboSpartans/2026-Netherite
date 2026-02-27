@@ -38,7 +38,7 @@ public final class Constants {
     }
 
     public static final class SimConstants {
-        public static final Translation3d originToTurretRotation = new Translation3d(Units.inchesToMeters(5.84), 0, Units.inchesToMeters(13.25));
+        public static final Translation3d originToTurretRotation = new Translation3d(-Units.inchesToMeters(5.84), 0, Units.inchesToMeters(13.25));
         public static final Translation3d originToHoodRotation = new Translation3d(-Units.inchesToMeters(1.834), 0, Units.inchesToMeters(16.625));
         public static final Translation3d intakeExtendedTranslation = new Translation3d(Units.inchesToMeters(10.396), 0, Units.inchesToMeters(-3.277));
     }

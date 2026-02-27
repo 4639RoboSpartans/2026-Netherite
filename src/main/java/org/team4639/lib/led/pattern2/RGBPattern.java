@@ -1,3 +1,5 @@
+/* Copyright (c) 2025-2026 FRC 4639. */
+
 package org.team4639.lib.led.pattern2;
 
 import edu.wpi.first.math.MathUtil;

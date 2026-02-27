@@ -370,7 +370,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         }
     }
 
-    public Rotation2d[] calculateClosestDriveAndTurretRotation() {
+    public Rotation2d[] calculateClosestDriveAndTurretRotation(ScoringState desiredScoringState) {
         Rotation2d currentRobotRotationFieldRelative = getEstimatedPose().getRotation();
         Rotation2d turretDirectionFieldRelative = new Rotation2d(scoringState.turretAngle());
         double minDriveDirectionRadians = turretDirectionFieldRelative.getRadians();

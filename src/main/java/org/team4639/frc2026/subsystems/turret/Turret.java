@@ -131,7 +131,6 @@ public class Turret extends FullSubsystem {
     }
 
     // CRT, should only be used on startup to seed position and not while turret is moving
-    @AutoLogOutput(key = "TurretRotationsCRT")
     public double getTurretRotation(double leftEncoderRotations, double rightEncoderRotations) {
         double abs1 =
                 MathUtil.inputModulus(
