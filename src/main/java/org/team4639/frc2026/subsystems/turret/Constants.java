@@ -14,8 +14,8 @@ public class Constants {
     public static final double LEFT_ENCODER_OFFSET = 0.46582;
     public static final double RIGHT_ENCODER_OFFSET = 0.1396;
 
-    public static final boolean LEFT_ENCODER_INVERTED = false;
-    public static final boolean RIGHT_ENCODER_INVERTED = false;
+    public static final boolean LEFT_ENCODER_INVERTED = true;
+    public static final boolean RIGHT_ENCODER_INVERTED = true;
 
     public static final double TURRET_MIN_ROTATIONS = 0;
     public static final double TURRET_MAX_ROTATIONS = 0.875;
