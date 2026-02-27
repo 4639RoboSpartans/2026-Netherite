@@ -2,16 +2,18 @@
 
 package org.team4639.frc2026.subsystems.spindexer;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
+import org.team4639.lib.util.FullSubsystem;
 
 import static edu.wpi.first.units.Units.Volts;
 
-public class Spindexer extends SubsystemBase {
+public class Spindexer extends FullSubsystem {
     private final RobotState state;
     private final SpindexerIO io;
     private final SpindexerIOInputsAutoLogged inputs = new SpindexerIOInputsAutoLogged();
@@ -38,6 +40,11 @@ public class Spindexer extends SubsystemBase {
     public Spindexer(SpindexerIO io, RobotState state) {
         this.io = io;
         this.state = state;
+    }
+
+    @Override
+    public void periodicBeforeScheduler() {
+        state.setSpindexerStates(new Pair<>(this.wantedState, this.systemState));
     }
 
     @Override

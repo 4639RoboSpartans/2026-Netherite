@@ -77,7 +77,7 @@ public class Hood extends FullSubsystem {
     @Override
     public void periodicAfterScheduler() {
         //TODO: use PIV state
-        RobotState.getInstance().setHoodStates(new Pair<Hood.WantedState,Hood.SystemState>(wantedState, systemState));
+        RobotState.getInstance().setHoodStates(new Pair<>(wantedState, systemState));
         RobotState.getInstance().accept(inputs);
     }
 

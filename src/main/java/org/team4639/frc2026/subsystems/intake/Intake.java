@@ -2,6 +2,7 @@
 
 package org.team4639.frc2026.subsystems.intake;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -52,6 +53,7 @@ public class Intake extends FullSubsystem {
     public void periodicBeforeScheduler() {
         rollerIO.updateInputs(rollerInputs);
         Logger.processInputs("Intake Rollers", rollerInputs);
+        state.setIntakeStates(new Pair<>(this.wantedState, this.systemState));
     }
 
     @Override

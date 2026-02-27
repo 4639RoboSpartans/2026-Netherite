@@ -23,11 +23,7 @@ public class LEDKicker extends FullSubsystem {
         Logger.processInputs("LEDKicker", inputs);
     }
 
-    private void setPatternInternal(LEDPattern pattern) {
+    public void setPattern(LEDPattern pattern) {
         io.setPattern(pattern);
-    }
-
-    public InstantCommand setPattern(LEDPattern pattern) {
-        return new InstantCommand(() -> this.setPatternInternal(pattern), this);
     }
 }

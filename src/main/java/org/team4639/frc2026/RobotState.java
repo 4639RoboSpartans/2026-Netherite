@@ -25,18 +25,24 @@ import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.Constants.Mode;
+import org.team4639.frc2026.constants.led.Patterns;
 import org.team4639.frc2026.constants.shooter.ScoringState;
 import org.team4639.frc2026.constants.shooter.ShooterLookupTable;
 import org.team4639.frc2026.constants.shooter.ShooterScoringData;
 import org.team4639.frc2026.subsystems.drive.Drive;
+import org.team4639.frc2026.subsystems.extension.Extension;
 import org.team4639.frc2026.subsystems.hood.Hood;
 import org.team4639.frc2026.subsystems.hood.HoodIO;
+import org.team4639.frc2026.subsystems.intake.Intake;
+import org.team4639.frc2026.subsystems.kicker.Kicker;
 import org.team4639.frc2026.subsystems.shooter.Shooter;
 import org.team4639.frc2026.subsystems.shooter.ShooterIO;
+import org.team4639.frc2026.subsystems.spindexer.Spindexer;
 import org.team4639.frc2026.subsystems.turret.Turret;
 import org.team4639.frc2026.subsystems.turret.TurretIO;
 import org.team4639.frc2026.subsystems.vision.TurretCamera;
 import org.team4639.frc2026.subsystems.vision.Vision.VisionConsumer;
+import org.team4639.lib.led.pattern.LEDPattern;
 import org.team4639.lib.util.VirtualSubsystem;
 import org.team4639.lib.util.geometry.AllianceFlipUtil;
 
@@ -112,6 +118,14 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     private Pair<Shooter.WantedState, Shooter.SystemState> shooterStates;
     @Setter
     private Pair<Turret.WantedState, Turret.SystemState> turretStates;
+    @Setter
+    private Pair<Intake.WantedState, Intake.SystemState> intakeStates;
+    @Setter
+    private Pair<Extension.WantedState, Extension.SystemState> extensionStates;
+    @Setter
+    private Pair<Kicker.WantedState, Kicker.SystemState> kickerStates;
+    @Setter
+    private Pair<Spindexer.WantedState, Spindexer.SystemState> spindexerStates;
 
     @Getter
     @AutoLogOutput(key = "Turret Pose")
@@ -395,8 +409,37 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         return new Pose3d[]{intakePose, turretPose, hoodPose};
     }
 
-    //only temporary
-    public double getTurretToGoal() {
-        return getTurretPose().getTranslation().getDistance(FieldConstants.Hub.innerCenterPoint.toTranslation2d());
+    public LEDPattern getDesiredLEDPattern() {
+        return switch(shooterStates.getFirst()){
+            case OFF, IDLE:
+                if (intakeStates.getFirst() == Intake.WantedState.INTAKE)
+                    yield Patterns.DEFAULT_INTAKE;
+                else
+                    yield Patterns.DEFAULT;
+            case SCORING:
+                if (spindexerStates.getFirst() == Spindexer.WantedState.SPIN && kickerStates.getFirst() == Kicker.WantedState.KICK){
+                    if (intakeStates.getFirst() == Intake.WantedState.INTAKE)
+                        yield Patterns.SHOOTING_AND_INTAKE;
+                    else
+                        yield Patterns.SHOOTING;
+                } else {
+                    if (intakeStates.getFirst() == Intake.WantedState.INTAKE)
+                        yield Patterns.SHOOTER_REQUESTED_AND_INTAKE;
+                    else
+                        yield Patterns.SHOOTER_REQUESTED;
+                }
+            case PASSING:
+                if (spindexerStates.getFirst() == Spindexer.WantedState.SPIN && kickerStates.getFirst() == Kicker.WantedState.KICK){
+                    if (intakeStates.getFirst() == Intake.WantedState.INTAKE)
+                        yield Patterns.PASSING_AND_INTAKE;
+                    else
+                        yield Patterns.PASSING;
+                } else {
+                    if (intakeStates.getFirst() == Intake.WantedState.INTAKE)
+                        yield Patterns.SHOOTER_REQUESTED_AND_INTAKE;
+                    else
+                        yield Patterns.SHOOTER_REQUESTED;
+                }
+        };
     }
 }

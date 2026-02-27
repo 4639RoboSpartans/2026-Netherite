@@ -2,6 +2,7 @@
 
 package org.team4639.frc2026.subsystems.extension;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import lombok.Setter;
@@ -70,6 +71,7 @@ public class Extension extends FullSubsystem {
         Logger.processInputs("Extension", inputs);
 
         state.updateIntakePosition(inputs.position / (extendedRotorPosition - retractedRotorPosition));
+        state.setExtensionStates(new Pair<>(this.wantedState, this.systemState));
     }
 
     private void runStateMachine() {

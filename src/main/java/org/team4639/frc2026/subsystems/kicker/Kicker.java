@@ -2,17 +2,19 @@
 
 package org.team4639.frc2026.subsystems.kicker;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
+import org.team4639.lib.util.FullSubsystem;
 import org.team4639.lib.util.LoggedTunableNumber;
 
 import static edu.wpi.first.units.Units.Volts;
 
-public class Kicker extends SubsystemBase {
+public class Kicker extends FullSubsystem {
     private final RobotState state;
     private final KickerIO io;
     private final KickerIOInputsAutoLogged inputs = new KickerIOInputsAutoLogged();
@@ -39,6 +41,11 @@ public class Kicker extends SubsystemBase {
     public Kicker(KickerIO io, RobotState state) {
         this.io = io;
         this.state = state;
+    }
+
+    @Override
+    public void periodicBeforeScheduler() {
+        state.setKickerStates(new Pair<>(this.wantedState, this.systemState));
     }
 
     @Override

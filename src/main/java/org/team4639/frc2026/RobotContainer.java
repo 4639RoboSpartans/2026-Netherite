@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.team4639.frc2026.auto.AutoCommands;
 import org.team4639.frc2026.commands.DriveCommands;
+import org.team4639.frc2026.commands.LEDCommands;
 import org.team4639.frc2026.constants.led.Patterns;
 import org.team4639.frc2026.constants.ports.Netherite;
 import org.team4639.frc2026.constants.shooter.ScoringState;
@@ -297,7 +298,7 @@ public class RobotContainer {
         drive.setDefaultCommand(DriveCommands.joystickDriveWithX(
                 drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
 
-        ledkicker.setDefaultCommand(ledkicker.setPattern(Patterns.SHOOTER_REQUESTED_AND_INTAKE).ignoringDisable(true));
+        ledkicker.setDefaultCommand(LEDCommands.useDefaultSchema(ledkicker, RobotState.getInstance()));
 
         StateMachine2 scoring = new StateMachine2(shooter, hood, kicker, spindexer, kicker).activeDuring(StateMachine2.ActiveMode.TELEOP).publishToNT("Scoring");
 
