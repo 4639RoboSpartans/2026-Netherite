@@ -43,7 +43,7 @@ public class HoodIOTalonFX implements HoodIO {
         hoodMotor = Phoenix6Factory.createDefaultTalon(ports.HoodMotorID);
         hoodEncoder = Phoenix6Factory.createCANcoder(ports.HoodEncoderID);
 
-        hoodEncoder.getConfigurator().apply(new MagnetSensorConfigs().withMagnetOffset(-0.750732).withAbsoluteSensorDiscontinuityPoint(0.95));
+        hoodEncoder.getConfigurator().apply(new MagnetSensorConfigs().withMagnetOffset(0).withAbsoluteSensorDiscontinuityPoint(0.95));
 
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         config.Feedback.SensorToMechanismRatio = 1.0 / Constants.MOTOR_TO_HOOD_GEAR_RATIO;
@@ -65,7 +65,7 @@ public class HoodIOTalonFX implements HoodIO {
         motorVoltage = hoodMotor.getMotorVoltage();
         motorCurrent = hoodMotor.getStatorCurrent();
 
-        double mechanismRotationsFromEncoder = hoodEncoder.getPosition().getValueAsDouble() * Constants.ENCODER_TO_PIVOT_GEAR_RATIO;
+        double mechanismRotationsFromEncoder = MathUtil.inputModulus(hoodEncoder.getPosition().getValueAsDouble() - 0.752197, -0.05, 0.95) * Constants.ENCODER_TO_PIVOT_GEAR_RATIO;
         hoodMotor.setPosition(mechanismRotationsFromEncoder + Units.degreesToRotations(Constants.HOOD_MIN_ANGLE_DEGREES));
     }
 

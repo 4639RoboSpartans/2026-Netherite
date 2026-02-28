@@ -9,8 +9,8 @@ import org.team4639.frc2026.FieldConstants;
 // where to point at when we pass, doesn't really have all that much to do with where the ball lands
 @RequiredArgsConstructor
 public enum PassingTargets {
-    LEFT(FieldConstants.LeftBump.farLeftCorner),
-    RIGHT(FieldConstants.RightBump.farRightCorner);
+    LEFT(FieldConstants.LeftBump.farRightCorner),
+    RIGHT(FieldConstants.RightBump.farLeftCorner);
 
     public final Translation2d target;
 }

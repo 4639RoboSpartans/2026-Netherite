@@ -9,6 +9,6 @@ public class Constants {
     public static final double ENCODER_ROTATIONS_PER_DEGREE = ENCODER_TO_PIVOT_GEAR_RATIO / 360.0;
     public static final double HOOD_MIN_ANGLE_DEGREES = 20;
 
-    public static final double HOOD_ENCODER_MIN_ROTATION = -0.649;
-    public static final double HOOD_ENCODER_MAX_ROTATION = 0.252;
+    public static final double HOOD_ENCODER_MIN_ROTATION = -0.;
+    public static final double HOOD_ENCODER_MAX_ROTATION = 0.;
 }

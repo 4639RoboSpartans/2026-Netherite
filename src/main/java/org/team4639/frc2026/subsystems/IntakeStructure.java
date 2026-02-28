@@ -1,3 +1,5 @@
+/* Copyright (c) 2025-2026 FRC 4639. */
+
 package org.team4639.frc2026.subsystems;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -49,11 +51,12 @@ public class IntakeStructure {
     }
 
     public Command retract() {
-        return extensionDummy.run(
+        return Commands.run(
                 () -> {
                     extension.setWantedState(Extension.WantedState.IDLE);
+                    intake.setWantedState(Intake.WantedState.IDLE);
                 }
-        ).finallyDo(this::updateLastWantedStates);
+        , extensionDummy, intakeDummy).finallyDo(this::updateLastWantedStates);
     }
 
     public Command intake() {
@@ -91,7 +94,7 @@ public class IntakeStructure {
                 retract().withTimeout(AGITATE_PERIOD / 2)
                         .andThen(extend().withTimeout(AGITATE_PERIOD / 2)))
                 .repeatedly())
-                .alongWith(intake());
+                .alongWith(stopIntake());
     }
 
     private Command agitateOutIn() {
@@ -99,7 +102,7 @@ public class IntakeStructure {
                 extend().withTimeout(AGITATE_PERIOD / 2)
                         .andThen(retract().withTimeout(AGITATE_PERIOD / 2)))
                 .repeatedly())
-                .alongWith(intake());
+                .alongWith(stopIntake());
     }
 
     private void updateLastWantedStates() {

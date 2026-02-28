@@ -106,7 +106,7 @@ public class RobotContainer {
                 );
 
                 extension = new Extension(
-                        new IntakeExtensionIO() {},
+                        new IntakeExtensionIOTalonFX(portConfiguration),
                         RobotState.getInstance()
                 );
 
@@ -129,14 +129,15 @@ public class RobotContainer {
                         RobotState.getInstance()
                 );
 
-                hood = new Hood(new HoodIOTalonFX(portConfiguration), RobotState.getInstance());
+                hood = new Hood(/*new HoodIOTalonFX(portConfiguration)*/ new HoodIO() {
+                }, RobotState.getInstance());
 
                 shooter = new Shooter(new ShooterIOSparkFlex(portConfiguration), RobotState.getInstance());
 
                 vision = new Vision(
-                        RobotState.getInstance(),
-                        new VisionIOLimelight("limelight-left", () -> RobotState.getInstance().getEstimatedPose().getRotation()),
-                        new VisionIOLimelight("limelight-right", () -> RobotState.getInstance().getEstimatedPose().getRotation())
+                        RobotState.getInstance()//,
+                        //new VisionIOLimelight("limelight-left", () -> RobotState.getInstance().getEstimatedPose().getRotation()),
+                        //new VisionIOLimelight("limelight-right", () -> RobotState.getInstance().getEstimatedPose().getRotation())
                 );
 
                 turretCamera = new TurretCamera(RobotState.getInstance(), new VisionIOLimelight4("limelight-turret", () -> RobotState.getInstance().getTurretPose().getRotation()));
@@ -333,7 +334,7 @@ public class RobotContainer {
         driver.x().onTrue(intakeStructure.extend());
         driver.y().onTrue(intakeStructure.retract());
 
-        driver.rightBumper().or(driver.leftBumper()).whileTrue(intakeStructure.agitate());
+        //driver.rightBumper().or(driver.leftBumper()).whileTrue(intakeStructure.agitate());
     }
 
     private void configureSimButtonBindings() {

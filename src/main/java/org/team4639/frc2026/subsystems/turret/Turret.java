@@ -25,6 +25,7 @@ public class Turret extends FullSubsystem {
             rightEncoderInputs = new EncoderIOInputsAutoLogged();
 
     private final double IDLE_TURRET_ROTATION = 0;
+    @AutoLogOutput(key = "Scoring Turret Rotation")
     private double SCORING_TURRET_ROTATION = 0;
     private double PASSING_TURRET_ROTATION = 0;
 
@@ -223,8 +224,8 @@ public class Turret extends FullSubsystem {
     }
 
     public void setWantedState(WantedState wantedState, double SCORING_TURRET_ROTATION, double PASSING_TURRET_ROTATION) {
-        this.SCORING_TURRET_ROTATION = SCORING_TURRET_ROTATION;
-        this.PASSING_TURRET_ROTATION = PASSING_TURRET_ROTATION;
+        this.SCORING_TURRET_ROTATION = MathUtil.inputModulus(SCORING_TURRET_ROTATION, 0, 1);
+        this.PASSING_TURRET_ROTATION = MathUtil.inputModulus(PASSING_TURRET_ROTATION, 0, 1);
         setWantedState(wantedState);
     }
 
@@ -240,6 +241,7 @@ public class Turret extends FullSubsystem {
         return getRotorRotationsFromAbsoluteTurretRotation(getTurretSetpoint());
     }
 
+    @AutoLogOutput(key = "Turret At Setpoint")
     public boolean atSetpoint() {
         return MathUtil.isNear(getRotorSetpoint(), turretInputs.motorPositionRotations, Constants.ROTOR_ROTATION_TOLERANCE)
                 || MathUtil.isNear(getRotorSetpoint() + 1.0 / Constants.MOTOR_TO_TURRET_GEAR_RATIO, turretInputs.motorPositionRotations, Constants.ROTOR_ROTATION_TOLERANCE)
