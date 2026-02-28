@@ -15,6 +15,7 @@ import org.team4639.frc2026.commands.LEDCommands;
 import org.team4639.frc2026.constants.led.Patterns;
 import org.team4639.frc2026.constants.ports.Netherite;
 import org.team4639.frc2026.constants.shooter.ScoringState;
+import org.team4639.frc2026.subsystems.IntakeStructure;
 import org.team4639.frc2026.subsystems.Superstructure;
 import org.team4639.frc2026.subsystems.drive.*;
 import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
@@ -75,6 +76,7 @@ public class RobotContainer {
     private final LEDKicker ledkicker;
 
     private final Superstructure superstructure;
+    private final IntakeStructure intakeStructure;
 
     // Controller
     private final CommandXboxController driver = new DeadbandXboxController(0);
@@ -138,6 +140,8 @@ public class RobotContainer {
                 ledkicker = new LEDKicker(new LEDKickerIOHardware(portConfiguration, 150));
 
                 superstructure = new Superstructure(turret, hood, shooter, kicker, spindexer, RobotState.getInstance());
+
+                intakeStructure = new IntakeStructure(intake, extension, RobotState.getInstance());
 
                 configureButtonBindings();
                 break;
@@ -221,6 +225,8 @@ public class RobotContainer {
 
                 superstructure = new Superstructure(turret, hood, shooter, kicker, spindexer, RobotState.getInstance());
 
+                intakeStructure = new IntakeStructure(intake, extension, RobotState.getInstance());
+
                 configureSimButtonBindings();
                 break;
 
@@ -267,6 +273,8 @@ public class RobotContainer {
 
                 superstructure = new Superstructure(turret, hood, shooter, kicker, spindexer, RobotState.getInstance());
 
+                intakeStructure = new IntakeStructure(intake, extension, RobotState.getInstance());
+
                 configureButtonBindings();
                 break;
         }
@@ -311,8 +319,17 @@ public class RobotContainer {
 
         ledkicker.setDefaultCommand(LEDCommands.useDefaultSchema(ledkicker, RobotState.getInstance()));
 
-        driver.a().whileTrue(superstructure.shootDemo());
-        driver.b().whileTrue(superstructure.passDemo());
+        superstructure.setDefaultCommand(superstructure.idle());
+        driver.rightTrigger().whileTrue(superstructure.requestScoring());
+        driver.leftTrigger().whileTrue(superstructure.requestPassing());
+
+        driver.a().onTrue(intakeStructure.intake());
+        driver.b().onTrue(intakeStructure.stopIntake());
+
+        driver.x().onTrue(intakeStructure.retract());
+        driver.y().onTrue(intakeStructure.extend());
+
+        driver.rightBumper().or(driver.leftBumper()).whileTrue(intakeStructure.agitate());
     }
 
     private void configureSimButtonBindings() {

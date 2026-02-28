@@ -101,6 +101,12 @@ public class Superstructure extends SubsystemBase{
                 .finallyDo(resetSuperstructure);
     }
 
+    public Command requestPassing() {
+        return spinupToPass()
+                .andThen(requestShootingToPass())
+                .finallyDo(resetSuperstructure);
+    }
+
     private Command spinupToScore() {
         return this.run(() -> {
             var scoringState = state.calculateScoringState();

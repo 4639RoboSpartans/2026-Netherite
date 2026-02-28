@@ -115,18 +115,25 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     private ScoringState scoringState = new ScoringState(Rotations.per(Minute).of(0.0), Rotations.of(0), Rotations.of(0));
 
     @Setter
+    @Getter
     private Pair<Hood.WantedState, Hood.SystemState> hoodStates;
     @Setter
+    @Getter
     private Pair<Shooter.WantedState, Shooter.SystemState> shooterStates;
     @Setter
+    @Getter
     private Pair<Turret.WantedState, Turret.SystemState> turretStates;
     @Setter
+    @Getter
     private Pair<Intake.WantedState, Intake.SystemState> intakeStates;
     @Setter
+    @Getter
     private Pair<Extension.WantedState, Extension.SystemState> extensionStates;
     @Setter
+    @Getter
     private Pair<Kicker.WantedState, Kicker.SystemState> kickerStates;
     @Setter
+    @Getter
     private Pair<Spindexer.WantedState, Spindexer.SystemState> spindexerStates;
 
     @Getter
