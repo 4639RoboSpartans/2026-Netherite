@@ -38,17 +38,15 @@ public class HoodIOTalonFX implements HoodIO {
     private final StatusSignal<Voltage> motorVoltage;
     private final StatusSignal<Current> motorCurrent;
 
-    private final double initialEncoderRotation;
-    private final double initialMotorRotorRotation;
-    private final double zeroMotorRotorRotation;
 
     public HoodIOTalonFX(PortConfiguration ports) {
         hoodMotor = Phoenix6Factory.createDefaultTalon(ports.HoodMotorID);
         hoodEncoder = Phoenix6Factory.createCANcoder(ports.HoodEncoderID);
 
-        hoodEncoder.getConfigurator().apply(new MagnetSensorConfigs().withMagnetOffset(-0.411865234375).withAbsoluteSensorDiscontinuityPoint(0.95));
+        hoodEncoder.getConfigurator().apply(new MagnetSensorConfigs().withMagnetOffset(-0.750732).withAbsoluteSensorDiscontinuityPoint(0.95));
 
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+        config.Feedback.SensorToMechanismRatio = 1.0 / Constants.MOTOR_TO_HOOD_GEAR_RATIO;
         config.CurrentLimits.SupplyCurrentLimit = 20.0;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -59,32 +57,25 @@ public class HoodIOTalonFX implements HoodIO {
 
         config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-        config.Slot0.kP = 20;
+        config.Slot0.kP = 20 / ENCODER_TO_PIVOT_GEAR_RATIO;
         applyNewGains();
 
-        hoodPosition = hoodEncoder.getPosition();
-        hoodVelocity = hoodEncoder.getVelocity();
+        hoodPosition = hoodMotor.getPosition();
+        hoodVelocity = hoodMotor.getVelocity();
         motorVoltage = hoodMotor.getMotorVoltage();
         motorCurrent = hoodMotor.getStatorCurrent();
 
-        initialEncoderRotation = hoodEncoder.getPosition().getValueAsDouble();
-        initialMotorRotorRotation = hoodMotor.getPosition().getValueAsDouble();
-        zeroMotorRotorRotation = initialMotorRotorRotation - initialEncoderRotation / MOTOR_TO_ENCODER_GEAR_RATIO;
-
+        double mechanismRotationsFromEncoder = hoodEncoder.getPosition().getValueAsDouble() * Constants.ENCODER_TO_PIVOT_GEAR_RATIO;
+        hoodMotor.setPosition(mechanismRotationsFromEncoder + Units.degreesToRotations(Constants.HOOD_MIN_ANGLE_DEGREES));
     }
 
     @Override
     public void setSetpointDegrees(double setpointDegrees) {
-        double rotation = (setpointDegrees - HOOD_MIN_ANGLE_DEGREES) * ENCODER_ROTATIONS_PER_DEGREE + HOOD_ENCODER_MIN_ROTATION;
-        rotation = MathUtil.clamp(rotation, HOOD_ENCODER_MIN_ROTATION, HOOD_ENCODER_MAX_ROTATION);
-        setMotorSetpointFromEncoderSetpoint(rotation);
+        request.Position = Units.degreesToRotations(setpointDegrees);
+        hoodMotor.setControl(request);
         Logger.recordOutput("Hood Controller Setpoint", request.Position);
     }
 
-    private void setMotorSetpointFromEncoderSetpoint(double encoderRotations) {
-        double motorRotation = zeroMotorRotorRotation + (initialEncoderRotation - HOOD_ENCODER_MIN_ROTATION) / MOTOR_TO_ENCODER_GEAR_RATIO;
-        hoodMotor.setControl(request.withPosition(motorRotation));
-    }
 
     @Override
     public void updateInputs(HoodIOInputs inputs) {
@@ -98,8 +89,8 @@ public class HoodIOTalonFX implements HoodIO {
         inputs.pivotVoltage = motorVoltage.getValueAsDouble();
         inputs.pivotCurrent = motorCurrent.getValueAsDouble();
         inputs.pivotTemperature = hoodMotor.getDeviceTemp().getValueAsDouble();
-        inputs.pivotPositionDegrees = (hoodPosition.getValueAsDouble()) / ENCODER_ROTATIONS_PER_DEGREE + HOOD_MIN_ANGLE_DEGREES;
-        inputs.pivotVelocityDegrees = hoodVelocity.getValueAsDouble() / ENCODER_ROTATIONS_PER_DEGREE;
+        inputs.pivotPositionDegrees = hoodPosition.getValueAsDouble() * 360;
+        inputs.pivotVelocityDegrees = hoodVelocity.getValueAsDouble() * 360;
 
         Logger.recordOutput("Hood Encoder Rotations", hoodEncoder.getPosition().getValueAsDouble());
     }
@@ -110,12 +101,12 @@ public class HoodIOTalonFX implements HoodIO {
     }
 
     public void updateGains() {
-        config.Slot0.kP = PIDs.hoodKp.get();
-        config.Slot0.kI = PIDs.hoodKi.get();
-        config.Slot0.kD = PIDs.hoodKd.get();
-        config.Slot0.kS = PIDs.hoodKs.get();
-        config.Slot0.kV = PIDs.hoodKv.get();
-        config.Slot0.kA = PIDs.hoodKa.get();
+        // config.Slot0.kP = PIDs.hoodKp.get();
+        // config.Slot0.kI = PIDs.hoodKi.get();
+        // config.Slot0.kD = PIDs.hoodKd.get();
+        // config.Slot0.kS = PIDs.hoodKs.get();
+        // config.Slot0.kV = PIDs.hoodKv.get();
+        // config.Slot0.kA = PIDs.hoodKa.get();
     }
 
     @Override
