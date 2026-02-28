@@ -36,7 +36,7 @@ public class PhysicalLEDStrip extends LEDStrip {
             Color color = currentPattern.get(i, Timer.getFPGATimestamp());
             // brightness adjustment based on battery voltage
             color = Color.lerpRGB(Color.kBlack, color, (RobotController.getBatteryVoltage() - 10)/2.0);
-            buffer.setLED(i, color);
+            buffer.setLED(i, new Color8Bit(color));
         }
         led.setData(buffer);
     }

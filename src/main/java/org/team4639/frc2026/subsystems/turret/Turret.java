@@ -249,4 +249,9 @@ public class Turret extends FullSubsystem {
     protected void setVoltage(Voltage volts){
         turretIO.setVoltage(volts.in(Volts));
     }
+
+    @AutoLogOutput(key = "CRT Turret Position")
+    private double CRT() {
+        return getTurretRotation(leftEncoderInputs.positionRotations, rightEncoderInputs.positionRotations);
+    }
 }

@@ -1,3 +1,5 @@
+/* Copyright (c) 2025-2026 FRC 4639. */
+
 package org.team4639.frc2026.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -21,14 +23,11 @@ public class LEDCommands {
         @Override
         public void execute() {
             LEDPattern newPattern = state.getDesiredLEDPattern();
-            if (pattern != newPattern){
-                leds.setPattern(newPattern);
-            }
-            pattern = newPattern;
+            leds.setPattern(newPattern);
         }
     }
 
     public static Command useDefaultSchema(LEDKicker leds, RobotState state){
-        return new defaultSchema(leds, state);
+        return new defaultSchema(leds, state).ignoringDisable(true);
     }
 }

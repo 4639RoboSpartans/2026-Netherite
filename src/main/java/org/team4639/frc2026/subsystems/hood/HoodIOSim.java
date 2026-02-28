@@ -44,14 +44,14 @@ public class HoodIOSim implements HoodIO {
         hoodSim.update(Robot.defaultPeriodSecs);
 
         inputs.pivotVoltage = appliedVolts;
-        inputs.pivotPositionDegrees = (Units.radiansToRotations(hoodSim.getAngleRads()) - HOOD_ENCODER_MIN_ROTATION) / ENCODER_ROTATIONS_PER_DEGREE + HOOD_MIN_ANGLE_DEGREES;
+        inputs.pivotPositionDegrees = (Units.radiansToRotations(hoodSim.getAngleRads()) - HOOD_ENCODER_MIN_ROTATION) / (ENCODER_DEGREES_PER_ROTATION * Math.pow(1/360., 2)) + HOOD_MIN_ANGLE_DEGREES;
         inputs.pivotVelocityDegrees = Units.radiansToDegrees(hoodSim.getVelocityRadPerSec());
     }
 
     @Override
     public void setSetpointDegrees(double setpointDegrees) {
         pivotSetpointDegrees = setpointDegrees;
-        double rotation = (setpointDegrees - HOOD_MIN_ANGLE_DEGREES) * ENCODER_ROTATIONS_PER_DEGREE + HOOD_ENCODER_MIN_ROTATION;
+        double rotation = (setpointDegrees - HOOD_MIN_ANGLE_DEGREES) * ENCODER_DEGREES_PER_ROTATION * Math.pow(1/360., 2) + HOOD_ENCODER_MIN_ROTATION;
         rotation = MathUtil.clamp(rotation, HOOD_ENCODER_MIN_ROTATION, HOOD_ENCODER_MAX_ROTATION);
         hoodPIDController.setGoal(rotation);
         appliedVolts = hoodPIDController.calculate(Units.radiansToRotations(hoodSim.getAngleRads()));

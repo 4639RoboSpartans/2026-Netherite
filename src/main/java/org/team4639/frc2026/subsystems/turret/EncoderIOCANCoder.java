@@ -9,11 +9,14 @@ import org.team4639.frc2026.util.CanDeviceId;
 
 public class EncoderIOCANCoder implements EncoderIO {
     private final CANcoder encoder;
+    private final double offsetRotations;
 
     public EncoderIOCANCoder(CanDeviceId canDeviceId, double offsetRotations, boolean inverted) {
         encoder = new CANcoder(canDeviceId.getDeviceNumber(), canDeviceId.getBus());
         var cancoderConfigs = new CANcoderConfiguration();
-        cancoderConfigs.MagnetSensor.MagnetOffset = offsetRotations;
+        cancoderConfigs.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
+        cancoderConfigs.MagnetSensor.MagnetOffset = 0;
+        this.offsetRotations = offsetRotations;
         cancoderConfigs.MagnetSensor.SensorDirection =
                 inverted ? SensorDirectionValue.Clockwise_Positive : SensorDirectionValue.CounterClockwise_Positive;
         var response = encoder.getConfigurator().apply(cancoderConfigs);
@@ -21,6 +24,6 @@ public class EncoderIOCANCoder implements EncoderIO {
 
     @Override
     public void updateInputs(EncoderIOInputs inputs) {
-        inputs.positionRotations = encoder.getAbsolutePosition().getValueAsDouble();
+        inputs.positionRotations = encoder.getAbsolutePosition().getValueAsDouble() + offsetRotations;
     }
 }

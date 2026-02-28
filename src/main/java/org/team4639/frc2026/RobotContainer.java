@@ -15,6 +15,7 @@ import org.team4639.frc2026.commands.LEDCommands;
 import org.team4639.frc2026.constants.led.Patterns;
 import org.team4639.frc2026.constants.ports.Netherite;
 import org.team4639.frc2026.constants.shooter.ScoringState;
+import org.team4639.frc2026.subsystems.Superstructure;
 import org.team4639.frc2026.subsystems.drive.*;
 import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
 import org.team4639.frc2026.subsystems.extension.Extension;
@@ -72,6 +73,8 @@ public class RobotContainer {
     private final Shooter shooter;
     private final Turret turret;
     private final LEDKicker ledkicker;
+
+    private final Superstructure superstructure;
 
     // Controller
     private final CommandXboxController driver = new DeadbandXboxController(0);
@@ -133,6 +136,8 @@ public class RobotContainer {
                 turretCamera = new TurretCamera(RobotState.getInstance(), new VisionIOLimelight4("limelight-turret", () -> RobotState.getInstance().getTurretPose().getRotation()));
 
                 ledkicker = new LEDKicker(new LEDKickerIOHardware(portConfiguration, 150));
+
+                superstructure = new Superstructure(turret, hood, shooter, kicker, spindexer, RobotState.getInstance());
 
                 configureButtonBindings();
                 break;
@@ -214,6 +219,8 @@ public class RobotContainer {
 
                 ledkicker = new LEDKicker(new LEDKickerIOSim());
 
+                superstructure = new Superstructure(turret, hood, shooter, kicker, spindexer, RobotState.getInstance());
+
                 configureSimButtonBindings();
                 break;
 
@@ -258,9 +265,13 @@ public class RobotContainer {
 
                 ledkicker = new LEDKicker(new LEDKickerIO() {});
 
+                superstructure = new Superstructure(turret, hood, shooter, kicker, spindexer, RobotState.getInstance());
+
                 configureButtonBindings();
                 break;
         }
+
+
 
 
         // Set up auto routines
@@ -300,49 +311,9 @@ public class RobotContainer {
 
         ledkicker.setDefaultCommand(LEDCommands.useDefaultSchema(ledkicker, RobotState.getInstance()));
 
-        StateMachine2 scoring = new StateMachine2(shooter, hood, kicker, spindexer, kicker).activeDuring(StateMachine2.ActiveMode.TELEOP).publishToNT("Scoring");
+        superstructure.setDefaultCommand(superstructure.hoodDown());
 
-        LoggedTunableNumber desiredShooterRPM = new LoggedTunableNumber("Desired Shooter RPM").initDefault(0);
-
-        var S_IDLE = scoring.defaultState("IDLE")
-                .onEnter(new InstantCommand(() -> {
-                    shooter.setWantedState(Shooter.WantedState.IDLE);
-                    hood.setWantedState(Hood.WantedState.IDLE);
-                    turret.setWantedState(Turret.WantedState.SCORING, RobotState.getInstance().calculateClosestDriveAndTurretRotation(RobotState.getInstance().calculateScoringState())[1].getRotations(), 0);
-                    spindexer.setWantedState(Spindexer.WantedState.IDLE);
-                    kicker.setWantedState(Kicker.WantedState.IDLE);
-                }));
-
-        var S_SPINUP = scoring.state("SPINUP")
-                .whileRunning(new RunCommand(() -> {
-                    shooter.setWantedState(Shooter.WantedState.SCORING, desiredShooterRPM.get());
-                    hood.setWantedState(Hood.WantedState.SCORING, Units.degreesToRotations(org.team4639.frc2026.subsystems.hood.Constants.HOOD_MIN_ANGLE_DEGREES));
-                    turret.setWantedState(Turret.WantedState.SCORING, RobotState.getInstance().calculateClosestDriveAndTurretRotation(RobotState.getInstance().calculateScoringState())[1].getRotations(), 0);
-                    spindexer.setWantedState(Spindexer.WantedState.IDLE);
-                    kicker.setWantedState(Kicker.WantedState.IDLE);
-                }));
-
-        var S_SHOOT = scoring.state("SHOOT")
-                .whileRunning(
-                        new RunCommand(() -> {
-                            shooter.setWantedState(Shooter.WantedState.SCORING, desiredShooterRPM.get());
-                            hood.setWantedState(Hood.WantedState.SCORING, Units.degreesToRotations(org.team4639.frc2026.subsystems.hood.Constants.HOOD_MIN_ANGLE_DEGREES));
-                            turret.setWantedState(Turret.WantedState.SCORING, RobotState.getInstance().calculateClosestDriveAndTurretRotation(RobotState.getInstance().calculateScoringState())[1].getRotations(), 0);
-                            spindexer.setWantedState(Spindexer.WantedState.SPIN);
-                            kicker.setWantedState(Kicker.WantedState.KICK);
-                        })
-                );
-
-        S_IDLE.onTrigger(driver.rightBumper(), () -> S_SPINUP);
-        S_SPINUP.withEndCondition(() -> {
-            return shooter.atSetpoint() && hood.atSetpoint() && turret.atSetpoint();
-        }, () -> S_SHOOT);
-        S_SPINUP.onTrigger(driver.rightBumper(), () -> S_IDLE);
-        S_SHOOT.onTrigger(driver.rightBumper(), () -> S_IDLE);
-
-        driver.a().onTrue(new InstantCommand(() -> intake.setWantedState(Intake.WantedState.INTAKE)));
-        driver.b().onTrue(new InstantCommand(() -> intake.setWantedState(Intake.WantedState.IDLE)));
-
+        driver.a().whileTrue(superstructure.hoodUp());
     }
 
     private void configureSimButtonBindings() {
