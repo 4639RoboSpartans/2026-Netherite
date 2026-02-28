@@ -79,6 +79,9 @@ public class HoodIOTalonFX implements HoodIO {
 
     @Override
     public void updateInputs(HoodIOInputs inputs) {
+        double mechanismRotationsFromEncoder = MathUtil.inputModulus(hoodEncoder.getPosition().getValueAsDouble() - 0.752197, -0.05, 0.95) * Constants.ENCODER_TO_PIVOT_GEAR_RATIO;
+        hoodMotor.setPosition(mechanismRotationsFromEncoder + Units.degreesToRotations(Constants.HOOD_MIN_ANGLE_DEGREES));
+
         inputs.hoodMotorConnected = BaseStatusSignal.refreshAll(
                 motorVoltage,
                 motorCurrent,

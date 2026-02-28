@@ -140,6 +140,9 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     @AutoLogOutput(key = "Turret Pose")
     private Pose2d turretPose = new Pose2d();
 
+    @Getter
+    private int turretCameraTargets = 0;
+
     /**
      * Returns the pose relative to the blue alliance wall.
      * Should be used sparingly, for all internal calculations,
@@ -275,12 +278,14 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     }
 
     @Override
-    public void acceptTurretVision(int cameraIndex, Pose2d visionTurretPoseMeters, double timestampSeconds, Matrix<N3, N1> visionMeasurementStdDevs) {
+    public void acceptTurretVision(int cameraIndex, Pose2d visionTurretPoseMeters, double timestampSeconds, Matrix<N3, N1> visionMeasurementStdDevs, int numtargets) {
         // transform turret
         var estimatedRobotPose = visionTurretPoseMeters.transformBy(
                 new Transform2d(Constants.SimConstants.originToTurretRotation.toTranslation2d(),
                Rotation2d.fromRotations(getScoringState().turretAngle().in(Rotations))).inverse()
         );
+
+        this.turretCameraTargets = numtargets;
 
         accept(999, (estimatedRobotPose), timestampSeconds, visionMeasurementStdDevs);
     }
@@ -398,7 +403,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
 
         var turretRotation = closestPassing.minus(getEstimatedPose().getTranslation()).getAngle().getRotations();
         // bs function to calculate shooter rpm
-        var rpm = 1000 + 400 * Math.abs((getEstimatedPose().getX() - FieldConstants.LinesVertical.allianceZone));
+        var rpm = 2000 + 600 * Math.abs((getEstimatedPose().getX() - FieldConstants.LinesVertical.allianceZone));
         var hoodRotation = Degrees.of(50);
 
         return new ScoringState(Rotations.per(Minute).of(rpm), hoodRotation, Rotations.of(turretRotation));

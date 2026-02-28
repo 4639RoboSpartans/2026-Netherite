@@ -122,7 +122,8 @@ public class TurretCamera extends SubsystemBase {
                         cameraIndex,
                         observation.pose().toPose2d(),
                         observation.timestamp(),
-                        VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
+                        VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev),
+                        observation.tagCount());
             }
 
             // Log camera metadata
@@ -155,6 +156,7 @@ public class TurretCamera extends SubsystemBase {
                 int cameraIndex,
                 Pose2d visionTurretPoseMeters,
                 double timestampSeconds,
-                Matrix<N3, N1> visionMeasurementStdDevs);
+                Matrix<N3, N1> visionMeasurementStdDevs,
+                int numtargets);
     }
 }

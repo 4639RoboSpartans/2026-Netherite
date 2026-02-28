@@ -32,6 +32,8 @@ public class Superstructure extends SubsystemBase{
 
     private final Runnable resetSuperstructure;
 
+    private boolean turretHasSeenTarget = false;
+
     public Superstructure(Turret turret, Hood hood, Shooter shooter, Kicker kicker, Spindexer spindexer, RobotState state){
         this.turret = turret;
         this.hood = hood;
@@ -56,8 +58,11 @@ public class Superstructure extends SubsystemBase{
             spindexer.setWantedState(Spindexer.WantedState.IDLE);
 
             // if we have no vision targets, flip the turret out
+            if (!turretHasSeenTarget){
+                turretHasSeenTarget = state.getTurretCameraTargets() > 0;
+            }
 
-            if (state.getEstimatedPose().equals(Pose2d.kZero)) {
+            if (!turretHasSeenTarget) {
                 turret.setWantedState(
                         Turret.WantedState.SCORING,
                         0.5 - state.getEstimatedPose().getRotation().getRotations(),
