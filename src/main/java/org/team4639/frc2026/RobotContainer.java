@@ -326,8 +326,8 @@ public class RobotContainer {
         driver.a().onTrue(intakeStructure.intake());
         driver.b().onTrue(intakeStructure.stopIntake());
 
-        driver.x().onTrue(intakeStructure.retract());
-        driver.y().onTrue(intakeStructure.extend());
+        driver.x().onTrue(intakeStructure.extend());
+        driver.y().onTrue(intakeStructure.retract());
 
         driver.rightBumper().or(driver.leftBumper()).whileTrue(intakeStructure.agitate());
     }
