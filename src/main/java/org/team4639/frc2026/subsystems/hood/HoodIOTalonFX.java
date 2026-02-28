@@ -46,7 +46,7 @@ public class HoodIOTalonFX implements HoodIO {
         hoodMotor = Phoenix6Factory.createDefaultTalon(ports.HoodMotorID);
         hoodEncoder = Phoenix6Factory.createCANcoder(ports.HoodEncoderID);
 
-        hoodEncoder.getConfigurator().apply(new MagnetSensorConfigs().withMagnetOffset(-0.748535).withAbsoluteSensorDiscontinuityPoint(0.95));
+        hoodEncoder.getConfigurator().apply(new MagnetSensorConfigs().withMagnetOffset(-0.411865234375).withAbsoluteSensorDiscontinuityPoint(0.95));
 
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         config.CurrentLimits.SupplyCurrentLimit = 20.0;
@@ -70,12 +70,12 @@ public class HoodIOTalonFX implements HoodIO {
         initialEncoderRotation = hoodEncoder.getPosition().getValueAsDouble();
         initialMotorRotorRotation = hoodMotor.getPosition().getValueAsDouble();
         zeroMotorRotorRotation = initialMotorRotorRotation - initialEncoderRotation / MOTOR_TO_ENCODER_GEAR_RATIO;
+
     }
 
     @Override
     public void setSetpointDegrees(double setpointDegrees) {
-        System.out.println("Setting Setpoint"+setpointDegrees);
-        double rotation = (setpointDegrees - HOOD_MIN_ANGLE_DEGREES) * ENCODER_DEGREES_PER_ROTATION * Math.pow(1/360., 2) + HOOD_ENCODER_MIN_ROTATION;
+        double rotation = (setpointDegrees - HOOD_MIN_ANGLE_DEGREES) * ENCODER_ROTATIONS_PER_DEGREE + HOOD_ENCODER_MIN_ROTATION;
         rotation = MathUtil.clamp(rotation, HOOD_ENCODER_MIN_ROTATION, HOOD_ENCODER_MAX_ROTATION);
         setMotorSetpointFromEncoderSetpoint(rotation);
         Logger.recordOutput("Hood Controller Setpoint", request.Position);
@@ -98,8 +98,8 @@ public class HoodIOTalonFX implements HoodIO {
         inputs.pivotVoltage = motorVoltage.getValueAsDouble();
         inputs.pivotCurrent = motorCurrent.getValueAsDouble();
         inputs.pivotTemperature = hoodMotor.getDeviceTemp().getValueAsDouble();
-        inputs.pivotPositionDegrees = (hoodPosition.getValueAsDouble()) * ENCODER_DEGREES_PER_ROTATION + HOOD_MIN_ANGLE_DEGREES;
-        inputs.pivotVelocityDegrees = hoodVelocity.getValueAsDouble() * ENCODER_DEGREES_PER_ROTATION;
+        inputs.pivotPositionDegrees = (hoodPosition.getValueAsDouble()) / ENCODER_ROTATIONS_PER_DEGREE + HOOD_MIN_ANGLE_DEGREES;
+        inputs.pivotVelocityDegrees = hoodVelocity.getValueAsDouble() / ENCODER_ROTATIONS_PER_DEGREE;
 
         Logger.recordOutput("Hood Encoder Rotations", hoodEncoder.getPosition().getValueAsDouble());
     }
@@ -110,12 +110,12 @@ public class HoodIOTalonFX implements HoodIO {
     }
 
     public void updateGains() {
-        // config.Slot0.kP = PIDs.hoodKp.get();
-        // config.Slot0.kI = PIDs.hoodKi.get();
-        // config.Slot0.kD = PIDs.hoodKd.get();
-        // config.Slot0.kS = PIDs.hoodKs.get();
-        // config.Slot0.kV = PIDs.hoodKv.get();
-        // config.Slot0.kA = PIDs.hoodKa.get();
+        config.Slot0.kP = PIDs.hoodKp.get();
+        config.Slot0.kI = PIDs.hoodKi.get();
+        config.Slot0.kD = PIDs.hoodKd.get();
+        config.Slot0.kS = PIDs.hoodKs.get();
+        config.Slot0.kV = PIDs.hoodKv.get();
+        config.Slot0.kA = PIDs.hoodKa.get();
     }
 
     @Override

@@ -134,7 +134,6 @@ public class Hood extends FullSubsystem {
         io.setVoltage(volts.in(Volts));
     }
 
-    @AutoLogOutput(key = "Hood Setpoint Angle")
     public double getSetpointAngle() {
         return switch (systemState) {
             case SCORING -> SCORING_HOOD_ANGLE;
