@@ -3,6 +3,7 @@
 package org.team4639.frc2026.commands;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -12,6 +13,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -23,6 +25,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+
+import org.team4639.frc2026.RobotState;
 import org.team4639.frc2026.subsystems.drive.Drive;
 
 public class DriveCommands {
@@ -35,6 +39,7 @@ public class DriveCommands {
     private static final double FF_RAMP_RATE = 0.1; // Volts/Sec
     private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
     private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
+    private static final double ALIGN_FF = 1.0;
 
     private DriveCommands() {}
 
@@ -284,5 +289,46 @@ public class DriveCommands {
         double[] positions = new double[4];
         Rotation2d lastAngle = Rotation2d.kZero;
         double gyroDelta = 0.0;
+    }
+
+    public static Command PIDToPose(Drive drive, RobotState state, Pose2d destinationPose, double toleranceMeters, double velocityScaling) {
+        ProfiledPIDController pidX =
+                new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(5 * velocityScaling, 5));
+        ProfiledPIDController pidY =
+                new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(5 * velocityScaling, 5));
+        PIDController headingController = new PIDController(8, 0, 0);
+        headingController.enableContinuousInput(-Math.PI, Math.PI);
+        headingController.setSetpoint(destinationPose.getRotation().getRadians());
+
+        var startingPose = state.getEstimatedPose();
+
+        pidX.reset(startingPose.getX(), state.getChassisSpeeds().vxMetersPerSecond);
+        pidX.setGoal(destinationPose.getX());
+
+        pidY.reset(startingPose.getY(), state.getChassisSpeeds().vyMetersPerSecond);
+        pidY.setGoal(destinationPose.getY());
+
+        double kp = 6;
+
+        return drive
+                .run(
+                        () -> {
+                            drive.runVelocity(
+                                    ChassisSpeeds.fromFieldRelativeSpeeds(
+                                            new ChassisSpeeds(
+                                                    ALIGN_FF * pidX.getSetpoint().velocity
+                                                            + pidX.calculate(drive.getPose().getX()),
+                                                    ALIGN_FF * pidY.getSetpoint().velocity
+                                                            + pidY.calculate(drive.getPose().getY()),
+                                                    headingController.calculate(drive.getPose().getRotation().getRadians())),
+                                            drive.getPose().getRotation()));
+
+                                state.setChoreoSetpoint(destinationPose);
+                        })
+                .until(() -> state.getEstimatedPose().getTranslation().getDistance(destinationPose.getTranslation()) < toleranceMeters);
+    }
+
+    public static Command PIDToPose(Drive drive, RobotState state, Pose2d destinationPose, double toleranceMeters){
+        return PIDToPose(drive, state, destinationPose, toleranceMeters, 1.0);
     }
 }

@@ -92,6 +92,19 @@ public class Superstructure extends SubsystemBase{
         }).finallyDo(resetSuperstructure);
     }
 
+    public Command trackHub() {
+        return this.run(() -> {
+            shooter.setWantedState(Shooter.WantedState.IDLE);
+            kicker.setWantedState(Kicker.WantedState.IDLE);
+            spindexer.setWantedState(Spindexer.WantedState.IDLE);
+
+            turret.setWantedState(
+                    Turret.WantedState.SCORING,
+                    FieldConstants.Hub.topCenterPoint.toTranslation2d().minus(state.getEstimatedPose().getTranslation()).getAngle().getRotations() - state.getEstimatedPose().getRotation().getRotations(),
+                    0);
+        }).finallyDo(resetSuperstructure);
+    }
+
     public boolean shouldShoot() {
         return state.getEstimatedPose().getX() < FieldConstants.LinesVertical.allianceZone;
     }

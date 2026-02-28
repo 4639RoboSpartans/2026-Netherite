@@ -7,7 +7,11 @@ import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import org.team4639.frc2026.RobotState;
+import org.team4639.frc2026.commands.DriveCommands;
+import org.team4639.frc2026.subsystems.IntakeStructure;
+import org.team4639.frc2026.subsystems.Superstructure;
 import org.team4639.frc2026.subsystems.drive.Drive;
 
 public class AutoCommands {

@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.team4639.frc2026.auto.AutoCommands;
+import org.team4639.frc2026.auto.AutoCommands2;
 import org.team4639.frc2026.commands.DriveCommands;
 import org.team4639.frc2026.commands.LEDCommands;
 import org.team4639.frc2026.constants.led.Patterns;
@@ -291,6 +292,10 @@ public class RobotContainer {
         AutoCommands autoCommands = new AutoCommands(drive);
 
         autoChooser = new LoggedLazyAutoChooser("Auto Choices");
+
+        autoChooser.addOption("LEFT_SWIPE", () -> AutoCommands2.LEFT_DOUBLE_SWIPE(drive, superstructure, intakeStructure, RobotState.getInstance()));
+        //autoChooser.addOption("RIGHT_SWIPE", () -> AutoCommands2.RIGHT_SWIPE_FAR(drive, superstructure, intakeStructure, RobotState.getInstance()));
+
         autoChooser.addOption("DriverStation-TrenchLine", autoCommands::DriverStation_TrenchLine);
         autoChooser.addOption(
                 "DriverStation_TrenchLine-DriverStation", autoCommands::DriverStation_TrenchLine_DriverStation);
