@@ -17,11 +17,9 @@ import org.team4639.frc2026.subsystems.turret.Turret;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import lombok.RequiredArgsConstructor;
 
 import static edu.wpi.first.units.Units.*;
 
-@RequiredArgsConstructor
 public class Superstructure extends SubsystemBase{
 
     private final Turret turret;
@@ -31,7 +29,26 @@ public class Superstructure extends SubsystemBase{
     private final Spindexer spindexer;
 
     private final RobotState state;
-    
+
+    private final Runnable resetSuperstructure;
+
+    public Superstructure(Turret turret, Hood hood, Shooter shooter, Kicker kicker, Spindexer spindexer, RobotState state){
+        this.turret = turret;
+        this.hood = hood;
+        this.shooter = shooter;
+        this.kicker = kicker;
+        this.spindexer = spindexer;
+        this.state = state;
+
+        resetSuperstructure = () -> {
+        hood.setWantedState(Hood.WantedState.IDLE);
+        turret.setWantedState(Turret.WantedState.IDLE);
+        shooter.setWantedState(Shooter.WantedState.IDLE);
+        spindexer.setWantedState(Spindexer.WantedState.IDLE);
+        kicker.setWantedState(Kicker.WantedState.IDLE);
+    };
+    }
+
     public Command idle() {
         return this.run(() -> {
             shooter.setWantedState(Shooter.WantedState.IDLE);
@@ -39,7 +56,7 @@ public class Superstructure extends SubsystemBase{
             spindexer.setWantedState(Spindexer.WantedState.IDLE);
 
             // if we have no vision targets, flip the turret out
-            
+
             if (state.getEstimatedPose().equals(Pose2d.kZero)) {
                 turret.setWantedState(
                         Turret.WantedState.SCORING,
@@ -162,16 +179,6 @@ public class Superstructure extends SubsystemBase{
         });
     }
 
-    // reset states at the end of each command
-
-    private final Runnable resetSuperstructure = () -> {
-        hood.setWantedState(Hood.WantedState.IDLE);
-        turret.setWantedState(Turret.WantedState.IDLE);
-        shooter.setWantedState(Shooter.WantedState.IDLE);
-        spindexer.setWantedState(Spindexer.WantedState.IDLE);
-        kicker.setWantedState(Kicker.WantedState.IDLE);
-    };
-    
     // actions for testing
 
     public Command holdTurretAt180() {
