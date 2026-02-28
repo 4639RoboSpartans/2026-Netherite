@@ -214,7 +214,7 @@ public class Turret extends FullSubsystem {
     }
 
     private void handlePassing() {
-        double nearestTurretRotation = getNearestTurretRotation(MathUtil.clamp(SCORING_TURRET_ROTATION, Constants.TURRET_MIN_ROTATIONS, Constants.TURRET_MAX_ROTATIONS));
+        double nearestTurretRotation = getNearestTurretRotation(MathUtil.clamp(PASSING_TURRET_ROTATION, Constants.TURRET_MIN_ROTATIONS, Constants.TURRET_MAX_ROTATIONS));
         turretIO.setRotorRotationSetpoint(getRotorRotationsFromAbsoluteTurretRotation(nearestTurretRotation));
     }
 

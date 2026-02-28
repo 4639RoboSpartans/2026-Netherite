@@ -311,9 +311,8 @@ public class RobotContainer {
 
         ledkicker.setDefaultCommand(LEDCommands.useDefaultSchema(ledkicker, RobotState.getInstance()));
 
-        superstructure.setDefaultCommand(superstructure.hoodDown());
-
-        driver.a().whileTrue(superstructure.hoodUp());
+        driver.a().whileTrue(superstructure.shootDemo());
+        driver.b().whileTrue(superstructure.passDemo());
     }
 
     private void configureSimButtonBindings() {

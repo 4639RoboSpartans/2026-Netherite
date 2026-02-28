@@ -20,7 +20,7 @@ public class Hood extends FullSubsystem {
     private final HoodIO io;
     private final HoodIOInputsAutoLogged inputs = new HoodIOInputsAutoLogged();
 
-    private final double PASSING_HOOD_ANGLE = 0;
+    private double PASSING_HOOD_ANGLE = 0;
     private final double IDLE_HOOD_ANGLE = 0;
 
     @AutoLogOutput(key = "Hood Setpoint Degrees")
@@ -122,7 +122,11 @@ public class Hood extends FullSubsystem {
 
     public void setWantedState(WantedState wantedState, double scoringAngleRotations) {
         setWantedState(wantedState);
-        this.SCORING_HOOD_ANGLE = Rotations.of(scoringAngleRotations).in(Degrees);
+        if (wantedState == WantedState.PASSING) {
+            this.PASSING_HOOD_ANGLE = Rotations.of(scoringAngleRotations).in(Degrees);
+        } else {
+            this.SCORING_HOOD_ANGLE = Rotations.of(scoringAngleRotations).in(Degrees);
+        }
     }
 
     /**

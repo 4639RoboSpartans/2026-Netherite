@@ -26,6 +26,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.Constants.Mode;
 import org.team4639.frc2026.constants.led.Patterns;
+import org.team4639.frc2026.constants.shooter.PassingTargets;
 import org.team4639.frc2026.constants.shooter.ScoringState;
 import org.team4639.frc2026.constants.shooter.ShooterLookupTable;
 import org.team4639.frc2026.constants.shooter.ShooterScoringData;
@@ -96,6 +97,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
      * Pose <b>relative to our alliance wall</b>
      */
     private Pose2d estimatedPose = Pose2d.kZero;
+    @Getter
     private ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
     private double intakeExtensionFraction = 0.0;
 
@@ -382,6 +384,17 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
             robotVelocity = robotVelocity.plus(robotTangentialVelocityTranslation);
             return ShooterScoringData.shooterLookupTable.convergeShooterStateSOTFTurret(turretPose, hubTranslation, robotVelocity, 10);
         }
+    }
+
+    public ScoringState calculatePassingState() {
+        Translation2d closestPassing = Arrays.stream(PassingTargets.values()).min(Comparator.comparing(target -> target.target.getDistance(getEstimatedPose().getTranslation()))).get().target;
+
+        var turretRotation = closestPassing.minus(getEstimatedPose().getTranslation()).getAngle().getRotations();
+        // bs function to calculate shooter rpm
+        var rpm = 1000 + 400 * Math.abs((getEstimatedPose().getX() - FieldConstants.LinesVertical.allianceZone));
+        var hoodRotation = Degrees.of(50);
+
+        return new ScoringState(Rotations.per(Minute).of(rpm), hoodRotation, Rotations.of(turretRotation));
     }
 
     public Rotation2d[] calculateClosestDriveAndTurretRotation(ScoringState desiredScoringState) {

@@ -21,7 +21,7 @@ public class Shooter extends FullSubsystem {
     private final ShooterIO io;
     private final ShooterIOInputsAutoLogged inputs = new ShooterIOInputsAutoLogged();
 
-    private final double PASSING_RPM = 0;
+    private double PASSING_RPM = 0;
     private final double IDLE_VOLTAGE = 0;
     @AutoLogOutput(key = "Shooter Scoring RPM")
     private double SCORING_RPM = 0;
@@ -113,7 +113,11 @@ public class Shooter extends FullSubsystem {
 
     public void setWantedState(WantedState wantedState, double scoringRPM) {
         setWantedState(wantedState);
-        this.SCORING_RPM = scoringRPM;
+        if (wantedState == WantedState.PASSING){
+            this.PASSING_RPM = scoringRPM;
+        } else {
+            this.SCORING_RPM = scoringRPM;
+        }
     }
 
     /**
