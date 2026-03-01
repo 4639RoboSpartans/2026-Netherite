@@ -403,7 +403,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
 
         var turretRotation = closestPassing.minus(getEstimatedPose().getTranslation()).getAngle().getRotations();
         // bs function to calculate shooter rpm
-        var rpm = 2000 + 600 * Math.abs((getEstimatedPose().getX() - FieldConstants.LinesVertical.allianceZone));
+        var rpm = MathUtil.clamp(1900 + 600 * Math.abs((getEstimatedPose().getX() - FieldConstants.LinesVertical.allianceZone)), 0, 4000);
         var hoodRotation = Degrees.of(50);
 
         return new ScoringState(Rotations.per(Minute).of(rpm), hoodRotation, Rotations.of(turretRotation));

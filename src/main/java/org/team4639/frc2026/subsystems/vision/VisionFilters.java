@@ -2,11 +2,13 @@
 
 package org.team4639.frc2026.subsystems.vision;
 
+import static edu.wpi.first.units.Units.Rotations;
 import static org.team4639.frc2026.subsystems.vision.VisionConstants.*;
 
 import java.util.function.Predicate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.dyn4j.geometry.Rotation;
 import org.team4639.frc2026.subsystems.vision.VisionIO.PoseObservation;
 
 @AllArgsConstructor
@@ -17,7 +19,11 @@ public enum VisionFilters {
     FIELD_BOUNDARIES(observation -> observation.pose().getX() < 0.0
             || observation.pose().getX() > aprilTagLayout.getFieldLength()
             || observation.pose().getY() < 0.0
-            || observation.pose().getY() > aprilTagLayout.getFieldWidth());
+            || observation.pose().getY() > aprilTagLayout.getFieldWidth()),
+    ROTS3D(observation -> {
+        return observation.pose().getRotation().getMeasureX().abs(Rotations) > 0.02 ||
+        observation.pose().getRotation().getMeasureY().abs(Rotations) > 0.02;
+    });
 
     /**
      * Returns true if we want to reject the pose and false if we keep it

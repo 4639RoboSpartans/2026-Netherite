@@ -20,7 +20,7 @@ public class Intake extends FullSubsystem {
     private final IntakeRollerIO rollerIO;
     private final IntakeRollerIOInputsAutoLogged rollerInputs = new IntakeRollerIOInputsAutoLogged();
 
-    private final double INTAKE_SURFACE_VELOCITY_FEET_PER_SECOND = 28 * 3;
+    private final double INTAKE_SURFACE_VELOCITY_FEET_PER_SECOND = 28 * 5;
 
 
     @Getter

@@ -13,12 +13,17 @@ import org.team4639.frc2026.subsystems.drive.Drive;
 
 public class AutoCommands2 {
 
+    public static final int SHOOT_SECONDS = 4;
+    public static final double INTAKE_CHASSIS_SCALAR = 0.50;
+
     public static Command LEFT_DOUBLE_SWIPE(Drive drive, Superstructure superstructure, IntakeStructure intakeStructure, RobotState state) {
         return new SequentialCommandGroup(
                 Commands.runOnce(() -> state.resetPose(AutoPoses.LEFT_START)),
-                LEFT_SWIPE_FAR(drive, superstructure, intakeStructure, state),
-                LEFT_SWIPE_MID(drive, superstructure, intakeStructure, state)
-        );
+                drive.run(drive::stopWithX)
+                        .alongWith(superstructure.requestScoring(), intakeStructure.extend(), intakeStructure.intake()).withTimeout(SHOOT_SECONDS),
+                LEFT_SWIPE_FAR(drive, superstructure, intakeStructure, state)
+                //LEFT_SWIPE_MID(drive, superstructure, intakeStructure, state)
+        ).withTimeout(20);
     }
 
     public static Command RIGHT_DOUBLE_SWIPE(Drive drive, Superstructure superstructure, IntakeStructure intakeStructure, RobotState state) {
@@ -34,7 +39,7 @@ public class AutoCommands2 {
         return new SequentialCommandGroup(
                 drive.defer(() -> DriveCommands.PIDToPose(drive, state, AutoPoses.LEFT_TRENCHLINE_NEUTRAL_FAR, 2.0))
                         .deadlineFor(superstructure.trackHub(), intakeStructure.extend(), intakeStructure.intake()),
-                drive.defer(() -> DriveCommands.PIDToPose(drive, state, AutoPoses.LEFT_SWIPE_ENDPOINT_FAR, 0.75, 0.25))
+                drive.defer(() -> DriveCommands.PIDToPose(drive, state, AutoPoses.LEFT_SWIPE_ENDPOINT_FAR, 0.75, INTAKE_CHASSIS_SCALAR))
                         .deadlineFor(superstructure.trackHub(), intakeStructure.extend(), intakeStructure.intake()),
                 drive.defer(() -> DriveCommands.PIDToPose(drive, state, AutoPoses.LEFT_TRENCHLINE_NEUTRAL_MID_FAR, 1.75))
                         .deadlineFor(superstructure.trackHub(), intakeStructure.extend(), intakeStructure.intake()),
@@ -43,7 +48,7 @@ public class AutoCommands2 {
                 drive.defer(() -> DriveCommands.PIDToPose(drive, state, AutoPoses.LEFT_TRENCHLINE_AZ_MID, 1.0))
                         .deadlineFor(superstructure.idle(), intakeStructure.extend(), intakeStructure.intake()),
                 drive.run(drive::stopWithX)
-                        .alongWith(superstructure.requestScoring(), intakeStructure.agitate()).withTimeout(5)
+                        .alongWith(superstructure.requestScoring(), intakeStructure.extend(), intakeStructure.intake()).withTimeout(SHOOT_SECONDS)
         );
     }
 
@@ -51,7 +56,7 @@ public class AutoCommands2 {
         return new SequentialCommandGroup(
                 drive.defer(() -> DriveCommands.PIDToPose(drive, state, AutoPoses.LEFT_TRENCHLINE_NEUTRAL_FAR, 3.0))
                         .deadlineFor(superstructure.trackHub(), intakeStructure.extend(), intakeStructure.intake()),
-                drive.defer(() -> DriveCommands.PIDToPose(drive, state, AutoPoses.LEFT_SWIPE_ENDPOINT_MID, 0.75, 0.25))
+                drive.defer(() -> DriveCommands.PIDToPose(drive, state, AutoPoses.LEFT_SWIPE_ENDPOINT_MID, 0.75, INTAKE_CHASSIS_SCALAR))
                         .deadlineFor(superstructure.trackHub(), intakeStructure.extend(), intakeStructure.intake()),
                 drive.defer(() -> DriveCommands.PIDToPose(drive, state, AutoPoses.LEFT_TRENCHLINE_NEUTRAL_MID, 1.75))
                         .deadlineFor(superstructure.trackHub(), intakeStructure.extend(), intakeStructure.intake()),
@@ -60,7 +65,7 @@ public class AutoCommands2 {
                 drive.defer(() -> DriveCommands.PIDToPose(drive, state, AutoPoses.LEFT_TRENCHLINE_AZ_MID, 1.0))
                         .deadlineFor(superstructure.idle(), intakeStructure.extend(), intakeStructure.intake()),
                 drive.run(drive::stopWithX)
-                        .alongWith(superstructure.requestScoring(), intakeStructure.agitate()).withTimeout(5)
+                        .alongWith(superstructure.requestScoring(), intakeStructure.extend(), intakeStructure.intake()).withTimeout(SHOOT_SECONDS)
         );
     }
 
@@ -68,7 +73,7 @@ public class AutoCommands2 {
         return new SequentialCommandGroup(
                 drive.defer(() -> DriveCommands.PIDToPose(drive, state, AutoPoses.RIGHT_TRENCHLINE_NEUTRAL_FAR, 3.0))
                         .deadlineFor(superstructure.trackHub(), intakeStructure.extend(), intakeStructure.intake()),
-                drive.defer(() -> DriveCommands.PIDToPose(drive, state, AutoPoses.RIGHT_SWIPE_ENDPOINT_MID, 0.75, 0.25))
+                drive.defer(() -> DriveCommands.PIDToPose(drive, state, AutoPoses.RIGHT_SWIPE_ENDPOINT_MID, 0.75, INTAKE_CHASSIS_SCALAR))
                         .deadlineFor(superstructure.trackHub(), intakeStructure.extend(), intakeStructure.intake()),
                 drive.defer(() -> DriveCommands.PIDToPose(drive, state, AutoPoses.RIGHT_TRENCHLINE_NEUTRAL_MID, 1.75))
                         .deadlineFor(superstructure.trackHub(), intakeStructure.extend(), intakeStructure.intake()),
@@ -77,7 +82,7 @@ public class AutoCommands2 {
                 drive.defer(() -> DriveCommands.PIDToPose(drive, state, AutoPoses.RIGHT_TRENCHLINE_AZ_MID, 1.0))
                         .deadlineFor(superstructure.idle(), intakeStructure.extend(), intakeStructure.intake()),
                 drive.run(drive::stopWithX)
-                        .alongWith(superstructure.requestScoring(), intakeStructure.agitate()).withTimeout(5)
+                        .alongWith(superstructure.requestScoring(), intakeStructure.extend(), intakeStructure.intake()).withTimeout(SHOOT_SECONDS)
         );
     }
 
@@ -85,7 +90,7 @@ public class AutoCommands2 {
         return new SequentialCommandGroup(
                 drive.defer(() -> DriveCommands.PIDToPose(drive, state, AutoPoses.RIGHT_TRENCHLINE_NEUTRAL_FAR, 2.0))
                         .deadlineFor(superstructure.trackHub(), intakeStructure.extend(), intakeStructure.intake()),
-                drive.defer(() -> DriveCommands.PIDToPose(drive, state, AutoPoses.RIGHT_SWIPE_ENDPOINT_FAR, 0.75, 0.25))
+                drive.defer(() -> DriveCommands.PIDToPose(drive, state, AutoPoses.RIGHT_SWIPE_ENDPOINT_FAR, 0.75, INTAKE_CHASSIS_SCALAR))
                         .deadlineFor(superstructure.trackHub(), intakeStructure.extend(), intakeStructure.intake()),
                 drive.defer(() -> DriveCommands.PIDToPose(drive, state, AutoPoses.RIGHT_TRENCHLINE_NEUTRAL_MID_FAR, 1.75))
                         .deadlineFor(superstructure.trackHub(), intakeStructure.extend(), intakeStructure.intake()),
@@ -94,7 +99,7 @@ public class AutoCommands2 {
                 drive.defer(() -> DriveCommands.PIDToPose(drive, state, AutoPoses.RIGHT_TRENCHLINE_AZ_MID, 1.0))
                         .deadlineFor(superstructure.idle(), intakeStructure.extend(), intakeStructure.intake()),
                 drive.run(drive::stopWithX)
-                        .alongWith(superstructure.requestScoring(), intakeStructure.agitate()).withTimeout(5)
+                        .alongWith(superstructure.requestScoring(), intakeStructure.extend(), intakeStructure.intake()).withTimeout(SHOOT_SECONDS)
         );
     }
 }

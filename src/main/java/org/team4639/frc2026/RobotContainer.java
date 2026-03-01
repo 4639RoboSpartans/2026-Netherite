@@ -130,13 +130,14 @@ public class RobotContainer {
                         RobotState.getInstance()
                 );
 
-                hood = new Hood(new HoodIOTalonFX(portConfiguration) , RobotState.getInstance());
+                hood = new Hood(/*new HoodIOTalonFX(portConfiguration)*/ new HoodIO() {
+                }, RobotState.getInstance());
 
                 shooter = new Shooter(new ShooterIOSparkFlex(portConfiguration), RobotState.getInstance());
 
                 vision = new Vision(
-                        RobotState.getInstance()//,
-                        //new VisionIOLimelight("limelight-left", () -> RobotState.getInstance().getEstimatedPose().getRotation()),
+                        RobotState.getInstance(),
+                        new VisionIOLimelight("limelight", () -> RobotState.getInstance().getEstimatedPose().getRotation())
                         //new VisionIOLimelight("limelight-right", () -> RobotState.getInstance().getEstimatedPose().getRotation())
                 );
 
@@ -294,7 +295,7 @@ public class RobotContainer {
         autoChooser = new LoggedLazyAutoChooser("Auto Choices");
 
         autoChooser.addOption("LEFT_SWIPE", () -> AutoCommands2.LEFT_DOUBLE_SWIPE(drive, superstructure, intakeStructure, RobotState.getInstance()));
-        //autoChooser.addOption("RIGHT_SWIPE", () -> AutoCommands2.RIGHT_SWIPE_FAR(drive, superstructure, intakeStructure, RobotState.getInstance()));
+        autoChooser.addOption("RIGHT_SWIPE", () -> AutoCommands2.RIGHT_DOUBLE_SWIPE(drive, superstructure, intakeStructure, RobotState.getInstance()));
 
         autoChooser.addOption("DriverStation-TrenchLine", autoCommands::DriverStation_TrenchLine);
         autoChooser.addOption(

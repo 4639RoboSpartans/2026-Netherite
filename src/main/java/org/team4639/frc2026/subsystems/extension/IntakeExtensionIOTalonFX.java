@@ -27,7 +27,7 @@ public class IntakeExtensionIOTalonFX implements IntakeExtensionIO {
         config.CurrentLimits.StatorCurrentLimitEnable = true;
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-        config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        //config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
         PhoenixUtil.tryUntilOk(5, () -> extensionMotor.getConfigurator().apply(config));
     }

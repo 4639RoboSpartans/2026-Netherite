@@ -293,10 +293,10 @@ public class DriveCommands {
 
     public static Command PIDToPose(Drive drive, RobotState state, Pose2d destinationPose, double toleranceMeters, double velocityScaling) {
         ProfiledPIDController pidX =
-                new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(5 * velocityScaling, 5));
+                new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(10 * velocityScaling, 19));
         ProfiledPIDController pidY =
-                new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(5 * velocityScaling, 5));
-        PIDController headingController = new PIDController(8, 0, 0);
+                new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(10 * velocityScaling, 19));
+        PIDController headingController = new PIDController(5, 0, 0);
         headingController.enableContinuousInput(-Math.PI, Math.PI);
         headingController.setSetpoint(destinationPose.getRotation().getRadians());
 
