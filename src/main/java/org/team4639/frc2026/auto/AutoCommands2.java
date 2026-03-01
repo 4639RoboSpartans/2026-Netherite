@@ -29,9 +29,11 @@ public class AutoCommands2 {
     public static Command RIGHT_DOUBLE_SWIPE(Drive drive, Superstructure superstructure, IntakeStructure intakeStructure, RobotState state) {
         return new SequentialCommandGroup(
                 Commands.runOnce(() -> state.resetPose(AutoPoses.RIGHT_START)),
-                RIGHT_SWIPE_FAR(drive, superstructure, intakeStructure, state),
-                RIGHT_SWIPE_MID(drive, superstructure, intakeStructure, state)
-        );
+                drive.run(drive::stopWithX)
+                        .alongWith(superstructure.requestScoring(), intakeStructure.extend(), intakeStructure.intake()).withTimeout(SHOOT_SECONDS),
+                RIGHT_SWIPE_FAR(drive, superstructure, intakeStructure, state)
+                //RIGHT_SWIPE_MID(drive, superstructure, intakeStructure, state)
+        ).withTimeout(20);
     }
 
 
