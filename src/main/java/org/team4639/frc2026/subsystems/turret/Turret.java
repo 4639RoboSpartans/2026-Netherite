@@ -206,7 +206,8 @@ public class Turret extends FullSubsystem {
     }
 
     private void handleIdle() {
-        turretIO.setRotorRotationSetpoint(getRotorRotationsFromAbsoluteTurretRotation(IDLE_TURRET_ROTATION));
+        //turretIO.setRotorRotationSetpoint(getRotorRotationsFromAbsoluteTurretRotation(IDLE_TURRET_ROTATION));
+        turretIO.setVoltage(0);
     }
 
     private void handleScoring() {
