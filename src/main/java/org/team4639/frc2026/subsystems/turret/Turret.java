@@ -246,9 +246,9 @@ public class Turret extends FullSubsystem {
     public double getTurretSetpoint() {
         return switch (systemState) {
             case IDLE -> IDLE_TURRET_ROTATION;
-            case SCORING -> SCORING_TURRET_ROTATION = state.calculateScoringState().turretAngle().in(Rotations);
-            case PASSING -> PASSING_TURRET_ROTATION = state.calculatePassingState().turretAngle().in(Rotations);
-            case HUB_TRACK -> HUB_TRACK_TURRET_ROTATION = MathUtil.inputModulus(state.getTurretToHub().getRotations(), 0, 1);
+            case SCORING -> SCORING_TURRET_ROTATION = state.calculateScoringState().turretAngle().in(Rotations) - state.getEstimatedPose().getRotation().getRotations();
+            case PASSING -> PASSING_TURRET_ROTATION = state.calculatePassingState().turretAngle().in(Rotations) - state.getEstimatedPose().getRotation().getRotations();
+            case HUB_TRACK -> HUB_TRACK_TURRET_ROTATION = MathUtil.inputModulus(state.getTurretToHubFieldRelative().getRotations(), 0, 1) - state.getEstimatedPose().getRotation().getRotations();
         };
     }
 
