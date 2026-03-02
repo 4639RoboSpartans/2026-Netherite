@@ -380,9 +380,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         //TODO: something with this
     }
 
-    public ScoringState calculateScoringState() {
-        Translation2d hubTranslation = FieldConstants.Hub.topCenterPoint.toTranslation2d();
-        Pose2d turretPose = getEstimatedPose().transformBy(new Transform2d(Constants.SimConstants.originToTurretRotation.toTranslation2d(), new Rotation2d()));
+    private ScoringState calculateScoringState(Translation2d hubTranslation, Pose2d turretPose, ChassisSpeeds chassisSpeeds){
         if (MathUtil.isNear(0, chassisSpeeds.vxMetersPerSecond, 0.01) || MathUtil.isNear(0, chassisSpeeds.vyMetersPerSecond, 0.01)) {
             return ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(turretPose, hubTranslation);
         } else {
@@ -396,6 +394,20 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
             robotVelocity = robotVelocity.plus(robotTangentialVelocityTranslation);
             return ShooterScoringData.shooterLookupTable.convergeShooterStateSOTFTurret(turretPose, hubTranslation, robotVelocity, 10);
         }
+    }
+
+    public ScoringState calculateScoringState() {
+        Translation2d hubTranslation = FieldConstants.Hub.topCenterPoint.toTranslation2d();
+        Pose2d turretPose = getEstimatedPose().transformBy(new Transform2d(Constants.SimConstants.originToTurretRotation.toTranslation2d(), new Rotation2d()));
+
+        return calculateScoringState(hubTranslation, turretPose, getChassisSpeeds());
+    }
+
+    public ScoringState calculateNextScoringState(double dtSeconds){
+        Translation2d hubTranslation = FieldConstants.Hub.topCenterPoint.toTranslation2d();
+        Pose2d turretPose = getEstimatedPose().exp(getChassisSpeeds().toTwist2d(dtSeconds));
+
+        return calculateScoringState(hubTranslation, turretPose, getChassisSpeeds());
     }
 
     public ScoringState calculatePassingState() {
