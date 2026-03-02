@@ -56,23 +56,7 @@ public class Superstructure extends SubsystemBase{
             shooter.setWantedState(Shooter.WantedState.IDLE);
             kicker.setWantedState(Kicker.WantedState.IDLE);
             spindexer.setWantedState(Spindexer.WantedState.IDLE);
-
-            // if we have no vision targets, flip the turret out
-            if (!turretHasSeenTarget){
-                turretHasSeenTarget = state.getTurretCameraTargets() > 0;
-            }
-
-            if (!turretHasSeenTarget) {
-                turret.setWantedState(
-                        Turret.WantedState.SCORING,
-                        0.5 - state.getEstimatedPose().getRotation().getRotations(),
-                        0);
-            } else {
-                turret.setWantedState(
-                        Turret.WantedState.SCORING,
-                        state.calculateScoringState().turretAngle().in(Rotations) - state.getEstimatedPose().getRotation().getRotations(),
-                        0);
-            }
+            turret.setWantedState(Turret.WantedState.IDLE);
 
             hood.setWantedState(Hood.WantedState.IDLE);
         }).finallyDo(resetSuperstructure);

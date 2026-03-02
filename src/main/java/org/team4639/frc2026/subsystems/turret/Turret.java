@@ -28,6 +28,7 @@ public class Turret extends FullSubsystem {
     @AutoLogOutput(key = "Scoring Turret Rotation")
     private double SCORING_TURRET_ROTATION = 0;
     private double PASSING_TURRET_ROTATION = 0;
+    private double HUB_TRACK_TURRET_ROTATION = 0;
 
     private final double initialTurretRotation;
     private final double initialRotorRotation;
@@ -38,13 +39,15 @@ public class Turret extends FullSubsystem {
     public enum WantedState {
         IDLE,
         SCORING,
-        PASSING
+        PASSING,
+        HUB_TRACK
     }
 
     public enum SystemState {
         IDLE,
         SCORING,
-        PASSING
+        PASSING,
+        HUB_TRACK
     }
 
     private WantedState wantedState = WantedState.IDLE;
@@ -114,6 +117,9 @@ public class Turret extends FullSubsystem {
             case PASSING:
                 handlePassing();
                 break;
+            case HUB_TRACK:
+                handleHubTrack();
+                break;
         }
     }
 
@@ -128,6 +134,7 @@ public class Turret extends FullSubsystem {
             case IDLE -> SystemState.IDLE;
             case SCORING -> SystemState.SCORING;
             case PASSING -> SystemState.PASSING;
+            case HUB_TRACK -> SystemState.HUB_TRACK;
         };
     }
 
@@ -211,12 +218,17 @@ public class Turret extends FullSubsystem {
     }
 
     private void handleScoring() {
-        double nearestTurretRotation = getNearestTurretRotation(MathUtil.clamp(SCORING_TURRET_ROTATION, Constants.TURRET_MIN_ROTATIONS, Constants.TURRET_MAX_ROTATIONS));
+        double nearestTurretRotation = getNearestTurretRotation(MathUtil.clamp(getTurretSetpoint(), Constants.TURRET_MIN_ROTATIONS, Constants.TURRET_MAX_ROTATIONS));
         turretIO.setRotorRotationSetpoint(getRotorRotationsFromAbsoluteTurretRotation(nearestTurretRotation));
     }
 
     private void handlePassing() {
-        double nearestTurretRotation = getNearestTurretRotation(MathUtil.clamp(PASSING_TURRET_ROTATION, Constants.TURRET_MIN_ROTATIONS, Constants.TURRET_MAX_ROTATIONS));
+        double nearestTurretRotation = getNearestTurretRotation(MathUtil.clamp(getTurretSetpoint(), Constants.TURRET_MIN_ROTATIONS, Constants.TURRET_MAX_ROTATIONS));
+        turretIO.setRotorRotationSetpoint(getRotorRotationsFromAbsoluteTurretRotation(nearestTurretRotation));
+    }
+
+    private void handleHubTrack() {
+        double nearestTurretRotation = getNearestTurretRotation(MathUtil.clamp(getTurretSetpoint(), Constants.TURRET_MIN_ROTATIONS, Constants.TURRET_MAX_ROTATIONS));
         turretIO.setRotorRotationSetpoint(getRotorRotationsFromAbsoluteTurretRotation(nearestTurretRotation));
     }
 
@@ -224,6 +236,7 @@ public class Turret extends FullSubsystem {
         this.wantedState = wantedState;
     }
 
+    @Deprecated
     public void setWantedState(WantedState wantedState, double SCORING_TURRET_ROTATION, double PASSING_TURRET_ROTATION) {
         this.SCORING_TURRET_ROTATION = MathUtil.inputModulus(SCORING_TURRET_ROTATION, 0, 1);
         this.PASSING_TURRET_ROTATION = MathUtil.inputModulus(PASSING_TURRET_ROTATION, 0, 1);
@@ -233,8 +246,9 @@ public class Turret extends FullSubsystem {
     public double getTurretSetpoint() {
         return switch (systemState) {
             case IDLE -> IDLE_TURRET_ROTATION;
-            case SCORING -> SCORING_TURRET_ROTATION;
-            case PASSING -> PASSING_TURRET_ROTATION;
+            case SCORING -> SCORING_TURRET_ROTATION = state.calculateScoringState().turretAngle().in(Rotations);
+            case PASSING -> PASSING_TURRET_ROTATION = state.calculatePassingState().turretAngle().in(Rotations);
+            case HUB_TRACK -> HUB_TRACK_TURRET_ROTATION = MathUtil.inputModulus(state.getTurretToHub().getRotations(), 0, 1);
         };
     }
 

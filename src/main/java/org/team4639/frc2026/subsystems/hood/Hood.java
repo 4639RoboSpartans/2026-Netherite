@@ -50,6 +50,8 @@ public class Hood extends FullSubsystem {
     private WantedState wantedState = WantedState.IDLE;
     private SystemState systemState = SystemState.HOME_DOWN;
 
+    private WantedState lastZeroedWantedState = wantedState;
+
     public Hood(HoodIO io, RobotState state) {
         this.io = io;
         this.state = state;
@@ -75,6 +77,16 @@ public class Hood extends FullSubsystem {
                 PIDs.hoodKpSim, PIDs.hoodKiSim, PIDs.hoodKdSim
             );
         }
+
+        if (this.systemState != SystemState.HOME_UP && this.systemState != SystemState.HOME_DOWN){
+            if (Math.abs(this.inputs.pivotCurrent) >= 19.0) {
+                if (this.inputs.pivotVoltage < 0){
+                    io.setPosition(Constants.HOOD_MIN_ANGLE_DEGREES);
+                } else {
+                    io.setPosition(Constants.HOOD_MIN_ANGLE_DEGREES + Constants.HOOD_RANGE_DEGREES);
+                }
+            }
+        }
     }
 
     @Override
@@ -88,8 +100,9 @@ public class Hood extends FullSubsystem {
         return switch (wantedState) {
             case IDLE -> {
                 if (systemState == SystemState.HOME_DOWN){
-                    if (Math.abs(inputs.pivotCurrent) > 20){
+                    if (Math.abs(inputs.pivotCurrent) > 19.0){
                         io.setPosition(Constants.HOOD_MIN_ANGLE_DEGREES);
+                        lastZeroedWantedState = WantedState.IDLE;
                         yield SystemState.IDLE;
                     } else {
                         yield SystemState.HOME_DOWN;
@@ -97,8 +110,9 @@ public class Hood extends FullSubsystem {
                 }
 
                 if (systemState == SystemState.HOME_UP){
-                    if (Math.abs(inputs.pivotCurrent) > 20){
+                    if (Math.abs(inputs.pivotCurrent) > 19.0){
                         io.setPosition(Constants.HOOD_MIN_ANGLE_DEGREES + Constants.HOOD_RANGE_DEGREES);
+                        lastZeroedWantedState = WantedState.IDLE;
                         yield SystemState.IDLE;
                     } else {
                         yield SystemState.HOME_UP;
@@ -136,6 +150,7 @@ public class Hood extends FullSubsystem {
         this.wantedState = wantedState;
     }
 
+    @Deprecated
     public void setWantedState(WantedState wantedState, double scoringAngleRotations) {
         setWantedState(wantedState);
         if (wantedState == WantedState.PASSING) {
@@ -160,8 +175,8 @@ public class Hood extends FullSubsystem {
 
     public double getSetpointAngle() {
         return switch (systemState) {
-            case SCORING -> SCORING_HOOD_ANGLE;
-            case PASSING -> PASSING_HOOD_ANGLE;
+            case SCORING -> SCORING_HOOD_ANGLE = state.calculateScoringState().hoodAngle().in(Degrees);
+            case PASSING -> PASSING_HOOD_ANGLE = state.calculatePassingState().hoodAngle().in(Degrees);
             default -> Constants.HOOD_MIN_ANGLE_DEGREES;
         };
     }
