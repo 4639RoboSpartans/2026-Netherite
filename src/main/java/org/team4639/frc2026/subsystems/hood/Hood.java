@@ -175,8 +175,8 @@ public class Hood extends FullSubsystem {
 
     public double getSetpointAngle() {
         return switch (systemState) {
-            case SCORING -> SCORING_HOOD_ANGLE = state.calculateScoringState().hoodAngle().in(Degrees);
-            case PASSING -> PASSING_HOOD_ANGLE = state.calculatePassingState().hoodAngle().in(Degrees);
+            case SCORING -> SCORING_HOOD_ANGLE = state.calculateScoringState(this).hoodAngle().in(Degrees);
+            case PASSING -> PASSING_HOOD_ANGLE = state.calculatePassingState(this).hoodAngle().in(Degrees);
             default -> Constants.HOOD_MIN_ANGLE_DEGREES;
         };
     }

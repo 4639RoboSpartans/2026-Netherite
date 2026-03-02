@@ -94,10 +94,8 @@ public class Superstructure extends SubsystemBase{
 
     private Command spinupToScore() {
         return this.run(() -> {
-            var scoringState = state.calculateScoringState();
-
-            hood.setWantedState(Hood.WantedState.SCORING, scoringState.hoodAngle().in(Rotations));
-            shooter.setWantedState(Shooter.WantedState.SCORING, scoringState.shooterRPM().in(Rotations.per(Minute)));
+            hood.setWantedState(Hood.WantedState.SCORING);
+            shooter.setWantedState(Shooter.WantedState.SCORING);
             turret.setWantedState(Turret.WantedState.SCORING);
 
             spindexer.setWantedState(Spindexer.WantedState.IDLE);
@@ -107,10 +105,9 @@ public class Superstructure extends SubsystemBase{
 
     private Command requestShooting() {
         return this.run(() -> {
-            var scoringState = state.calculateScoringState();
 
-            hood.setWantedState(Hood.WantedState.SCORING, scoringState.hoodAngle().in(Rotations));
-            shooter.setWantedState(Shooter.WantedState.SCORING, scoringState.shooterRPM().in(Rotations.per(Minute)));
+            hood.setWantedState(Hood.WantedState.SCORING);
+            shooter.setWantedState(Shooter.WantedState.SCORING);
             turret.setWantedState(
                     Turret.WantedState.SCORING);
 
@@ -128,10 +125,9 @@ public class Superstructure extends SubsystemBase{
 
     private Command spinupToPass() {
         return this.run(() -> {
-            var scoringState = state.calculatePassingState();
 
-            hood.setWantedState(Hood.WantedState.PASSING, scoringState.hoodAngle().in(Rotations));
-            shooter.setWantedState(Shooter.WantedState.PASSING, scoringState.shooterRPM().in(Rotations.per(Minute)));
+            hood.setWantedState(Hood.WantedState.PASSING);
+            shooter.setWantedState(Shooter.WantedState.PASSING);
             turret.setWantedState(
                     Turret.WantedState.PASSING);
 
@@ -142,7 +138,6 @@ public class Superstructure extends SubsystemBase{
 
     private Command requestShootingToPass() {
         return this.run(() -> {
-            var scoringState = state.calculatePassingState();
 
             hood.setWantedState(Hood.WantedState.PASSING);
             shooter.setWantedState(Shooter.WantedState.PASSING);

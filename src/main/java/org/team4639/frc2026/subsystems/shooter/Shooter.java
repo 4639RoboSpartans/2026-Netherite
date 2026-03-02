@@ -133,8 +133,8 @@ public class Shooter extends FullSubsystem {
 
     public double getSetpointRPM() {
         return switch (systemState) {
-            case SCORING -> SCORING_RPM = state.calculateScoringState().shooterRPM().in(Rotations.per(Minute));
-            case PASSING -> PASSING_RPM = state.calculateScoringState().shooterRPM().in(Rotations.per(Minute));
+            case SCORING -> SCORING_RPM = state.calculateScoringState(this).shooterRPM().in(Rotations.per(Minute));
+            case PASSING -> PASSING_RPM = state.calculateScoringState(this).shooterRPM().in(Rotations.per(Minute));
             default -> 0;
         };
     }

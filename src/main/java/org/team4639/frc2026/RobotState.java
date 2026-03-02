@@ -41,6 +41,7 @@ import org.team4639.frc2026.subsystems.turret.Turret;
 import org.team4639.frc2026.subsystems.turret.TurretIO;
 import org.team4639.frc2026.subsystems.vision.TurretCamera;
 import org.team4639.frc2026.subsystems.vision.Vision.VisionConsumer;
+import org.team4639.frc2026.util.ValueCacher;
 import org.team4639.lib.led.pattern.LEDPattern;
 import org.team4639.lib.util.VirtualSubsystem;
 import org.team4639.lib.util.geometry.AllianceFlipUtil;
@@ -140,6 +141,10 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
 
     @Getter
     private int turretCameraTargets = 0;
+
+    private final ValueCacher<Object, ScoringState> currentScoringStates = new ValueCacher<>(this::_calculateScoringState);
+    private final ValueCacher<Object, ScoringState> nextScoringStates = new ValueCacher<>(() -> this._calculateNextScoringState(0.02));
+    private final ValueCacher<Object, ScoringState> passingStates = new ValueCacher<>(this::_calculatePassingState);
 
     /**
      * Returns the pose relative to the blue alliance wall.
@@ -394,21 +399,29 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         }
     }
 
-    public ScoringState calculateScoringState() {
+    private ScoringState _calculateScoringState() {
         Translation2d hubTranslation = FieldConstants.Hub.topCenterPoint.toTranslation2d();
         Pose2d turretPose = getEstimatedPose().transformBy(new Transform2d(Constants.SimConstants.originToTurretRotation.toTranslation2d(), new Rotation2d()));
 
         return calculateScoringState(hubTranslation, turretPose, getChassisSpeeds());
     }
 
-    public ScoringState calculateNextScoringState(double dtSeconds){
+    public ScoringState calculateScoringState(Object caller) {
+        return currentScoringStates.get(caller);
+    }
+
+    public ScoringState calculateNextScoringState(Object caller){
+        return nextScoringStates.get(caller);
+    }
+
+    private ScoringState _calculateNextScoringState(double dtSeconds){
         Translation2d hubTranslation = FieldConstants.Hub.topCenterPoint.toTranslation2d();
         Pose2d turretPose = getEstimatedPose().exp(getChassisSpeeds().toTwist2d(dtSeconds));
 
         return calculateScoringState(hubTranslation, turretPose, getChassisSpeeds());
     }
 
-    public ScoringState calculatePassingState() {
+    private ScoringState _calculatePassingState() {
         Translation2d closestPassing = Arrays.stream(PassingTargets.values()).min(Comparator.comparing(target -> target.target.getDistance(getEstimatedPose().getTranslation()))).get().target;
 
         var turretRotation = closestPassing.minus(getEstimatedPose().getTranslation()).getAngle().getRotations();
@@ -417,6 +430,10 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         var hoodRotation = Degrees.of(50);
 
         return new ScoringState(Rotations.per(Minute).of(rpm), hoodRotation, Rotations.of(turretRotation));
+    }
+
+    public ScoringState calculatePassingState(Object caller){
+        return passingStates.get(caller);
     }
 
     public Rotation2d[] calculateClosestDriveAndTurretRotation(ScoringState desiredScoringState) {

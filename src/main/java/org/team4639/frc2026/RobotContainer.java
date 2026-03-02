@@ -354,7 +354,7 @@ public class RobotContainer {
                         Commands.run(
                                 () -> {
                                     ScoringState currentScoringState = RobotState.getInstance().getScoringState();
-                                    turret.setWantedState(Turret.WantedState.SCORING, RobotState.getInstance().calculateClosestDriveAndTurretRotation(RobotState.getInstance().calculateScoringState())[1].getRotations(), 0);
+                                    turret.setWantedState(Turret.WantedState.SCORING, RobotState.getInstance().calculateClosestDriveAndTurretRotation(RobotState.getInstance().calculateScoringState(this))[1].getRotations(), 0);
                                     shooter.setWantedState(Shooter.WantedState.SCORING, currentScoringState.shooterRPM().in(Rotations.per(Minute)));
                                     hood.setWantedState(Hood.WantedState.SCORING, currentScoringState.hoodAngle().in(Rotations));
                                 }
