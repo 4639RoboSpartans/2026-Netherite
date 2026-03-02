@@ -316,7 +316,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         robotFieldTrue.setRobotPose(getTrueOnFieldPose());
         SmartDashboard.putData(ROBOT_FIELD_TRUE_KEY, robotFieldTrue);
 
-        ScoringState scoringState = calculateScoringState();
+        ScoringState scoringState = calculateScoringState(this);
         SmartDashboard.putNumber("Scoring/CalculatedRPM", scoringState.shooterRPM().in(Rotations.per(Minute)));
         SmartDashboard.putNumber("Scoring/CalculatedHoodAngle", scoringState.hoodAngle().in(Rotations));
         SmartDashboard.putNumber("Scoring/CalculatedTurretAngle", scoringState.turretAngle().in(Rotations));
