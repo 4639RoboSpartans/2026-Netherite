@@ -74,21 +74,7 @@ public class Superstructure extends SubsystemBase{
                         0);
             }
 
-            // decide whether to put the hood in or out
-            var speeds = state.getChassisSpeeds();
-            // our current speed would take us through the trench in 0.5s, or we are already in our alliance zone
-            if (
-                    state.getEstimatedPose()
-                            .plus(new Transform2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, Rotation2d.kZero).times(0.5))
-                            .getX()
-                            < FieldConstants.LinesVertical.allianceZone
-                                    + FieldConstants.RightBump.depth
-                || state.getEstimatedPose().getX() < FieldConstants.LinesVertical.allianceZone + FieldConstants.RightBump.depth)
-            {
-                hood.setWantedState(Hood.WantedState.SCORING, Units.degreesToRotations(20));
-            } else {
-                hood.setWantedState(Hood.WantedState.SCORING, Units.degreesToRotations(50));
-            }
+            hood.setWantedState(Hood.WantedState.IDLE);
         }).finallyDo(resetSuperstructure);
     }
 
