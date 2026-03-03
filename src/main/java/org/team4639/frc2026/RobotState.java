@@ -145,6 +145,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     private final ValueCacher<Object, ScoringState> currentScoringStates = new ValueCacher<>(this::_calculateScoringState);
     private final ValueCacher<Object, ScoringState> nextScoringStates = new ValueCacher<>(() -> this._calculateNextScoringState(0.02));
     private final ValueCacher<Object, ScoringState> passingStates = new ValueCacher<>(this::_calculatePassingState);
+    private final ValueCacher<Object, Pose2d> getNextPose = new ValueCacher<>(() -> calculateNextPose(0.02));
 
     /**
      * Returns the pose relative to the blue alliance wall.
@@ -383,6 +384,14 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         //TODO: something with this
     }
 
+    private Pose2d calculateNextPose(double dt){
+        return getEstimatedPose().exp(chassisSpeeds.toTwist2d(dt));
+    }
+
+    public Pose2d calculateNextPose(Object caller){
+        return getNextPose.get(caller);
+    }
+
     private ScoringState calculateScoringState(Translation2d hubTranslation, Pose2d turretPose, ChassisSpeeds chassisSpeeds){
         if (MathUtil.isNear(0, chassisSpeeds.vxMetersPerSecond, 0.01) || MathUtil.isNear(0, chassisSpeeds.vyMetersPerSecond, 0.01)) {
             return ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(turretPose, hubTranslation);
@@ -422,14 +431,16 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     }
 
     private ScoringState _calculatePassingState() {
-        Translation2d closestPassing = Arrays.stream(PassingTargets.values()).min(Comparator.comparing(target -> target.target.getDistance(getEstimatedPose().getTranslation()))).get().target;
+        var turretRotation = Degrees.of(180);
+        var hoodRotation = Degrees.of(20);
 
-        var turretRotation = closestPassing.minus(getEstimatedPose().getTranslation()).getAngle().getRotations();
-        // bs function to calculate shooter rpm
-        var rpm = MathUtil.clamp(1900 + 600 * Math.abs((getEstimatedPose().getX() - FieldConstants.LinesVertical.allianceZone)), 0, 4000);
-        var hoodRotation = Degrees.of(50);
+        Pose2d turretPose = getTurretPose();
+        var rpm = ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(turretPose, new Translation2d(
+                FieldConstants.LinesVertical.hubCenter-1,
+                turretPose.getY()
+        )).shooterRPM();
 
-        return new ScoringState(Rotations.per(Minute).of(rpm), hoodRotation, Rotations.of(turretRotation));
+        return new ScoringState(rpm, hoodRotation, turretRotation);
     }
 
     public ScoringState calculatePassingState(Object caller){

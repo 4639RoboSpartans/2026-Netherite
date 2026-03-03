@@ -248,8 +248,8 @@ public class Turret extends FullSubsystem {
                 var currentScoringState = state.calculateScoringState(this);
                 var nextScoringState = state.calculateNextScoringState(this);
 
-                double rotations = currentScoringState.turretAngle().in(Rotations);
-                double rotationsPerSecond = nextScoringState.turretAngle().in(Rotations) - rotations;
+                double rotations = currentScoringState.turretAngle().in(Rotations) - state.getEstimatedPose().getRotation().getRotations();
+                double rotationsPerSecond = (nextScoringState.turretAngle().in(Rotations) - state.calculateNextPose(this).getRotation().getRotations()) - rotations;
                 rotationsPerSecond = rotationsPerSecond / 0.02;
 
                 yield SCORING_TURRET_ROTATION = new TurretSetpoint(rotations, rotationsPerSecond);
