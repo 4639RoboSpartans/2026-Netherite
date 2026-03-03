@@ -56,4 +56,9 @@ public class IntakeExtensionIOTalonFX implements IntakeExtensionIO {
     public void stop() {
         extensionMotor.stopMotor();
     }
+
+    @Override
+    public void setBrakeMode(boolean brake) {
+        extensionMotor.setNeutralMode(brake ? NeutralModeValue.Brake : NeutralModeValue.Coast);
+    }
 }
