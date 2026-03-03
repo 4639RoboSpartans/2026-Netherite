@@ -342,43 +342,7 @@ public class RobotContainer {
     }
 
     private void configureSimButtonBindings() {
-        // Default command, normal field-relative drive
-        drive.setDefaultCommand(DriveCommands.joystickDriveWithX(
-                drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
-
-        driver.rightTrigger().whileTrue(
-                Commands.parallel(
-                        DriveCommands.joystickDriveWithX(
-                                drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()
-                        ),
-                        Commands.run(
-                                () -> {
-                                    ScoringState currentScoringState = RobotState.getInstance().getScoringState();
-                                    turret.setWantedState(Turret.WantedState.SCORING, RobotState.getInstance().calculateClosestDriveAndTurretRotation(RobotState.getInstance().calculateScoringState(this))[1].getRotations(), 0);
-                                    shooter.setWantedState(Shooter.WantedState.SCORING, currentScoringState.shooterRPM().in(Rotations.per(Minute)));
-                                    hood.setWantedState(Hood.WantedState.SCORING, currentScoringState.hoodAngle().in(Rotations));
-                                }
-                        )
-                )
-        );
-
-        driver.leftTrigger().whileTrue(
-                Commands.run(
-                        () -> intake.setWantedState(Intake.WantedState.INTAKE)
-                )
-        );
-
-        driver.leftBumper().onTrue(
-                Commands.run(
-                        () -> extension.setWantedState(Extension.WantedState.EXTENDED)
-                )
-        );
-
-        driver.rightBumper().onTrue(
-                Commands.run(
-                        () -> extension.setWantedState(Extension.WantedState.IDLE)
-                )
-        );
+        configureButtonBindings();
     }
 
     /**

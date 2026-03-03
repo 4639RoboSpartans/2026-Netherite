@@ -75,6 +75,10 @@ public class TurretIOTalonFX implements TurretIO {
         turretMotor.setControl(request.withPosition(rotation));
     }
 
+    public void setRotorRotationSetpoint(double rotation, double velocityrps) {
+        turretMotor.setControl(request.withPosition(rotation).withVelocity(velocityrps));
+    }
+
     public void updateGains() {
         config.Slot0.kP = PIDs.turretKp.get();
         config.Slot0.kI = PIDs.turretKi.get();

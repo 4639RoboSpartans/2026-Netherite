@@ -49,6 +49,11 @@ public class TurretIOSim implements TurretIO {
         turretSim.setInputVoltage(appliedVolts);
     }
 
+    @Override
+    public void setRotorRotationSetpoint(double rotation, double velocityrps) {
+        setRotorRotationSetpoint(rotation);
+    }
+
     public void updateGains() {
         turretPIDController.setPID(
                 PIDs.turretKpSim.get(),
