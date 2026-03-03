@@ -136,8 +136,8 @@ public class RobotContainer {
 
                 vision = new Vision(
                         RobotState.getInstance(),
-                        new VisionIOLimelight("limelight", () -> RobotState.getInstance().getEstimatedPose().getRotation())
-                        //new VisionIOLimelight("limelight-right", () -> RobotState.getInstance().getEstimatedPose().getRotation())
+                        new VisionIOLimelight("limelight-left", () -> RobotState.getInstance().getEstimatedPose().getRotation()),
+                        new VisionIOLimelight("limelight-right", () -> RobotState.getInstance().getEstimatedPose().getRotation())
                 );
 
                 turretCamera = new TurretCamera(RobotState.getInstance(), new VisionIOLimelight4("limelight-turret", () -> RobotState.getInstance().getTurretPose().getRotation()));
