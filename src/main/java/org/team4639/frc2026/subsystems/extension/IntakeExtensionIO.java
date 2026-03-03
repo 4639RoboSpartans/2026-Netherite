@@ -12,6 +12,8 @@ public interface IntakeExtensionIO {
 
     default void updateInputs(IntakeExtensionIOInputs inputs) {}
 
+    default void setBrakeMode(boolean brake) {}
+
     @AutoLog
     class IntakeExtensionIOInputs {
         public boolean connected  = true;
