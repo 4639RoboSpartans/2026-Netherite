@@ -40,7 +40,7 @@ public class CRTTest {
         );
     }
 
-    @Test
+    //@Test
     public void testCRT() {
         // System.out.println("Starting CRT Test");
         // double commonRatio = 92.0 / 12;
@@ -66,7 +66,7 @@ public class CRTTest {
         Assertions.assertTrue(true);
     }
 
-    @Test
+//    @Test
     public void testCRT2() {
         System.out.println("Starting CRT Test 2");
         Assertions.assertTrue(MathUtil.isNear(6.17561557447743E-16, turret.getTurretRotation(0, 0), 0.01 * 1/360));

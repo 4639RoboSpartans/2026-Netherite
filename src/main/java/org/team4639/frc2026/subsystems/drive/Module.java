@@ -11,10 +11,12 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
 public class Module {
     private final ModuleIO io;
+    @Getter
     private final ModuleIOInputsAutoLogged inputs = new ModuleIOInputsAutoLogged();
     private final int index;
     private final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> constants;
@@ -73,6 +75,11 @@ public class Module {
     public void runCharacterization(double output) {
         io.setDriveOpenLoop(output);
         io.setTurnPosition(Rotation2d.kZero);
+    }
+
+    public void runCharacterizationAzimuth(double output) {
+        io.setDriveOpenLoop(0.0);
+        io.setTurnOpenLoop(output);
     }
 
     /** Disables all outputs to motors. */
