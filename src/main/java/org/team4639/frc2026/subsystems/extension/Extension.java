@@ -115,10 +115,13 @@ public class Extension extends FullSubsystem {
         switch (wantedState) {
             case EXTENDED:
                 if (!DriverStation.isDisabled()) {
+                    //if intake satisfies zero requirements
                     if (Math.abs(inputs.velocity) < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND
-                            || Math.abs(inputs.current) >= ENDSTOP_CURRENT_THRESHOLD
-                            || !MathUtil.isNear(inputs.position, extendedRotorPosition, ROTOR_SETPOINT_TOLERANCE)) {
+                            || Math.abs(inputs.current) >= ENDSTOP_CURRENT_THRESHOLD) {
                         if (systemState == SystemState.EXTENDED) {
+                            if (!MathUtil.isNear(inputs.position, extendedRotorPosition, ROTOR_SETPOINT_TOLERANCE)) {
+                                return SystemState.EXTENDING;
+                            }
                             return SystemState.EXTENDED;
                         } else if (!Double.isFinite(zeroTimeStamp)) {
                             zeroTimeStamp = Timer.getFPGATimestamp();
