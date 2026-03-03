@@ -332,7 +332,7 @@ public class RobotContainer {
         driver.x().onTrue(intakeStructure.extend());
         driver.y().onTrue(intakeStructure.retract());
 
-        //driver.rightBumper().or(driver.leftBumper()).whileTrue(intakeStructure.agitate());
+        driver.rightBumper().or(driver.leftBumper()).whileTrue(intakeStructure.agitate());
     }
 
     private void configureSimButtonBindings() {

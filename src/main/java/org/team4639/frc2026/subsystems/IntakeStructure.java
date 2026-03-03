@@ -51,12 +51,11 @@ public class IntakeStructure {
     }
 
     public Command retract() {
-        return Commands.run(
+        return extensionDummy.run(
                 () -> {
                     extension.setWantedState(Extension.WantedState.IDLE);
-                    intake.setWantedState(Intake.WantedState.IDLE);
                 }
-        , extensionDummy, intakeDummy).finallyDo(this::updateLastWantedStates);
+                ).finallyDo(this::updateLastWantedStates);
     }
 
     public Command intake() {

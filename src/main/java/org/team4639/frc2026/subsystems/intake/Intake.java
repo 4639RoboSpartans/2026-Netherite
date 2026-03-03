@@ -69,9 +69,17 @@ public class Intake extends FullSubsystem {
 
     public SystemState handleStateTransitions() {
         return switch (wantedState) {
-            case IDLE -> SystemState.IDLE;
-            case INTAKE -> SystemState.INTAKE;
-            case OUTTAKE -> SystemState.OUTTAKE;
+            case IDLE: yield SystemState.IDLE;
+            case INTAKE: if (state.getIntakeExtensionFraction() < 0.25) {
+                yield SystemState.IDLE;
+            } else {
+                yield SystemState.INTAKE;
+            }
+            case OUTTAKE: if (state.getIntakeExtensionFraction() < 0.25) {
+                yield SystemState.IDLE;
+            } else {
+                yield SystemState.OUTTAKE;
+            }
         };
     }
 

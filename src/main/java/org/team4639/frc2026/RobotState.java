@@ -99,6 +99,8 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     private Pose2d estimatedPose = Pose2d.kZero;
     @Getter
     private ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
+
+    @Getter
     private double intakeExtensionFraction = 0.0;
 
     // RobotState Field and Pose Publishers
