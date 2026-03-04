@@ -11,7 +11,7 @@ import org.team4639.frc2026.subsystems.extension.Extension;
 import org.team4639.frc2026.subsystems.intake.Intake;
 
 public class IntakeStructure {
-    public static final double AGITATE_PERIOD = 1.6;
+    public static final double AGITATE_PERIOD = 1;
     private final Intake intake;
     private final Extension extension;
 
@@ -92,16 +92,14 @@ public class IntakeStructure {
         return ((
                 retract().withTimeout(AGITATE_PERIOD / 2)
                         .andThen(extend().withTimeout(AGITATE_PERIOD / 2)))
-                .repeatedly())
-                .alongWith(stopIntake());
+                .repeatedly());
     }
 
     private Command agitateOutIn() {
         return ((
                 extend().withTimeout(AGITATE_PERIOD / 2)
                         .andThen(retract().withTimeout(AGITATE_PERIOD / 2)))
-                .repeatedly())
-                .alongWith(stopIntake());
+                .repeatedly());
     }
 
     private void updateLastWantedStates() {

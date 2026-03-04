@@ -71,14 +71,14 @@ public class Intake extends FullSubsystem {
         return switch (wantedState) {
             case IDLE -> SystemState.IDLE;
             case INTAKE -> {
-                if (state.getIntakeExtensionFraction() < 0.25) {
+                if (state.getIntakeExtensionFraction() < 0.55) {
                     yield SystemState.IDLE;
                 } else {
                     yield SystemState.INTAKE;
                 }
             }
             case OUTTAKE -> {
-                if (state.getIntakeExtensionFraction() < 0.25) {
+                if (state.getIntakeExtensionFraction() < 0.55) {
                     yield SystemState.IDLE;
                 } else {
                     yield SystemState.OUTTAKE;
