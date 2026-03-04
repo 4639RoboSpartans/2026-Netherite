@@ -509,4 +509,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     public Rotation2d getTurretToHubFieldRelative() {
         return (FieldConstants.Hub.topCenterPoint.toTranslation2d().minus(getEstimatedPose().getTranslation()).getAngle());
     }
+
+    @Setter @Getter
+    private double gyroRotationsPerSecond;
 }

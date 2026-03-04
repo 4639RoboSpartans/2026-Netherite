@@ -130,7 +130,7 @@ public class RobotContainer {
                         RobotState.getInstance()
                 );
 
-                hood = new Hood(new HoodIOTalonFX(portConfiguration), RobotState.getInstance());
+                hood = new Hood(/*new HoodIOTalonFX(portConfiguration)*/ new HoodIO(){}, RobotState.getInstance());
 
                 shooter = new Shooter(new ShooterIOSparkFlex(portConfiguration), RobotState.getInstance());
 
