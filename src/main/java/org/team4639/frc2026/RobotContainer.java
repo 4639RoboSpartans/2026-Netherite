@@ -2,6 +2,8 @@
 
 package org.team4639.frc2026;
 
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.*;
@@ -11,6 +13,7 @@ import org.team4639.frc2026.auto.AutoCommands;
 import org.team4639.frc2026.auto.AutoCommands2;
 import org.team4639.frc2026.commands.DriveCommands;
 import org.team4639.frc2026.commands.LEDCommands;
+import org.team4639.frc2026.constants.led.Patterns;
 import org.team4639.frc2026.constants.ports.Netherite;
 import org.team4639.frc2026.constants.shooter.ScoringState;
 import org.team4639.frc2026.subsystems.IntakeStructure;
@@ -44,7 +47,10 @@ import org.team4639.frc2026.subsystems.turret.*;
 import org.team4639.frc2026.subsystems.vision.*;
 import org.team4639.frc2026.util.PortConfiguration;
 import org.team4639.lib.oi.DeadbandXboxController;
+import org.team4639.lib.statebased2.StateMachine2;
 import org.team4639.lib.util.LoggedLazyAutoChooser;
+import org.team4639.lib.util.LoggedTunableNumber;
+import org.team4639.lib.util.geometry.AllianceFlipUtil;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -124,15 +130,14 @@ public class RobotContainer {
                         RobotState.getInstance()
                 );
 
-                hood = new Hood(/*new HoodIOTalonFX(portConfiguration)*/ new HoodIO() {
-                }, RobotState.getInstance());
+                hood = new Hood(/*new HoodIOTalonFX(portConfiguration)*/ new HoodIO(){}, RobotState.getInstance());
 
                 shooter = new Shooter(new ShooterIOSparkFlex(portConfiguration), RobotState.getInstance());
 
                 vision = new Vision(
                         RobotState.getInstance(),
-                        new VisionIOLimelight("limelight-left", () -> RobotState.getInstance().getEstimatedPose().getRotation()),
-                        new VisionIOLimelight("limelight-right", () -> RobotState.getInstance().getEstimatedPose().getRotation())
+                        new VisionIOLimelight("limelight", () -> RobotState.getInstance().getEstimatedPose().getRotation())
+                        //new VisionIOLimelight("limelight-right", () -> RobotState.getInstance().getEstimatedPose().getRotation())
                 );
 
                 turretCamera = new TurretCamera(RobotState.getInstance(), new VisionIOLimelight4("limelight-turret", () -> RobotState.getInstance().getTurretPose().getRotation()));
@@ -301,13 +306,13 @@ public class RobotContainer {
         autoChooser.addOption(
                 "Drive Simple FF Characterization", () -> DriveCommands.feedforwardCharacterization(drive));
         autoChooser.addOption(
-                "Drive SysId (Quasistatic Forward)", () -> drive.driveSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+                "Drive SysId (Quasistatic Forward)", () -> drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
         autoChooser.addOption(
-                "Drive SysId (Quasistatic Reverse)", () -> drive.driveSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+                "Drive SysId (Quasistatic Reverse)", () -> drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
         autoChooser.addOption(
-                "Drive SysId (Dynamic Forward)", () -> drive.driveSysIdDynamic(SysIdRoutine.Direction.kForward));
+                "Drive SysId (Dynamic Forward)", () -> drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
         autoChooser.addOption(
-                "Drive SysId (Dynamic Reverse)", () -> drive.driveSysIdDynamic(SysIdRoutine.Direction.kReverse));
+                "Drive SysId (Dynamic Reverse)", () -> drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     }
 
     /**
@@ -333,47 +338,11 @@ public class RobotContainer {
         driver.x().onTrue(intakeStructure.extend());
         driver.y().onTrue(intakeStructure.retract());
 
-        driver.rightBumper().or(driver.leftBumper()).whileTrue(intakeStructure.agitate());
+        //driver.rightBumper().or(driver.leftBumper()).whileTrue(intakeStructure.agitate());
     }
 
     private void configureSimButtonBindings() {
-        // Default command, normal field-relative drive
-        drive.setDefaultCommand(DriveCommands.joystickDriveWithX(
-                drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
-
-        driver.rightTrigger().whileTrue(
-                Commands.parallel(
-                        DriveCommands.joystickDriveWithX(
-                                drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()
-                        ),
-                        Commands.run(
-                                () -> {
-                                    ScoringState currentScoringState = RobotState.getInstance().getScoringState();
-                                    turret.setWantedState(Turret.WantedState.SCORING, RobotState.getInstance().calculateClosestDriveAndTurretRotation(RobotState.getInstance().calculateScoringState())[1].getRotations(), 0);
-                                    shooter.setWantedState(Shooter.WantedState.SCORING, currentScoringState.shooterRPM().in(Rotations.per(Minute)));
-                                    hood.setWantedState(Hood.WantedState.SCORING, currentScoringState.hoodAngle().in(Rotations));
-                                }
-                        )
-                )
-        );
-
-        driver.leftTrigger().whileTrue(
-                Commands.run(
-                        () -> intake.setWantedState(Intake.WantedState.INTAKE)
-                )
-        );
-
-        driver.leftBumper().onTrue(
-                Commands.run(
-                        () -> extension.setWantedState(Extension.WantedState.EXTENDED)
-                )
-        );
-
-        driver.rightBumper().onTrue(
-                Commands.run(
-                        () -> extension.setWantedState(Extension.WantedState.IDLE)
-                )
-        );
+        configureButtonBindings();
     }
 
     /**

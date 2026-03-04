@@ -38,7 +38,6 @@ public class HoodIOTalonFX implements HoodIO {
     private final StatusSignal<Voltage> motorVoltage;
     private final StatusSignal<Current> motorCurrent;
 
-
     public HoodIOTalonFX(PortConfiguration ports) {
         hoodMotor = Phoenix6Factory.createDefaultTalon(ports.HoodMotorID);
         hoodEncoder = Phoenix6Factory.createCANcoder(ports.HoodEncoderID);
@@ -65,8 +64,8 @@ public class HoodIOTalonFX implements HoodIO {
         motorVoltage = hoodMotor.getMotorVoltage();
         motorCurrent = hoodMotor.getStatorCurrent();
 
-        double mechanismRotationsFromEncoder = MathUtil.inputModulus(hoodEncoder.getPosition().getValueAsDouble() + HOOD_ENCODER_OFFSET, -0.05, 0.95) * Constants.ENCODER_TO_PIVOT_GEAR_RATIO;
-        hoodMotor.setPosition(mechanismRotationsFromEncoder + Units.degreesToRotations(Constants.HOOD_MIN_ANGLE_DEGREES));
+        /*double mechanismRotationsFromEncoder = MathUtil.inputModulus(hoodEncoder.getPosition().getValueAsDouble() - 0.752197, -0.05, 0.95) * Constants.ENCODER_TO_PIVOT_GEAR_RATIO;
+        hoodMotor.setPosition(mechanismRotationsFromEncoder + Units.degreesToRotations(Constants.HOOD_MIN_ANGLE_DEGREES));*/
     }
 
     @Override
@@ -79,8 +78,8 @@ public class HoodIOTalonFX implements HoodIO {
 
     @Override
     public void updateInputs(HoodIOInputs inputs) {
-        double mechanismRotationsFromEncoder = MathUtil.inputModulus(hoodEncoder.getPosition().getValueAsDouble() +  HOOD_ENCODER_OFFSET, -0.05, 0.95) * Constants.ENCODER_TO_PIVOT_GEAR_RATIO;
-        hoodMotor.setPosition(mechanismRotationsFromEncoder + Units.degreesToRotations(Constants.HOOD_MIN_ANGLE_DEGREES));
+        /*double mechanismRotationsFromEncoder = MathUtil.inputModulus(hoodEncoder.getPosition().getValueAsDouble() - 0.752197, -0.05, 0.95) * Constants.ENCODER_TO_PIVOT_GEAR_RATIO;
+        hoodMotor.setPosition(mechanismRotationsFromEncoder + Units.degreesToRotations(Constants.HOOD_MIN_ANGLE_DEGREES));*/
 
         inputs.hoodMotorConnected = BaseStatusSignal.refreshAll(
                 motorVoltage,

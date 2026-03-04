@@ -23,5 +23,5 @@ public class Constants {
     public static final double TURRET_EXTENDED_MIN_ROTATIONS = -0.05;
     public static final double TURRET_EXTENDED_MAX_ROTATIONS = 0.8;
 
-    public static final double ROTOR_ROTATION_TOLERANCE = 0.1;
+    public static final double ROTOR_ROTATION_TOLERANCE = 0.5;
 }

@@ -96,11 +96,11 @@ public class Shooter extends FullSubsystem {
     }
 
     private void handleScoring() {
-        io.setRPM(this.SCORING_RPM);
+        io.setRPM(this.getSetpointRPM());
     }
 
     private void handlePassing() {
-        io.setRPM(PASSING_RPM);
+        io.setRPM(this.getSetpointRPM());
     }
 
     private void handleIdle() {
@@ -112,6 +112,7 @@ public class Shooter extends FullSubsystem {
         this.wantedState = wantedState;
     }
 
+    @Deprecated
     public void setWantedState(WantedState wantedState, double scoringRPM) {
         setWantedState(wantedState);
         if (wantedState == WantedState.PASSING){
@@ -132,8 +133,8 @@ public class Shooter extends FullSubsystem {
 
     public double getSetpointRPM() {
         return switch (systemState) {
-            case SCORING -> SCORING_RPM;
-            case PASSING -> PASSING_RPM;
+            case SCORING -> SCORING_RPM = state.calculateScoringState(this).shooterRPM().in(Rotations.per(Minute));
+            case PASSING -> PASSING_RPM = state.calculateScoringState(this).shooterRPM().in(Rotations.per(Minute));
             default -> 0;
         };
     }
