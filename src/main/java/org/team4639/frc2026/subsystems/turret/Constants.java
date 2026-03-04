@@ -11,8 +11,8 @@ public class Constants {
     public static final double LEFT_ENCODER_GEAR_TEETH = 41;
     public static final double RIGHT_ENCODER_GEAR_TEETH = 40;
 
-    public static final double LEFT_ENCODER_OFFSET = -0.741699;
-    public static final double RIGHT_ENCODER_OFFSET = -0.390869;
+    public static final double LEFT_ENCODER_OFFSET = -0.447998;
+    public static final double RIGHT_ENCODER_OFFSET = -0.461426;
 
     public static final boolean LEFT_ENCODER_INVERTED = true;
     public static final boolean RIGHT_ENCODER_INVERTED = true;

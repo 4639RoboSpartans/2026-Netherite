@@ -11,4 +11,5 @@ public class Constants {
 
     public static final double HOOD_ENCODER_MIN_ROTATION = -0.;
     public static final double HOOD_ENCODER_MAX_ROTATION = 0.;
+    public static final double HOOD_ENCODER_OFFSET = 0.88208;
 }
