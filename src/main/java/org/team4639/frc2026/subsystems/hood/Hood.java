@@ -30,6 +30,8 @@ public class Hood extends FullSubsystem {
 
     private final double HOOD_TOLERANCE_DEGREES = 5;
 
+    private final LoggedTunableNumber desiredHoodAngle = new LoggedTunableNumber("Desired Hood Angle").initDefault(20);
+
     @Getter
     private final HoodSysID sysID = new HoodSysID.HoodSysIDWPI(this, inputs);
 
@@ -57,6 +59,8 @@ public class Hood extends FullSubsystem {
         this.state = state;
 
         this.setDefaultCommand(this.run(this::runStateMachine));
+
+        Logger.recordOutput("Hood/SystemState", systemState.toString());
     }
 
     @Override
@@ -135,14 +139,17 @@ public class Hood extends FullSubsystem {
     }
 
     private void handleIdle() {
+        getSetpointAngle();
         io.setSetpointDegrees(IDLE_HOOD_ANGLE);
     }
 
     private void handleScoring() {
+        getSetpointAngle();
         io.setSetpointDegrees(SCORING_HOOD_ANGLE);
     }
 
     private void handlePassing() {
+        getSetpointAngle();
         io.setSetpointDegrees(PASSING_HOOD_ANGLE);
     }
 
@@ -199,6 +206,10 @@ public class Hood extends FullSubsystem {
         switch (systemState) {
             case HOME_DOWN:
                 handleHomeDown();
+                break;
+            case HOME_UP:
+                handleHomeUp();
+                break;
             case IDLE:
                 handleIdle();
                 break;

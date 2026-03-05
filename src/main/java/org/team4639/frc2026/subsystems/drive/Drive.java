@@ -139,7 +139,7 @@ public class Drive extends SubsystemBase {
         // Configure SysId
         driveSysID = new SysIdRoutine(
                 new SysIdRoutine.Config(
-                        null, null, null, (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
+                        null, null, null, (state) -> Logger.recordOutput("SysIDTestState", state.toString())),
                 new SysIdRoutine.Mechanism((voltage) -> runCharacterization(voltage.in(Volts)), log -> {
                     log.motor("Drive Motor")
                             .voltage(Volts.of(modules[0].getInputs().driveAppliedVolts))

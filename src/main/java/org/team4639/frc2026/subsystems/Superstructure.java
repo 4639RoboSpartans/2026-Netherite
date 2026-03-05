@@ -31,9 +31,6 @@ public class Superstructure extends SubsystemBase{
     private final RobotState state;
 
     private final Runnable resetSuperstructure;
-
-    private boolean turretHasSeenTarget = false;
-
     public Superstructure(Turret turret, Hood hood, Shooter shooter, Kicker kicker, Spindexer spindexer, RobotState state){
         this.turret = turret;
         this.hood = hood;
@@ -56,7 +53,7 @@ public class Superstructure extends SubsystemBase{
             shooter.setWantedState(Shooter.WantedState.IDLE);
             kicker.setWantedState(Kicker.WantedState.IDLE);
             spindexer.setWantedState(Spindexer.WantedState.IDLE);
-            turret.setWantedState(Turret.WantedState.IDLE);
+            turret.setWantedState(Turret.WantedState.HUB_TRACK);
 
             hood.setWantedState(Hood.WantedState.IDLE);
         }).finallyDo(resetSuperstructure);

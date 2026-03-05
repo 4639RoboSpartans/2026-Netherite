@@ -46,10 +46,11 @@ public class HoodIOTalonFX implements HoodIO {
 
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         config.Feedback.SensorToMechanismRatio = 1.0 / Constants.MOTOR_TO_HOOD_GEAR_RATIO;
+        // do NOT change this
         config.CurrentLimits.SupplyCurrentLimit = 20.0;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
-        config.CurrentLimits.StatorCurrentLimit = 80;
+        config.CurrentLimits.StatorCurrentLimit = 20;
         config.Audio.BeepOnConfig = false;
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         config.ClosedLoopGeneral.ContinuousWrap = true;
@@ -95,6 +96,7 @@ public class HoodIOTalonFX implements HoodIO {
         inputs.pivotVelocityDegrees = hoodVelocity.getValueAsDouble() * 360;
 
         Logger.recordOutput("Hood Encoder Rotations", hoodEncoder.getPosition().getValueAsDouble());
+        Logger.recordOutput("Hood Rotations", hoodPosition.getValueAsDouble());
     }
 
     @Override
@@ -115,5 +117,10 @@ public class HoodIOTalonFX implements HoodIO {
     public void applyNewGains() {
         updateGains();
         PhoenixUtil.tryUntilOk(5, () -> hoodMotor.getConfigurator().apply(config));
+    }
+
+    @Override
+    public void setPosition(double positionDegrees){
+        hoodMotor.setPosition(positionDegrees/360.0);
     }
 }

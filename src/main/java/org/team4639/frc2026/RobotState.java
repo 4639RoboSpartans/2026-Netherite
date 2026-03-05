@@ -434,13 +434,15 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
 
     private ScoringState _calculatePassingState() {
         var turretRotation = Degrees.of(180);
-        var hoodRotation = Degrees.of(20);
 
         Pose2d turretPose = getTurretPose();
-        var rpm = ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(turretPose, new Translation2d(
-                FieldConstants.LinesVertical.hubCenter-1,
+        var state = ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(turretPose, new Translation2d(
+                FieldConstants.LinesVertical.hubCenter-2,
                 turretPose.getY()
-        )).shooterRPM();
+        ));
+
+        var rpm = state.shooterRPM();
+        var hoodRotation = state.hoodAngle();
 
         return new ScoringState(rpm, hoodRotation, turretRotation);
     }

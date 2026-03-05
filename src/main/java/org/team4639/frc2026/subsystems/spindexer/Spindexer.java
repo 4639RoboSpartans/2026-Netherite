@@ -5,6 +5,7 @@ package org.team4639.frc2026.subsystems.spindexer;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
@@ -21,6 +22,9 @@ public class Spindexer extends FullSubsystem {
     private final double KICK_RPM = -960 * 1.75;
     private final double IDLE_RPM = 0;
 
+    private double unjamStartTime = Double.NaN;
+    private final double unjamTimePeriod = 0.2;
+
     @Getter
     private final SpindexerSysID sysID = new SpindexerSysID.SpindexerSysIDWPI(this, inputs);
 
@@ -31,7 +35,8 @@ public class Spindexer extends FullSubsystem {
 
     public enum SystemState {
         IDLE,
-        SPIN
+        SPIN,
+        UNJAM
     }
 
     private WantedState wantedState = WantedState.IDLE;
@@ -68,13 +73,39 @@ public class Spindexer extends FullSubsystem {
             case SPIN:
                 handleKick();
                 break;
+            case UNJAM:
+                handleUnjam();
+                break;
         }
     }
 
     private SystemState handleStateTransitions() {
         return switch (wantedState) {
             case IDLE -> SystemState.IDLE;
-            case SPIN -> SystemState.SPIN;
+            case SPIN -> {
+                switch(systemState){
+                    case IDLE -> {
+                        yield SystemState.SPIN;
+                    }
+                    case SPIN -> {
+                        if (Math.abs(inputs.motorCurrent) > 70){
+                            unjamStartTime = Timer.getTimestamp();
+                            yield SystemState.UNJAM;
+                        } else {
+                            yield SystemState.SPIN;
+                        }
+                    }
+                    case UNJAM -> {
+                        if (Timer.getTimestamp() - unjamStartTime >= unjamTimePeriod){
+                            yield SystemState.SPIN;
+                        } else {
+                            yield SystemState.IDLE;
+                        }
+                    }
+                }
+                yield SystemState.SPIN;
+
+            }
         };
     }
 
@@ -92,5 +123,9 @@ public class Spindexer extends FullSubsystem {
 
     protected void setVoltage(Voltage volts){
         io.setVoltage(volts.in(Volts));
+    }
+
+    private void handleUnjam() {
+        io.setRotorVelocityRPM(-KICK_RPM);
     }
 }

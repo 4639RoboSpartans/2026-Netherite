@@ -28,6 +28,8 @@ public class Shooter extends FullSubsystem {
 
     private final double SHOOTING_RPM_TOLERANCE = 50;
 
+    private final LoggedTunableNumber desiredRPM = new LoggedTunableNumber("Desired RPM").initDefault(0);
+
     @Getter
     private final ShooterSysID sysID = new ShooterSysID.ShooterSysIDWPI(this, inputs);
 
