@@ -21,9 +21,12 @@ public class Extension extends FullSubsystem {
     private final double ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND = 5;
     private final double ENDSTOP_CURRENT_THRESHOLD = 20; // just a guess
     private final double ZERO_VELOCITY_TIME_PERIOD = 0.02;
-    private final double ZERO_VOLTAGE_OUT = 6;
+    private final double ZERO_VOLTAGE_OUT = 4;
+    private final double REZERO_VOLTAGE_OUT = 2;
     private final double ZERO_VOLTAGE_IN = 3;
-    private final double ROTOR_SETPOINT_TOLERANCE = 1;
+    private final double ROTOR_SETPOINT_TOLERANCE = 5;
+
+    private boolean rezero = false;
 
     private final boolean zeroed = false;
     private double zeroTimeStamp = Double.NaN;
@@ -97,7 +100,7 @@ public class Extension extends FullSubsystem {
     }
 
     public void handleExtending() {
-        io.setVoltage(ZERO_VOLTAGE_OUT);
+        io.setVoltage(rezero? REZERO_VOLTAGE_OUT : ZERO_VOLTAGE_OUT);
         io.setBrakeMode(false);
     }
 
@@ -120,6 +123,7 @@ public class Extension extends FullSubsystem {
                             || Math.abs(inputs.current) >= ENDSTOP_CURRENT_THRESHOLD) {
                         if (systemState == SystemState.EXTENDED) {
                             if (!MathUtil.isNear(inputs.position, extendedRotorPosition, ROTOR_SETPOINT_TOLERANCE)) {
+                                rezero = true;
                                 return SystemState.EXTENDING;
                             }
                             return SystemState.EXTENDED;
@@ -142,6 +146,7 @@ public class Extension extends FullSubsystem {
                     return SystemState.EXTENDING;
                 }
             case IDLE:
+                rezero = false;
                 if (!DriverStation.isDisabled()) {
                     if (Math.abs(inputs.velocity)
                             < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND || Math.abs(inputs.current) >= ENDSTOP_CURRENT_THRESHOLD) {

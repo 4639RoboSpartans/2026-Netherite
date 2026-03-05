@@ -38,7 +38,6 @@ public class HoodIOTalonFX implements HoodIO {
     private final StatusSignal<Voltage> motorVoltage;
     private final StatusSignal<Current> motorCurrent;
 
-
     public HoodIOTalonFX(PortConfiguration ports) {
         hoodMotor = Phoenix6Factory.createDefaultTalon(ports.HoodMotorID);
         hoodEncoder = Phoenix6Factory.createCANcoder(ports.HoodEncoderID);
@@ -47,10 +46,11 @@ public class HoodIOTalonFX implements HoodIO {
 
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         config.Feedback.SensorToMechanismRatio = 1.0 / Constants.MOTOR_TO_HOOD_GEAR_RATIO;
+        // do NOT change this
         config.CurrentLimits.SupplyCurrentLimit = 20.0;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
-        config.CurrentLimits.StatorCurrentLimit = 80;
+        config.CurrentLimits.StatorCurrentLimit = 20;
         config.Audio.BeepOnConfig = false;
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         config.ClosedLoopGeneral.ContinuousWrap = true;
@@ -65,8 +65,8 @@ public class HoodIOTalonFX implements HoodIO {
         motorVoltage = hoodMotor.getMotorVoltage();
         motorCurrent = hoodMotor.getStatorCurrent();
 
-        double mechanismRotationsFromEncoder = MathUtil.inputModulus(hoodEncoder.getPosition().getValueAsDouble() - 0.752197, -0.05, 0.95) * Constants.ENCODER_TO_PIVOT_GEAR_RATIO;
-        hoodMotor.setPosition(mechanismRotationsFromEncoder + Units.degreesToRotations(Constants.HOOD_MIN_ANGLE_DEGREES));
+        /*double mechanismRotationsFromEncoder = MathUtil.inputModulus(hoodEncoder.getPosition().getValueAsDouble() - 0.752197, -0.05, 0.95) * Constants.ENCODER_TO_PIVOT_GEAR_RATIO;
+        hoodMotor.setPosition(mechanismRotationsFromEncoder + Units.degreesToRotations(Constants.HOOD_MIN_ANGLE_DEGREES));*/
     }
 
     @Override
@@ -79,8 +79,8 @@ public class HoodIOTalonFX implements HoodIO {
 
     @Override
     public void updateInputs(HoodIOInputs inputs) {
-        double mechanismRotationsFromEncoder = MathUtil.inputModulus(hoodEncoder.getPosition().getValueAsDouble() - 0.752197, -0.05, 0.95) * Constants.ENCODER_TO_PIVOT_GEAR_RATIO;
-        hoodMotor.setPosition(mechanismRotationsFromEncoder + Units.degreesToRotations(Constants.HOOD_MIN_ANGLE_DEGREES));
+        /*double mechanismRotationsFromEncoder = MathUtil.inputModulus(hoodEncoder.getPosition().getValueAsDouble() - 0.752197, -0.05, 0.95) * Constants.ENCODER_TO_PIVOT_GEAR_RATIO;
+        hoodMotor.setPosition(mechanismRotationsFromEncoder + Units.degreesToRotations(Constants.HOOD_MIN_ANGLE_DEGREES));*/
 
         inputs.hoodMotorConnected = BaseStatusSignal.refreshAll(
                 motorVoltage,
@@ -96,6 +96,7 @@ public class HoodIOTalonFX implements HoodIO {
         inputs.pivotVelocityDegrees = hoodVelocity.getValueAsDouble() * 360;
 
         Logger.recordOutput("Hood Encoder Rotations", hoodEncoder.getPosition().getValueAsDouble());
+        Logger.recordOutput("Hood Rotations", hoodPosition.getValueAsDouble());
     }
 
     @Override
@@ -116,5 +117,10 @@ public class HoodIOTalonFX implements HoodIO {
     public void applyNewGains() {
         updateGains();
         PhoenixUtil.tryUntilOk(5, () -> hoodMotor.getConfigurator().apply(config));
+    }
+
+    @Override
+    public void setPosition(double positionDegrees){
+        hoodMotor.setPosition(positionDegrees/360.0);
     }
 }

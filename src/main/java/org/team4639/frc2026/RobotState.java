@@ -7,7 +7,6 @@ import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -28,7 +27,6 @@ import org.team4639.frc2026.Constants.Mode;
 import org.team4639.frc2026.constants.led.Patterns;
 import org.team4639.frc2026.constants.shooter.PassingTargets;
 import org.team4639.frc2026.constants.shooter.ScoringState;
-import org.team4639.frc2026.constants.shooter.ShooterLookupTable;
 import org.team4639.frc2026.constants.shooter.ShooterScoringData;
 import org.team4639.frc2026.subsystems.drive.Drive;
 import org.team4639.frc2026.subsystems.extension.Extension;
@@ -43,6 +41,7 @@ import org.team4639.frc2026.subsystems.turret.Turret;
 import org.team4639.frc2026.subsystems.turret.TurretIO;
 import org.team4639.frc2026.subsystems.vision.TurretCamera;
 import org.team4639.frc2026.subsystems.vision.Vision.VisionConsumer;
+import org.team4639.frc2026.util.ValueCacher;
 import org.team4639.lib.led.pattern.LEDPattern;
 import org.team4639.lib.util.VirtualSubsystem;
 import org.team4639.lib.util.geometry.AllianceFlipUtil;
@@ -144,6 +143,11 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
 
     @Getter
     private int turretCameraTargets = 0;
+
+    private final ValueCacher<Object, ScoringState> currentScoringStates = new ValueCacher<>(this::_calculateScoringState);
+    private final ValueCacher<Object, ScoringState> nextScoringStates = new ValueCacher<>(() -> this._calculateNextScoringState(0.02));
+    private final ValueCacher<Object, ScoringState> passingStates = new ValueCacher<>(this::_calculatePassingState);
+    private final ValueCacher<Object, Pose2d> getNextPose = new ValueCacher<>(() -> calculateNextPose(0.02));
 
     /**
      * Returns the pose relative to the blue alliance wall.
@@ -315,7 +319,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         robotFieldTrue.setRobotPose(getTrueOnFieldPose());
         SmartDashboard.putData(ROBOT_FIELD_TRUE_KEY, robotFieldTrue);
 
-        ScoringState scoringState = calculateScoringState();
+        ScoringState scoringState = calculateScoringState(this);
         SmartDashboard.putNumber("Scoring/CalculatedRPM", scoringState.shooterRPM().in(Rotations.per(Minute)));
         SmartDashboard.putNumber("Scoring/CalculatedHoodAngle", scoringState.hoodAngle().in(Rotations));
         SmartDashboard.putNumber("Scoring/CalculatedTurretAngle", scoringState.turretAngle().in(Rotations));
@@ -382,9 +386,15 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         //TODO: something with this
     }
 
-    public ScoringState calculateScoringState() {
-        Translation2d hubTranslation = FieldConstants.Hub.topCenterPoint.toTranslation2d();
-        Pose2d turretPose = getEstimatedPose().transformBy(new Transform2d(Constants.SimConstants.originToTurretRotation.toTranslation2d(), new Rotation2d()));
+    private Pose2d calculateNextPose(double dt){
+        return getEstimatedPose().exp(chassisSpeeds.toTwist2d(dt));
+    }
+
+    public Pose2d calculateNextPose(Object caller){
+        return getNextPose.get(caller);
+    }
+
+    private ScoringState calculateScoringState(Translation2d hubTranslation, Pose2d turretPose, ChassisSpeeds chassisSpeeds){
         if (MathUtil.isNear(0, chassisSpeeds.vxMetersPerSecond, 0.01) || MathUtil.isNear(0, chassisSpeeds.vyMetersPerSecond, 0.01)) {
             return ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(turretPose, hubTranslation);
         } else {
@@ -400,15 +410,45 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         }
     }
 
-    public ScoringState calculatePassingState() {
-        Translation2d closestPassing = Arrays.stream(PassingTargets.values()).min(Comparator.comparing(target -> target.target.getDistance(getEstimatedPose().getTranslation()))).get().target;
+    private ScoringState _calculateScoringState() {
+        Translation2d hubTranslation = FieldConstants.Hub.topCenterPoint.toTranslation2d();
+        Pose2d turretPose = getEstimatedPose().transformBy(new Transform2d(Constants.SimConstants.originToTurretRotation.toTranslation2d(), new Rotation2d()));
 
-        var turretRotation = closestPassing.minus(getEstimatedPose().getTranslation()).getAngle().getRotations();
-        // bs function to calculate shooter rpm
-        var rpm = MathUtil.clamp(1900 + 600 * Math.abs((getEstimatedPose().getX() - FieldConstants.LinesVertical.allianceZone)), 0, 4000);
-        var hoodRotation = Degrees.of(50);
+        return calculateScoringState(hubTranslation, turretPose, getChassisSpeeds());
+    }
 
-        return new ScoringState(Rotations.per(Minute).of(rpm), hoodRotation, Rotations.of(turretRotation));
+    public ScoringState calculateScoringState(Object caller) {
+        return currentScoringStates.get(caller);
+    }
+
+    public ScoringState calculateNextScoringState(Object caller){
+        return nextScoringStates.get(caller);
+    }
+
+    private ScoringState _calculateNextScoringState(double dtSeconds){
+        Translation2d hubTranslation = FieldConstants.Hub.topCenterPoint.toTranslation2d();
+        Pose2d turretPose = getEstimatedPose().exp(getChassisSpeeds().toTwist2d(dtSeconds)).transformBy(new Transform2d(Constants.SimConstants.originToTurretRotation.toTranslation2d(), new Rotation2d()));
+
+        return calculateScoringState(hubTranslation, turretPose, getChassisSpeeds());
+    }
+
+    private ScoringState _calculatePassingState() {
+        var turretRotation = Degrees.of(180);
+
+        Pose2d turretPose = getTurretPose();
+        var state = ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(turretPose, new Translation2d(
+                FieldConstants.LinesVertical.hubCenter-2,
+                turretPose.getY()
+        ));
+
+        var rpm = state.shooterRPM();
+        var hoodRotation = state.hoodAngle();
+
+        return new ScoringState(rpm, hoodRotation, turretRotation);
+    }
+
+    public ScoringState calculatePassingState(Object caller){
+        return passingStates.get(caller);
     }
 
     public Rotation2d[] calculateClosestDriveAndTurretRotation(ScoringState desiredScoringState) {
@@ -469,4 +509,11 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
                 }
         };
     }
+
+    public Rotation2d getTurretToHubFieldRelative() {
+        return (FieldConstants.Hub.topCenterPoint.toTranslation2d().minus(getEstimatedPose().getTranslation()).getAngle());
+    }
+
+    @Setter @Getter
+    private double gyroRotationsPerSecond;
 }
