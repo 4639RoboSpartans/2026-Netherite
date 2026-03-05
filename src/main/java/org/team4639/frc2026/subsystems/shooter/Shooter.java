@@ -22,7 +22,7 @@ public class Shooter extends FullSubsystem {
     private final ShooterIOInputsAutoLogged inputs = new ShooterIOInputsAutoLogged();
 
     private double PASSING_RPM = 0;
-    private final double IDLE_VOLTAGE = 0;
+    private final double IDLE_VOLTAGE = -1;
     @AutoLogOutput(key = "Shooter Scoring RPM")
     private double SCORING_RPM = 0;
 
@@ -106,8 +106,8 @@ public class Shooter extends FullSubsystem {
     }
 
     private void handleIdle() {
-        /*io.setVoltage(IDLE_VOLTAGE);*/
-        io.setRPM(400);
+        io.setVoltage(IDLE_VOLTAGE);
+        //io.setRPM(400);
     }
 
     public void setWantedState(WantedState wantedState) {

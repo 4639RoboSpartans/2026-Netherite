@@ -2,13 +2,10 @@
 
 package org.team4639.frc2026.subsystems;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.team4639.frc2026.FieldConstants;
 import org.team4639.frc2026.RobotState;
-import org.team4639.frc2026.constants.shooter.ScoringState;
 import org.team4639.frc2026.subsystems.hood.Hood;
 import org.team4639.frc2026.subsystems.kicker.Kicker;
 import org.team4639.frc2026.subsystems.shooter.Shooter;
@@ -17,8 +14,6 @@ import org.team4639.frc2026.subsystems.turret.Turret;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import static edu.wpi.first.units.Units.*;
 
 public class Superstructure extends SubsystemBase{
 
@@ -31,6 +26,10 @@ public class Superstructure extends SubsystemBase{
     private final RobotState state;
 
     private final Runnable resetSuperstructure;
+
+    private boolean spinUpShooterWhileIdle = false;
+    private double SPIN_UP_TIME_PERIOD = 0.5;
+
     public Superstructure(Turret turret, Hood hood, Shooter shooter, Kicker kicker, Spindexer spindexer, RobotState state){
         this.turret = turret;
         this.hood = hood;
@@ -40,32 +39,55 @@ public class Superstructure extends SubsystemBase{
         this.state = state;
 
         resetSuperstructure = () -> {
-        hood.setWantedState(Hood.WantedState.IDLE);
-        turret.setWantedState(Turret.WantedState.IDLE);
-        shooter.setWantedState(Shooter.WantedState.IDLE);
-        spindexer.setWantedState(Spindexer.WantedState.IDLE);
-        kicker.setWantedState(Kicker.WantedState.IDLE);
-    };
+            hood.setWantedState(Hood.WantedState.IDLE);
+            turret.setWantedState(Turret.WantedState.IDLE);
+            shooter.setWantedState(Shooter.WantedState.IDLE);
+            spindexer.setWantedState(Spindexer.WantedState.IDLE);
+            kicker.setWantedState(Kicker.WantedState.IDLE);
+        };
+
+        Trigger closeToStopped = new Trigger(() -> {
+            var speeds = state.getChassisSpeeds();
+            return Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond) < 0.5 && speeds.omegaRadiansPerSecond < 0.5;
+        });
+
+        closeToStopped.onTrue(new RunCommand(() -> spinUpShooterWhileIdle = true).withTimeout(SPIN_UP_TIME_PERIOD).finallyDo(() -> spinUpShooterWhileIdle = false));
     }
 
     public Command idle() {
         return this.run(() -> {
-            shooter.setWantedState(Shooter.WantedState.IDLE);
+            if (spinUpShooterWhileIdle) shooter.setWantedState(
+                    state.robotInAllianceZone.getAsBoolean()
+                        ? Shooter.WantedState.SCORING
+                        : Shooter.WantedState.PASSING
+            );
+            else shooter.setWantedState(Shooter.WantedState.IDLE);
+
             kicker.setWantedState(Kicker.WantedState.IDLE);
             spindexer.setWantedState(Spindexer.WantedState.IDLE);
             turret.setWantedState(Turret.WantedState.HUB_TRACK);
 
             hood.setWantedState(Hood.WantedState.IDLE);
+
+            state.setSuperstructureState(GenericSuperstructureState.IDLE);
         }).finallyDo(resetSuperstructure);
     }
 
     public Command trackHub() {
         return this.run(() -> {
-            shooter.setWantedState(Shooter.WantedState.IDLE);
+            if (spinUpShooterWhileIdle) shooter.setWantedState(
+                    state.robotInAllianceZone.getAsBoolean()
+                            ? Shooter.WantedState.SCORING
+                            : Shooter.WantedState.PASSING
+            );
+            else shooter.setWantedState(Shooter.WantedState.IDLE);
+
             kicker.setWantedState(Kicker.WantedState.IDLE);
             spindexer.setWantedState(Spindexer.WantedState.IDLE);
 
             turret.setWantedState(Turret.WantedState.HUB_TRACK);
+
+            state.setSuperstructureState(GenericSuperstructureState.IDLE);
         }).finallyDo(resetSuperstructure);
     }
 
@@ -97,6 +119,8 @@ public class Superstructure extends SubsystemBase{
 
             spindexer.setWantedState(Spindexer.WantedState.IDLE);
             kicker.setWantedState(Kicker.WantedState.IDLE);
+
+            state.setSuperstructureState(GenericSuperstructureState.WAITING);
         }).until(() -> shooter.getSetpointRPM() > 0 && shooter.atSetpoint());
     }
 
@@ -113,9 +137,13 @@ public class Superstructure extends SubsystemBase{
             if (turret.atSetpoint()){
                 spindexer.setWantedState(Spindexer.WantedState.SPIN);
                 kicker.setWantedState(Kicker.WantedState.KICK);
+
+                state.setSuperstructureState(GenericSuperstructureState.SHOOT);
             } else {
                 spindexer.setWantedState(Spindexer.WantedState.IDLE);
                 kicker.setWantedState(Kicker.WantedState.IDLE);
+
+                state.setSuperstructureState(GenericSuperstructureState.WAITING);
             }
         });
     }
@@ -130,6 +158,8 @@ public class Superstructure extends SubsystemBase{
 
             spindexer.setWantedState(Spindexer.WantedState.IDLE);
             kicker.setWantedState(Kicker.WantedState.IDLE);
+
+            state.setSuperstructureState(GenericSuperstructureState.WAITING);
         }).until(() -> shooter.getSetpointRPM() > 0 && shooter.atSetpoint());
     }
 
@@ -146,10 +176,21 @@ public class Superstructure extends SubsystemBase{
             if (turret.atSetpoint()){
                 spindexer.setWantedState(Spindexer.WantedState.SPIN);
                 kicker.setWantedState(Kicker.WantedState.KICK);
+
+                state.setSuperstructureState(GenericSuperstructureState.PASS);
             } else {
                 spindexer.setWantedState(Spindexer.WantedState.IDLE);
                 kicker.setWantedState(Kicker.WantedState.IDLE);
+
+                state.setSuperstructureState(GenericSuperstructureState.WAITING);
             }
         });
+    }
+
+    public enum GenericSuperstructureState{
+        IDLE,
+        WAITING,
+        SHOOT,
+        PASS
     }
 }

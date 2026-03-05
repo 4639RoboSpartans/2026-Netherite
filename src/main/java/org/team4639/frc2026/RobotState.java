@@ -19,6 +19,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import lombok.Getter;
 import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -28,6 +29,8 @@ import org.team4639.frc2026.constants.led.Patterns;
 import org.team4639.frc2026.constants.shooter.PassingTargets;
 import org.team4639.frc2026.constants.shooter.ScoringState;
 import org.team4639.frc2026.constants.shooter.ShooterScoringData;
+import org.team4639.frc2026.constants.zone.RebuiltZones;
+import org.team4639.frc2026.subsystems.Superstructure;
 import org.team4639.frc2026.subsystems.drive.Drive;
 import org.team4639.frc2026.subsystems.extension.Extension;
 import org.team4639.frc2026.subsystems.hood.Hood;
@@ -144,10 +147,17 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     @Getter
     private int turretCameraTargets = 0;
 
+    @Setter
+    private Superstructure.GenericSuperstructureState superstructureState;
+
     private final ValueCacher<Object, ScoringState> currentScoringStates = new ValueCacher<>(this::_calculateScoringState);
     private final ValueCacher<Object, ScoringState> nextScoringStates = new ValueCacher<>(() -> this._calculateNextScoringState(0.02));
     private final ValueCacher<Object, ScoringState> passingStates = new ValueCacher<>(this::_calculatePassingState);
     private final ValueCacher<Object, Pose2d> getNextPose = new ValueCacher<>(() -> calculateNextPose(0.02));
+
+    public final Trigger robotInAllianceZone = RebuiltZones.OUR_ALLIANCE_ZONE.contains(this::getEstimatedPose);
+    public final Trigger robotInNeutralZone = RebuiltZones.NEUTRAL_ZONE.contains(this::getEstimatedPose);
+    public final Trigger robotInNOTAllianceZone = RebuiltZones.NOT_OUR_ALLIANCE_ZONE.contains(this::getEstimatedPose);
 
     /**
      * Returns the pose relative to the blue alliance wall.
@@ -477,36 +487,27 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     }
 
     public LEDPattern getDesiredLEDPattern() {
-        return switch(shooterStates.getFirst()){
-            case OFF, IDLE:
+        return switch(superstructureState){
+            case IDLE:
                 if (intakeStates.getFirst() == Intake.WantedState.INTAKE)
                     yield Patterns.DEFAULT_INTAKE;
                 else
                     yield Patterns.DEFAULT;
-            case SCORING:
-                if (spindexerStates.getFirst() == Spindexer.WantedState.SPIN && kickerStates.getFirst() == Kicker.WantedState.KICK){
+            case WAITING:
+                if (intakeStates.getFirst() == Intake.WantedState.INTAKE)
+                    yield Patterns.SHOOTER_REQUESTED_AND_INTAKE;
+                else
+                    yield Patterns.SHOOTER_REQUESTED;
+            case SHOOT:
                     if (intakeStates.getFirst() == Intake.WantedState.INTAKE)
                         yield Patterns.SHOOTING_AND_INTAKE;
                     else
                         yield Patterns.SHOOTING;
-                } else {
-                    if (intakeStates.getFirst() == Intake.WantedState.INTAKE)
-                        yield Patterns.SHOOTER_REQUESTED_AND_INTAKE;
-                    else
-                        yield Patterns.SHOOTER_REQUESTED;
-                }
-            case PASSING:
-                if (spindexerStates.getFirst() == Spindexer.WantedState.SPIN && kickerStates.getFirst() == Kicker.WantedState.KICK){
+            case PASS:
                     if (intakeStates.getFirst() == Intake.WantedState.INTAKE)
                         yield Patterns.PASSING_AND_INTAKE;
                     else
                         yield Patterns.PASSING;
-                } else {
-                    if (intakeStates.getFirst() == Intake.WantedState.INTAKE)
-                        yield Patterns.SHOOTER_REQUESTED_AND_INTAKE;
-                    else
-                        yield Patterns.SHOOTER_REQUESTED;
-                }
         };
     }
 
