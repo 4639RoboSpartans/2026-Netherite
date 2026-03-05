@@ -32,8 +32,8 @@ public final class Constants {
     }
 
     public static final class RobotConstants {
-        public static final double ROBOT_MASS_KG = 74.088;
-        public static final double ROBOT_MOI = 6.883;
+        public static final double ROBOT_MASS_KG = 50;
+        public static final double ROBOT_MOI = 3.97;
         public static final double WHEEL_COF = 1.5;
     }
 
