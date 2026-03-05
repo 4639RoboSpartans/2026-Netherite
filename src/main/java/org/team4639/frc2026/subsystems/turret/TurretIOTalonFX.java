@@ -33,10 +33,10 @@ public class TurretIOTalonFX implements TurretIO {
         turretMotor = Phoenix6Factory.createDefaultTalon(ports.TurretMotorID);
 
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-        config.CurrentLimits.SupplyCurrentLimit = 80.0;
+        config.CurrentLimits.SupplyCurrentLimit = 40.0;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
-        config.CurrentLimits.StatorCurrentLimit = 80;
+        config.CurrentLimits.StatorCurrentLimit = 40;
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         config.Slot0.kS = 0.3125;
