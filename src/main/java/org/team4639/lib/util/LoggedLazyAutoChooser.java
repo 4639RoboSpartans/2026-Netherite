@@ -58,7 +58,7 @@ public class LoggedLazyAutoChooser extends VirtualSubsystem {
             this.lastState = this.currentState;
             this.currentState = chooser.get();
 
-            if (this.lastState != this.currentState) {
+            if (this.currentState != null && this.lastState != this.currentState) {
                 var tempCommand = this.currentState.get();
                 if (tempCommand != null) {
                     this.command = tempCommand;

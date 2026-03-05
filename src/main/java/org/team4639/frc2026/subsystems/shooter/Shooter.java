@@ -62,6 +62,7 @@ public class Shooter extends FullSubsystem {
         state.updateShooterState(Rotations.per(Minute).of(inputs.leftRPM), null, null);
 
         this.setDefaultCommand(this.run(this::runStateMachine));
+        Logger.recordOutput("Shooter/SystemState", systemState.toString());
     }
 
     @Override

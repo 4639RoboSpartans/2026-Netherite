@@ -45,6 +45,9 @@ public class Spindexer extends FullSubsystem {
     public Spindexer(SpindexerIO io, RobotState state) {
         this.io = io;
         this.state = state;
+
+        Logger.recordOutput("Spindexer/SystemState", systemState.toString());
+        this.setDefaultCommand(this.run(this::runStateMachine));
     }
 
     @Override
@@ -56,6 +59,9 @@ public class Spindexer extends FullSubsystem {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Spindexer", inputs);
+    }
+
+    private void runStateMachine() {
         SystemState newState = handleStateTransitions();
         if (newState != systemState) {
             Logger.recordOutput("Spindexer/SystemState", newState.toString());

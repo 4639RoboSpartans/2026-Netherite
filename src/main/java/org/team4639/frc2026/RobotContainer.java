@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.team4639.frc2026.auto.AutoCommands;
 import org.team4639.frc2026.auto.AutoCommands2;
+import org.team4639.frc2026.auto.AutoCommands3;
 import org.team4639.frc2026.commands.DriveCommands;
 import org.team4639.frc2026.commands.LEDCommands;
 import org.team4639.frc2026.constants.led.Patterns;
@@ -294,18 +295,9 @@ public class RobotContainer {
 
         autoChooser = new LoggedLazyAutoChooser("Auto Choices");
 
-        autoChooser.addOption("LEFT_SWIPE", () -> AutoCommands2.LEFT_DOUBLE_SWIPE(drive, superstructure, intakeStructure, RobotState.getInstance()));
-        autoChooser.addOption("RIGHT_SWIPE", () -> AutoCommands2.RIGHT_DOUBLE_SWIPE(drive, superstructure, intakeStructure, RobotState.getInstance()));
-
-        autoChooser.addOption("DriverStation-TrenchLine", autoCommands::DriverStation_TrenchLine);
-        autoChooser.addOption(
-                "DriverStation_TrenchLine-DriverStation", autoCommands::DriverStation_TrenchLine_DriverStation);
-
-        // Set up SysId routines
-        autoChooser.addOption(
-                "Drive Wheel Radius Characterization", () -> DriveCommands.wheelRadiusCharacterization(drive));
-        autoChooser.addOption(
-                "Drive Simple FF Characterization", () -> DriveCommands.feedforwardCharacterization(drive));
+        autoChooser.addOption("LEFT_DOUBLE_SWIPE", () -> AutoCommands3.LEFT_DOUBLE_SWIPE(drive, superstructure, intakeStructure, RobotState.getInstance()).withTimeout(20));
+        autoChooser.addOption("RIGHT_DOUBLE_SWIPE", () -> AutoCommands3.RIGHT_DOUBLE_SWIPE(drive, superstructure, intakeStructure, RobotState.getInstance()).withTimeout(20));
+        autoChooser.addOption("RIGHT_SWIPE_OUTPOST", () -> AutoCommands3.RIGHT_SWIPE_OUTPOST(drive, superstructure, intakeStructure, RobotState.getInstance()).withTimeout(20));
     }
 
     /**

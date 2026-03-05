@@ -41,6 +41,9 @@ public class Kicker extends FullSubsystem {
     public Kicker(KickerIO io, RobotState state) {
         this.io = io;
         this.state = state;
+
+        Logger.recordOutput("Kicker/SystemState", systemState.toString());
+        this.setDefaultCommand(this.run(this::runStateMachine));
     }
 
     @Override
@@ -52,6 +55,18 @@ public class Kicker extends FullSubsystem {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Kicker", inputs);
+
+
+        LoggedTunableNumber.ifChanged(hashCode(), io::applyNewGains,
+                PIDs.kickerKP,
+                PIDs.kickerKI,
+                PIDs.kickerKD,
+                PIDs.kickerKS,
+                PIDs.kickerKV,
+                PIDs.kickerKA);
+    }
+
+    private void runStateMachine() {
         SystemState newState = handleStateTransitions();
         if (newState != systemState) {
             Logger.recordOutput("Kicker/SystemState", newState.toString());
@@ -70,14 +85,6 @@ public class Kicker extends FullSubsystem {
                 handleKick();
                 break;
         }
-
-        LoggedTunableNumber.ifChanged(hashCode(), io::applyNewGains,
-                PIDs.kickerKP,
-                PIDs.kickerKI,
-                PIDs.kickerKD,
-                PIDs.kickerKS,
-                PIDs.kickerKV,
-                PIDs.kickerKA);
     }
 
     private SystemState handleStateTransitions() {

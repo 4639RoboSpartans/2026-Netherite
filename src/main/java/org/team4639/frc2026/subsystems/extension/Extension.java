@@ -58,6 +58,8 @@ public class Extension extends FullSubsystem {
 
         setHomedPositions(inputs.position, Double.NaN);
         setDefaultCommand(run(this::runStateMachine));
+
+        Logger.recordOutput("Extension/SystemState", systemState.toString());
     }
 
     public void setHomedPositions(double retractedRotorPosition, double extendedRotorPosition) {

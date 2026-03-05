@@ -31,6 +31,7 @@ import org.team4639.frc2026.constants.shooter.ScoringState;
 import org.team4639.frc2026.constants.shooter.ShooterScoringData;
 import org.team4639.frc2026.constants.zone.RebuiltZones;
 import org.team4639.frc2026.subsystems.Superstructure;
+import org.team4639.frc2026.subsystems.Superstructure.GenericSuperstructureState;
 import org.team4639.frc2026.subsystems.drive.Drive;
 import org.team4639.frc2026.subsystems.extension.Extension;
 import org.team4639.frc2026.subsystems.hood.Hood;
@@ -103,6 +104,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     private ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
     @Getter
+    @AutoLogOutput(key = "Intake Extension Fraction")
     private double intakeExtensionFraction = 0.0;
 
     // RobotState Field and Pose Publishers
@@ -148,7 +150,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     private int turretCameraTargets = 0;
 
     @Setter
-    private Superstructure.GenericSuperstructureState superstructureState;
+    private Superstructure.GenericSuperstructureState superstructureState = GenericSuperstructureState.IDLE;
 
     private final ValueCacher<Object, ScoringState> currentScoringStates = new ValueCacher<>(this::_calculateScoringState);
     private final ValueCacher<Object, ScoringState> nextScoringStates = new ValueCacher<>(() -> this._calculateNextScoringState(0.02));

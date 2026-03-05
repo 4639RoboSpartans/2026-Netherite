@@ -1,3 +1,5 @@
+/* Copyright (c) 2025-2026 FRC 4639. */
+
 package org.team4639.lib.zone;
 
 import static edu.wpi.first.units.Units.Meters;
@@ -149,4 +151,3 @@ public class Zones {
         }
     }
 }
-

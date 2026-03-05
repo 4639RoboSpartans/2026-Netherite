@@ -65,6 +65,7 @@ public class Turret extends FullSubsystem {
         initialRotorRotation = turretInputs.motorPositionRotations;
 
         setDefaultCommand(this.run(this::runStateMachine));
+        Logger.recordOutput("Turret/SystemState", systemState);
     }
 
     @Override

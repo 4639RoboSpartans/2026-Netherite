@@ -11,6 +11,8 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.Threads;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.ironmaple.simulation.SimulatedArena;
@@ -110,6 +112,8 @@ public class Robot extends LoggedRobot {
         VirtualSubsystem.runAllPeriodicAfterScheduler();
         FullSubsystem.runAllPeriodicAfterScheduler();
         LoggedTracer.record("PeriodicAfterScheduler");
+
+        SmartDashboard.putNumber("Match Time", Timer.getMatchTime());
 
         /*// Get the positions of the fuel (both on the field and in the air)
         Pose3d[] fuelPoses = SimulatedArena.getInstance()

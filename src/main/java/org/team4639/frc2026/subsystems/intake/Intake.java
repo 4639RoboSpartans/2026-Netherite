@@ -47,6 +47,8 @@ public class Intake extends FullSubsystem {
         this.state = state;
         rollerIO.updateInputs(rollerInputs);
         setDefaultCommand(run(this::runStateMachine));
+
+        Logger.recordOutput("Intake/SystemState", systemState.toString());
     }
 
     @Override
