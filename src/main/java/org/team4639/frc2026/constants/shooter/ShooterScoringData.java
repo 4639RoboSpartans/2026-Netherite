@@ -70,22 +70,17 @@ public class ShooterScoringData {
                     new AbstractMap.SimpleImmutableEntry<>(4.69, 27.0 / 360.0),
                     new AbstractMap.SimpleImmutableEntry<>(4.90, 30.0 / 360.0)
             ),
-            scoringDistanceToTOF = InterpolatingDoubleTreeMap.ofEntries(
-                    new AbstractMap.SimpleImmutableEntry<>(1.97, Math.sqrt(2 * 1.97 * (1/Math.sqrt(3)) - FieldConstants.Hub.innerHeight)/Math.sqrt(9.81)),
-                    new AbstractMap.SimpleImmutableEntry<>(2.15, Math.sqrt(2 * 2.15 * (1/Math.sqrt(3)) - FieldConstants.Hub.innerHeight)/Math.sqrt(9.81)),
-                    new AbstractMap.SimpleImmutableEntry<>(2.45, Math.sqrt(2 * 2.45 * (1/Math.sqrt(3)) - FieldConstants.Hub.innerHeight)/Math.sqrt(9.81)),
-                    new AbstractMap.SimpleImmutableEntry<>(2.69, Math.sqrt(2 * 2.69 * (1/Math.sqrt(3)) - FieldConstants.Hub.innerHeight)/Math.sqrt(9.81)),
-                    new AbstractMap.SimpleImmutableEntry<>(2.88, Math.sqrt(2 * 2.88 * (1/Math.sqrt(3)) - FieldConstants.Hub.innerHeight)/Math.sqrt(9.81)),
-                    new AbstractMap.SimpleImmutableEntry<>(3.10, Math.sqrt(2 * 3.10 * (1/Math.sqrt(3)) - FieldConstants.Hub.innerHeight)/Math.sqrt(9.81)),
-                    new AbstractMap.SimpleImmutableEntry<>(3.30, Math.sqrt(2 * 3.30 * (1/Math.sqrt(3)) - FieldConstants.Hub.innerHeight)/Math.sqrt(9.81)),
-                    new AbstractMap.SimpleImmutableEntry<>(3.54, Math.sqrt(2 * 3.54 * (1/Math.sqrt(3)) - FieldConstants.Hub.innerHeight)/Math.sqrt(9.81)),
-                    new AbstractMap.SimpleImmutableEntry<>(3.77, Math.sqrt(2 * 3.77 * (1/Math.sqrt(3)) - FieldConstants.Hub.innerHeight)/Math.sqrt(9.81)),
-                    new AbstractMap.SimpleImmutableEntry<>(3.99, Math.sqrt(2 * 3.99 * (1/Math.sqrt(3)) - FieldConstants.Hub.innerHeight)/Math.sqrt(9.81)),
-                    new AbstractMap.SimpleImmutableEntry<>(4.26, Math.sqrt(2 * 4.26 * (1/Math.sqrt(3)) - FieldConstants.Hub.innerHeight)/Math.sqrt(9.81)),
-                    new AbstractMap.SimpleImmutableEntry<>(4.52, Math.sqrt(2 * 4.52 * (1/Math.sqrt(3)) - FieldConstants.Hub.innerHeight)/Math.sqrt(9.81)),
-                    new AbstractMap.SimpleImmutableEntry<>(4.73, Math.sqrt(2 * 4.73 * (1/Math.sqrt(3)) - FieldConstants.Hub.innerHeight)/Math.sqrt(9.81)),
-                    new AbstractMap.SimpleImmutableEntry<>(4.90, Math.sqrt(2 * 4.90 * (1/Math.sqrt(3)) - FieldConstants.Hub.innerHeight)/Math.sqrt(9.81))
-            );
+                    scoringDistanceToTOF = InterpolatingDoubleTreeMap.ofEntries(
+                            new AbstractMap.SimpleImmutableEntry<>(2.47, 0.9927272727),
+                            new AbstractMap.SimpleImmutableEntry<>(2.7, 1.016),
+                            new AbstractMap.SimpleImmutableEntry<>(2.97, 1.089411765),
+                            new AbstractMap.SimpleImmutableEntry<>(3.3, 1.1336666667),
+                            new AbstractMap.SimpleImmutableEntry<>(3.66, 1.271052632),
+                            new AbstractMap.SimpleImmutableEntry<>(4.25, 1.169),
+                            new AbstractMap.SimpleImmutableEntry<>(4.45, 1.171428571),
+                            new AbstractMap.SimpleImmutableEntry<>(4.7, 1.2146666667),
+                            new AbstractMap.SimpleImmutableEntry<>(4.9, 1.147368421)
+                    );
 
     public static final ShooterLookupTable shooterLookupTable = new ShooterLookupTable(
             scoringDistanceToRPM,
