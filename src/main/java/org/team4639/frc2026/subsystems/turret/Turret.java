@@ -92,6 +92,10 @@ public class Turret extends FullSubsystem {
 
         double[] turretRotations = Arrays.stream(turretInputs.motorPositionsRotations).map(this::getTurretRotationFromRotorRotation).toArray();
         double[] timestamps = turretInputs.motorPositionsTimestamps;
+
+        for (int i = 0; i < timestamps.length; i ++){
+            state.acceptTurretMeasurement(turretRotations[i], timestamps[i]);
+        }
     }
 
     @Override

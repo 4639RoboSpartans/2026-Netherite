@@ -301,10 +301,22 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
 
     @Override
     public void acceptTurretVision(int cameraIndex, Pose2d visionTurretPoseMeters, double timestampSeconds, Matrix<N3, N1> visionMeasurementStdDevs, int numtargets) {
+        try {
+            if (turretRobotRelativeBuffer.getInternalBuffer().lastKey() - poseBufferSizeSec > timestampSeconds) {
+                return;
+            }
+        } catch (NoSuchElementException ex) {
+            return;
+        }
+
+        var sample = turretRobotRelativeBuffer.getSample(timestampSeconds);
+
+        if (sample.isEmpty()) return;
+
         // transform turret
         var estimatedRobotPose = visionTurretPoseMeters.transformBy(
                 new Transform2d(Constants.SimConstants.originToTurretRotation.toTranslation2d(),
-               Rotation2d.fromRotations(turretRobotRelativeBuffer.getSample(timestampSeconds).orElse(getScoringState().turretAngle().in(Rotations)))).inverse()
+               Rotation2d.fromRotations(sample.get())).inverse()
         );
 
         this.turretCameraTargets = numtargets;

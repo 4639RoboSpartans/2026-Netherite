@@ -60,6 +60,14 @@ public class TurretIOTalonFX implements TurretIO {
 
         motorPositions = PhoenixOdometryThread.getInstance().registerSignal(motorPosition.clone());
         timestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
+
+        BaseStatusSignal.setUpdateFrequencyForAll(
+                50.0,
+                motorPosition,
+                motorVelocity,
+                motorVoltage,
+                motorCurrent
+        );
     }
 
     @Override
@@ -79,6 +87,7 @@ public class TurretIOTalonFX implements TurretIO {
 
         inputs.motorPositionsRotations = motorPositions.stream().mapToDouble((Double value) -> value).toArray();
         inputs.motorPositionsTimestamps = timestampQueue.stream().mapToDouble((Double value) -> value).toArray();
+
         motorPositions.clear();
         timestampQueue.clear();
     }
