@@ -4,9 +4,6 @@ package org.team4639.frc2026;
 
 import edu.wpi.first.math.*;
 import edu.wpi.first.math.geometry.*;
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.Nat;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -26,7 +23,6 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.Constants.Mode;
 import org.team4639.frc2026.constants.led.Patterns;
-import org.team4639.frc2026.constants.shooter.PassingTargets;
 import org.team4639.frc2026.constants.shooter.ScoringState;
 import org.team4639.frc2026.constants.shooter.ShooterScoringData;
 import org.team4639.frc2026.constants.zone.RebuiltZones;
@@ -340,6 +336,10 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         SmartDashboard.putNumber("Turret to Goal", getTurretPose().getTranslation().getDistance(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
 
         ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(getTurretPose(), FieldConstants.Hub.innerCenterPoint.toTranslation2d());
+
+        if (Robot.isSimulation()) {
+            Logger.recordOutput("3d component poses", getComponentPoses());
+        }
     }
 
     @Override

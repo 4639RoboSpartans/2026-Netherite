@@ -5,7 +5,7 @@ package org.team4639.frc2026.subsystems.turret;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -22,7 +22,7 @@ public class TurretIOTalonFX implements TurretIO {
 
     private final TalonFXConfiguration config = new TalonFXConfiguration();
 
-    private final PositionVoltage request = new PositionVoltage(0);
+    private final MotionMagicVoltage request = new MotionMagicVoltage(0);
 
     private final StatusSignal<Angle> motorPosition;
     private final StatusSignal<AngularVelocity> motorVelocity;
@@ -43,6 +43,8 @@ public class TurretIOTalonFX implements TurretIO {
         config.Slot0.kV = 6.0897;
         config.Slot0.kA = 0.54764;
         config.Slot0.kP = 10;
+        config.MotionMagic.MotionMagicCruiseVelocity = 10;
+        config.MotionMagic.MotionMagicAcceleration = 10;
 
         //applyNewGains();
 
@@ -73,10 +75,6 @@ public class TurretIOTalonFX implements TurretIO {
     @Override
     public void setRotorRotationSetpoint(double rotation) {
         turretMotor.setControl(request.withPosition(rotation));
-    }
-
-    public void setRotorRotationSetpoint(double rotation, double velocityrps) {
-        turretMotor.setControl(request.withPosition(rotation).withVelocity(velocityrps));
     }
 
     public void updateGains() {

@@ -4,9 +4,9 @@ package org.team4639.frc2026.subsystems.turret;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Voltage;
 import lombok.Getter;
+import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
@@ -50,6 +50,7 @@ public class Turret extends FullSubsystem {
         HUB_TRACK
     }
 
+    @Setter
     private WantedState wantedState = WantedState.IDLE;
     private SystemState systemState = SystemState.IDLE;
 
@@ -193,40 +194,18 @@ public class Turret extends FullSubsystem {
         return initialRotorRotation + getRotorDeltaRotations(turretDeltaRotations);
     }
 
-    public double getRotorVelocityFromTurretVelocity(double turretRotationsPerSecond){
-        return turretRotationsPerSecond / Constants.MOTOR_TO_TURRET_GEAR_RATIO;
-    }
-
     public double getNearestTurretRotation(double clampedRotation) {
-//        if (clampedRotation < 0.4 && clampedRotation > -0.4) {
-//            return clampedRotation;
-//        }
-//        double currentTurretRotation = getTurretRotationFromRotorRotation();
-//        if (currentTurretRotation * clampedRotation > 0) return clampedRotation;
-//        if (currentTurretRotation < 0 && clampedRotation >= 0.4) {
-//            return clampedRotation - 1;
-//        } else if (currentTurretRotation > 0 && clampedRotation <= -0.4) {
-//            return clampedRotation + 1;
-//        } else {
-//            return clampedRotation;
-//        }
         return clampedRotation;
     }
 
     private void handleIdle() {
-        //turretIO.setRotorRotationSetpoint(getRotorRotationsFromAbsoluteTurretRotation(IDLE_TURRET_ROTATION));
         turretIO.setVoltage(0);
     }
 
     private void handleScoring() {
         TurretSetpoint turretSetpoint = getTurretSetpoint();
         double nearestTurretRotation = getNearestTurretRotation(MathUtil.clamp(turretSetpoint.rotation, Constants.TURRET_MIN_ROTATIONS, Constants.TURRET_MAX_ROTATIONS));
-        double rotationsPerSecondAdjusted = (
-                MathUtil.isNear(getTurretRotationFromRotorRotation(), Constants.TURRET_MAX_ROTATIONS, Constants.ROTOR_ROTATION_TOLERANCE)
-                || MathUtil.isNear(getTurretRotationFromRotorRotation(), Constants.TURRET_MIN_ROTATIONS, Constants.ROTOR_ROTATION_TOLERANCE)
-        ) ? 0.0 : turretSetpoint.rotationsPerSecond;
-
-        turretIO.setRotorRotationSetpoint(getRotorRotationsFromAbsoluteTurretRotation(nearestTurretRotation), getRotorVelocityFromTurretVelocity(rotationsPerSecondAdjusted));
+        turretIO.setRotorRotationSetpoint(getRotorRotationsFromAbsoluteTurretRotation(nearestTurretRotation));
     }
 
     private void handlePassing() {
@@ -239,11 +218,7 @@ public class Turret extends FullSubsystem {
         turretIO.setRotorRotationSetpoint(getRotorRotationsFromAbsoluteTurretRotation(nearestTurretRotation));
     }
 
-    public void setWantedState(WantedState wantedState) {
-        this.wantedState = wantedState;
-    }
-
-    private TurretSetpoint _getTurretSetpoint() {
+    private TurretSetpoint getRawTurretSetpoint() {
         return switch (systemState) {
             case IDLE -> IDLE_TURRET_ROTATION;
             case SCORING -> {
@@ -268,7 +243,7 @@ public class Turret extends FullSubsystem {
     }
 
     public TurretSetpoint getTurretSetpoint() {
-        TurretSetpoint turretSetpoint = _getTurretSetpoint();
+        TurretSetpoint turretSetpoint = getRawTurretSetpoint();
         return new TurretSetpoint(MathUtil.inputModulus(turretSetpoint.rotation, 0, 1), turretSetpoint.rotationsPerSecond);
     }
 
