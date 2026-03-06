@@ -17,6 +17,8 @@ import org.team4639.frc2026.util.PortConfiguration;
 import org.team4639.lib.util.Phoenix6Factory;
 import org.team4639.lib.util.PhoenixUtil;
 
+import java.util.Queue;
+
 public class TurretIOTalonFX implements TurretIO {
     private final TalonFX turretMotor;
 
@@ -28,6 +30,9 @@ public class TurretIOTalonFX implements TurretIO {
     private final StatusSignal<AngularVelocity> motorVelocity;
     private final StatusSignal<Voltage> motorVoltage;
     private final StatusSignal<Current> motorCurrent;
+
+    private final Queue<Double> motorPositions;
+    private final Queue<Double> timestampQueue;
 
     public TurretIOTalonFX(PortConfiguration ports) {
         turretMotor = Phoenix6Factory.createDefaultTalon(ports.TurretMotorID);
@@ -52,6 +57,9 @@ public class TurretIOTalonFX implements TurretIO {
         motorVelocity = turretMotor.getVelocity();
         motorVoltage = turretMotor.getMotorVoltage();
         motorCurrent = turretMotor.getStatorCurrent();
+
+        motorPositions = PhoenixOdometryThread.getInstance().registerSignal(motorPosition.clone());
+        timestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
     }
 
     @Override
@@ -68,6 +76,11 @@ public class TurretIOTalonFX implements TurretIO {
         inputs.motorTemperature = turretMotor.getDeviceTemp().getValueAsDouble();
         inputs.motorVelocity = motorVelocity.getValueAsDouble();
         inputs.motorPositionRotations = motorPosition.getValueAsDouble();
+
+        inputs.motorPositionsRotations = motorPositions.stream().mapToDouble((Double value) -> value).toArray();
+        inputs.motorPositionsTimestamps = timestampQueue.stream().mapToDouble((Double value) -> value).toArray();
+        motorPositions.clear();
+        timestampQueue.clear();
     }
 
     @Override

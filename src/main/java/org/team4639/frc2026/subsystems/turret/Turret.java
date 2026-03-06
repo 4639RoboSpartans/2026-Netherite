@@ -2,6 +2,7 @@
 
 package org.team4639.frc2026.subsystems.turret;
 
+import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.util.Units;
@@ -12,6 +13,9 @@ import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
 import org.team4639.lib.util.FullSubsystem;
 import org.team4639.lib.util.LoggedTunableNumber;
+
+import java.util.Arrays;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
@@ -32,6 +36,10 @@ public class Turret extends FullSubsystem {
 
     private final double initialTurretRotation;
     private final double initialRotorRotation;
+
+    protected static final double ODOMETRY_FREQUENCY = CANBus.roboRIO().isNetworkFD() ? 250.0 : 100.0;
+
+    protected static final ReentrantLock motorPositionLock = new ReentrantLock();
 
     @Getter
     private final TurretSysID sysID = new TurretSysID.TurretSysIDWPI(this, turretInputs);
@@ -66,18 +74,24 @@ public class Turret extends FullSubsystem {
 
         setDefaultCommand(this.run(this::runStateMachine));
         Logger.recordOutput("Turret/SystemState", systemState);
+        PhoenixOdometryThread.getInstance().start();
     }
 
     @Override
     public void periodicBeforeScheduler() {
+        motorPositionLock.lock();
         turretIO.updateInputs(turretInputs);
         leftEncoderIO.updateInputs(leftEncoderInputs);
         rightEncoderIO.updateInputs(rightEncoderInputs);
         Logger.processInputs("Turret", turretInputs);
         Logger.processInputs("Left Encoder", leftEncoderInputs);
         Logger.processInputs("Right Encoder", rightEncoderInputs);
+        motorPositionLock.unlock();
 
         state.updateShooterState(null, null, Rotations.of(getTurretRotationFromRotorRotation()));
+
+        double[] turretRotations = Arrays.stream(turretInputs.motorPositionsRotations).map(this::getTurretRotationFromRotorRotation).toArray();
+        double[] timestamps = turretInputs.motorPositionsTimestamps;
     }
 
     @Override
@@ -181,7 +195,11 @@ public class Turret extends FullSubsystem {
 
     @AutoLogOutput(key = "TurretRotations")
     public double getTurretRotationFromRotorRotation() {
-        return initialTurretRotation + ((turretInputs.motorPositionRotations - initialRotorRotation) * Constants.MOTOR_TO_TURRET_GEAR_RATIO);
+        return getTurretRotationFromRotorRotation(turretInputs.motorPositionRotations);
+    }
+
+    private double getTurretRotationFromRotorRotation(double rotorRotation){
+        return initialTurretRotation + ((rotorRotation - initialRotorRotation) * Constants.MOTOR_TO_TURRET_GEAR_RATIO);
     }
 
     public double getRotorDeltaRotations(double turretDeltaRotations) {

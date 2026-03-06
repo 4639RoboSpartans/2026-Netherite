@@ -163,6 +163,8 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     public final Trigger robotInNeutralZone = RebuiltZones.NEUTRAL_ZONE.contains(this::getEstimatedPose);
     public final Trigger robotInNOTAllianceZone = RebuiltZones.NOT_OUR_ALLIANCE_ZONE.contains(this::getEstimatedPose);
 
+    private final TimeInterpolatableBuffer<Double> turretRobotRelativeBuffer = TimeInterpolatableBuffer.createDoubleBuffer(poseBufferSizeSec);
+
     /**
      * Returns the pose relative to the blue alliance wall.
      * Should be used sparingly, for all internal calculations,
@@ -302,7 +304,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         // transform turret
         var estimatedRobotPose = visionTurretPoseMeters.transformBy(
                 new Transform2d(Constants.SimConstants.originToTurretRotation.toTranslation2d(),
-               Rotation2d.fromRotations(getScoringState().turretAngle().in(Rotations))).inverse()
+               Rotation2d.fromRotations(turretRobotRelativeBuffer.getSample(timestampSeconds).orElse(getScoringState().turretAngle().in(Rotations)))).inverse()
         );
 
         this.turretCameraTargets = numtargets;
@@ -511,4 +513,8 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
 
     @Setter @Getter
     private double gyroRotationsPerSecond;
+
+    public void acceptTurretMeasurement(double rotations, double timestamp){
+        turretRobotRelativeBuffer.addSample(timestamp, rotations);
+    }
 }

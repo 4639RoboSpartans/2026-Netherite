@@ -24,5 +24,8 @@ public interface TurretIO {
         public double motorTemperature = 0.0;
         public double motorVelocity = 0.0;
         public double motorPositionRotations = 0.0;
+
+        public double[] motorPositionsTimestamps = new double[]{};
+        public double[] motorPositionsRotations = new double[]{};
     }
 }
