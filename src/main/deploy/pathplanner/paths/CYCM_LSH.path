@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.436529516994633,
-        "y": 5.470948121645796
+        "x": 6.904495614035088,
+        "y": 5.5832127192982455
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.423684210526315,
-        "y": 7.7372478070175426
+        "x": 6.8916503075667706,
+        "y": 7.8495124046699924
       },
       "isLocked": false,
       "linkedName": "CYCM"
@@ -50,7 +50,21 @@
       "rotationDegrees": 179.28811993236144
     }
   ],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.3407155025553663,
+      "maxWaypointRelativePos": 0.7700170357751278,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
@@ -63,7 +77,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -137.12109639666147
+    "rotation": 179.03459766221124
   },
   "reversed": false,
   "folder": null,

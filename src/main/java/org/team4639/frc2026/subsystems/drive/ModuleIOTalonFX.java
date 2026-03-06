@@ -33,7 +33,7 @@ import org.team4639.lib.util.PhoenixUtil;
  *
  * <p>Device configuration and other behaviors not exposed by TunerConstants can be customized here.
  */
-public class ModuleIOTalonFX implements ModuleIO {
+public class    ModuleIOTalonFX implements ModuleIO {
     private final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> constants;
 
     // Hardware objects

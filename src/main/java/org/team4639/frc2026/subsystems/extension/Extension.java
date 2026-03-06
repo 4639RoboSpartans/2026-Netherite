@@ -65,10 +65,10 @@ public class Extension extends FullSubsystem {
     public void setHomedPositions(double retractedRotorPosition, double extendedRotorPosition) {
         if (Double.isNaN(retractedRotorPosition)) {
             this.extendedRotorPosition = extendedRotorPosition;
-            this.retractedRotorPosition = extendedRotorPosition - Constants.MOTOR_TO_RACK_GEAR_RATIO;
+            this.retractedRotorPosition = extendedRotorPosition - org.team4639.frc2026.subsystems.extension.Constants.ROTOR_RANGE;
         } else {
             this.retractedRotorPosition = retractedRotorPosition;
-            this.extendedRotorPosition = retractedRotorPosition + Constants.MOTOR_TO_RACK_GEAR_RATIO;
+            this.extendedRotorPosition = retractedRotorPosition + org.team4639.frc2026.subsystems.extension.Constants.ROTOR_RANGE;
         }
     }
 
@@ -77,7 +77,7 @@ public class Extension extends FullSubsystem {
         io.updateInputs(inputs);
         Logger.processInputs("Extension", inputs);
 
-        state.updateIntakePosition(inputs.position / (extendedRotorPosition - retractedRotorPosition));
+        state.updateIntakePosition((inputs.position - retractedRotorPosition) / (extendedRotorPosition - retractedRotorPosition));
         state.setExtensionStates(new Pair<>(this.wantedState, this.systemState));
     }
 
@@ -160,7 +160,7 @@ public class Extension extends FullSubsystem {
                         } else if ((Timer.getFPGATimestamp() - zeroTimeStamp) >= ZERO_VELOCITY_TIME_PERIOD) {
                             io.stop();
                             zeroTimeStamp = Double.NaN;
-                            setHomedPositions(Double.NaN, inputs.position);
+                            setHomedPositions(inputs.position, Double.NaN);
                             return SystemState.IDLE;
                         } else {
                             return SystemState.RETRACTING;

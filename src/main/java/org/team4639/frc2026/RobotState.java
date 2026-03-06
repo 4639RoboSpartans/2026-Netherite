@@ -26,6 +26,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.Constants.Mode;
 import org.team4639.frc2026.constants.led.Patterns;
+import org.team4639.frc2026.constants.shooter.PassingLookupTable;
 import org.team4639.frc2026.constants.shooter.PassingTargets;
 import org.team4639.frc2026.constants.shooter.ScoringState;
 import org.team4639.frc2026.constants.shooter.ShooterScoringData;
@@ -51,6 +52,7 @@ import org.team4639.lib.util.VirtualSubsystem;
 import org.team4639.lib.util.geometry.AllianceFlipUtil;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -338,6 +340,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         SmartDashboard.putNumber("Scoring/CalculatedTurretAngleFieldRelative", getEstimatedPose().getRotation().getMeasure().plus(scoringState.turretAngle()).in(Degrees));
 
         SmartDashboard.putNumber("Turret to Goal", getTurretPose().getTranslation().getDistance(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
+        SmartDashboard.putNumber("Turret to Passing Line", getTurretPose().getX() - FieldConstants.LinesVertical.allianceZone/2);
 
         ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(getTurretPose(), FieldConstants.Hub.innerCenterPoint.toTranslation2d());
     }
@@ -445,18 +448,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     }
 
     private ScoringState _calculatePassingState() {
-        var turretRotation = Degrees.of(180);
-
-        Pose2d turretPose = getTurretPose();
-        var state = ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(turretPose, new Translation2d(
-                FieldConstants.LinesVertical.hubCenter-2,
-                turretPose.getY()
-        ));
-
-        var rpm = state.shooterRPM();
-        var hoodRotation = state.hoodAngle();
-
-        return new ScoringState(rpm, hoodRotation, turretRotation);
+        return PassingLookupTable.getPassingState(getTurretPose(), FieldConstants.LinesVertical.allianceZone/2.0);
     }
 
     public ScoringState calculatePassingState(Object caller){

@@ -104,6 +104,7 @@ public class RobotContainer {
                 );
 
                 intake = new Intake(
+                        /*new IntakeRollerIO() {}*/
                         new IntakeRollerIOTalonFX(portConfiguration),
                         RobotState.getInstance()
                 );
@@ -309,7 +310,7 @@ public class RobotContainer {
     private void configureButtonBindings() {
         // Default command, normal field-relative drive
         drive.setDefaultCommand(DriveCommands.joystickDriveWithX(
-                drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
+                drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> Math.pow(Math.abs(driver.getRightX()), 0.75) * (driver.getRightX() > 0? -1 : 1)));
 
         ledkicker.setDefaultCommand(LEDCommands.useDefaultSchema(ledkicker, RobotState.getInstance()));
 
@@ -325,7 +326,7 @@ public class RobotContainer {
 
         driver.rightBumper().or(driver.leftBumper()).whileTrue(intakeStructure.agitate());
 
-        SysIDUtils.bind(driver, SysIDUtils.ButtonConfiguration.POV_UP_RIGHT_DOWN_LEFT, drive::driveSysIdQuasistatic, drive::driveSysIdDynamic);
+        driver.povUp().whileTrue(DriveCommands.feedforwardCharacterization(drive));
     }
 
     private void configureSimButtonBindings() {

@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.8182647584973166,
-        "y": 7.239516994633274
+        "x": 3.2401252236135956,
+        "y": 7.417996422182468
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.20052801724138,
-        "y": 7.240775862068965
+        "x": 2.023220035778175,
+        "y": 7.434221824686941
       },
       "isLocked": false,
-      "linkedName": "LSH"
+      "linkedName": "LMDP"
     },
     {
       "anchor": {
-        "x": 0.7637931034482766,
-        "y": 7.387381465517242
+        "x": 0.74,
+        "y": 7.417996422182468
       },
       "prevControl": {
-        "x": 2.0832435344827593,
-        "y": 7.367834051724138
+        "x": 1.7623291227073485,
+        "y": 7.417996422182468
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "LOUTPOST"
     }
   ],
   "rotationTargets": [],
@@ -47,8 +47,8 @@
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 0,
-    "rotation": -137.12109639666147
+    "velocity": 0.5,
+    "rotation": 180.0
   },
   "useDefaultConstraints": false
 }

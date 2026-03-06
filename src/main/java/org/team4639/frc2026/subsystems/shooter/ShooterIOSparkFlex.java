@@ -53,7 +53,7 @@ public class ShooterIOSparkFlex implements ShooterIO {
 
         leaderConfig
                 .idleMode(SparkBaseConfig.IdleMode.kCoast)
-                .smartCurrentLimit(90, 90)
+                .smartCurrentLimit(50, 50)
                 .apply(new EncoderConfig().velocityConversionFactor(1 / 60.0));
         leaderConfig.closedLoop.feedForward.sva(0.074548, 0.10976, 0.044959);
         leaderConfig

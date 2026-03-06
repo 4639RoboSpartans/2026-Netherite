@@ -22,7 +22,7 @@ public class Shooter extends FullSubsystem {
     private final ShooterIOInputsAutoLogged inputs = new ShooterIOInputsAutoLogged();
 
     private double PASSING_RPM = 0;
-    private final double IDLE_VOLTAGE = -1;
+    private final double IDLE_VOLTAGE = 0;
     @AutoLogOutput(key = "Shooter Scoring RPM")
     private double SCORING_RPM = 0;
 

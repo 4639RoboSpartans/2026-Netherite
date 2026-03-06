@@ -63,7 +63,7 @@ public class ShooterScoringData {
                     new AbstractMap.SimpleImmutableEntry<>(2.75, 20.0 / 360.0),
                     new AbstractMap.SimpleImmutableEntry<>(2.97, 20.0 / 360.0),
                     new AbstractMap.SimpleImmutableEntry<>(3.33, 20.0 / 360.0),
-                    new AbstractMap.SimpleImmutableEntry<>(3.66, 20.0 / 360.0),
+                    new AbstractMap.SimpleImmutableEntry<>(3.66, 22.0 / 360.0),
                     new AbstractMap.SimpleImmutableEntry<>(4.0, 23.0 / 360.0),
                     new AbstractMap.SimpleImmutableEntry<>(4.25, 25.0 / 360.0),
                     new AbstractMap.SimpleImmutableEntry<>(4.43, 25.0 / 360.0),

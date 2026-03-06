@@ -46,12 +46,6 @@ public class Superstructure extends SubsystemBase{
             kicker.setWantedState(Kicker.WantedState.IDLE);
         };
 
-        Trigger closeToStopped = new Trigger(() -> {
-            var speeds = state.getChassisSpeeds();
-            return Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond) < 0.5 && speeds.omegaRadiansPerSecond < 0.5;
-        });
-
-        closeToStopped.onTrue(new RunCommand(() -> spinUpShooterWhileIdle = true).withTimeout(SPIN_UP_TIME_PERIOD).finallyDo(() -> spinUpShooterWhileIdle = false));
     }
 
     public Command idle() {

@@ -39,7 +39,7 @@ public class TurretIOTalonFX implements TurretIO {
         config.CurrentLimits.StatorCurrentLimit = 40;
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-        config.Slot0.kS = 0.3125;
+        config.Slot0.kS = 1;
         config.Slot0.kV = 6.0897;
         config.Slot0.kA = 0.54764;
         config.Slot0.kP = 10;
@@ -75,8 +75,8 @@ public class TurretIOTalonFX implements TurretIO {
         turretMotor.setControl(request.withPosition(rotation));
     }
 
-    public void setRotorRotationSetpoint(double rotation, double velocityrps) {
-        turretMotor.setControl(request.withPosition(rotation).withVelocity(velocityrps));
+    public void setRotorRotationSetpoint(double rotation, double velocityRPS) {
+        turretMotor.setControl(request.withPosition(rotation).withVelocity(velocityRPS));
     }
 
     public void updateGains() {

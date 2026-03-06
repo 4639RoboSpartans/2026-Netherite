@@ -6,6 +6,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.*;
 import org.json.simple.parser.ParseException;
 import org.team4639.frc2026.FieldConstants;
@@ -13,6 +14,7 @@ import org.team4639.frc2026.RobotState;
 import org.team4639.frc2026.subsystems.IntakeStructure;
 import org.team4639.frc2026.subsystems.Superstructure;
 import org.team4639.frc2026.subsystems.drive.Drive;
+import org.team4639.frc2026.subsystems.vision.Vision;
 
 import java.io.IOException;
 
@@ -26,37 +28,28 @@ public class AutoCommands3 {
                                         intakeStructure.stopIntake(),
                                         intakeStructure.retract()
                                 ).until(
-                                        () -> state.getEstimatedPose().getX() > FieldConstants.LinesVertical.neutralZoneNear + 1
+                                        () -> state.getEstimatedPose().getX() > FieldConstants.LinesVertical.neutralZoneNear + 0.75
                                 ),
                                 new ParallelCommandGroup(
                                         intakeStructure.intake(),
                                         intakeStructure.extend()
                                 )
                         ),
-                        superstructure.trackHub()
+                        superstructure.trackHub(),
+                        Vision.visionOff()
                 ),
                 new ParallelDeadlineGroup(
                         followPath(AutoPaths.CYCF_LSH, false, state),
-                        new SequentialCommandGroup(
-                                new ParallelCommandGroup(
-                                        intakeStructure.intake(),
-                                        intakeStructure.extend()
-                                ).until(
-                                        () -> state.getEstimatedPose().getX() < FieldConstants.LinesVertical.neutralZoneNear + 1
-                                ),
-                                new ParallelCommandGroup(
-                                        intakeStructure.retract(),
-                                        intakeStructure.stopIntake()
-                                )
-                        ),
+                        intakeStructure.intake(),
+                        intakeStructure.extend(),
                         superstructure.trackHub()
                 ),
                 new ParallelCommandGroup(
                         drive.run(drive::stopWithX),
                         intakeStructure.agitate(),
                         superstructure.requestScoring()
-                ).withTimeout(4),
-                new ParallelDeadlineGroup(
+                )//.withTimeout(4),
+                /*new ParallelDeadlineGroup(
                         followPath(AutoPaths.LSH_CYCM, false, state),
                         new SequentialCommandGroup(
                                 new ParallelCommandGroup(
@@ -70,7 +63,8 @@ public class AutoCommands3 {
                                         intakeStructure.extend()
                                 )
                         ),
-                        superstructure.trackHub()
+                        superstructure.trackHub(),
+                        Vision.visionOff()
                 ),
                 new ParallelDeadlineGroup(
                         followPath(AutoPaths.CYCM_LSH, false, state),
@@ -92,7 +86,7 @@ public class AutoCommands3 {
                         drive.run(drive::stopWithX),
                         intakeStructure.agitate(),
                         superstructure.requestScoring()
-                ).withTimeout(4)
+                ).withTimeout(4)*/
         );
     }
 
@@ -184,33 +178,33 @@ public class AutoCommands3 {
                                         intakeStructure.stopIntake(),
                                         intakeStructure.retract()
                                 ).until(
-                                        () -> state.getEstimatedPose().getX() > FieldConstants.LinesVertical.neutralZoneNear + 1
+                                        () -> state.getEstimatedPose().getX() > FieldConstants.LinesVertical.neutralZoneNear + 0.75
                                 ),
                                 new ParallelCommandGroup(
                                         intakeStructure.intake(),
                                         intakeStructure.extend()
                                 )
                         ),
-                        superstructure.trackHub()
+                        superstructure.trackHub(),
+                        Vision.visionOff()
                 ),
                 new ParallelDeadlineGroup(
-                        followPathMirrored(AutoPaths.CYCF_LSH, false, state),
-                        new SequentialCommandGroup(
-                                new ParallelCommandGroup(
-                                        intakeStructure.intake(),
-                                        intakeStructure.extend()
-                                ).until(
-                                        () -> state.getEstimatedPose().getX() < FieldConstants.LinesVertical.neutralZoneNear + 1
-                                ),
-                                new ParallelCommandGroup(
-                                        intakeStructure.retract(),
-                                        intakeStructure.stopIntake()
-                                )
-                        ),
+                       followPathMirrored(AutoPaths.CYCF_LMDP, false, state),
+                        intakeStructure.extend(),
+                        intakeStructure.intake(),
                         superstructure.trackHub()
-                ),
+                ).until(() -> state.getEstimatedPose().getX() < 3.240 + 0.1),
                 new ParallelCommandGroup(
-                        followPathMirrored(AutoPaths.LSH_LOUTPOST, false, state).andThen(drive.run(drive::stopWithX)),
+                        drive.run(
+                                () -> drive.runVelocity(
+                                        ChassisSpeeds.fromFieldRelativeSpeeds(
+                                                -0.4,
+                                                0,
+                                                0,
+                                                state.getEstimatedPose().getRotation())
+                                )
+                        ).until(() -> state.getEstimatedPose().getX() < 0.740)
+                                .andThen(drive.run(drive::stopWithX)),
                         intakeStructure.extend(),
                         intakeStructure.intake(),
                         superstructure.requestScoring()
@@ -261,6 +255,7 @@ public class AutoCommands3 {
         public static final String CYCF_LSH = "CYCF_LSH";
         public static final String LSH_CYCM = "LSH_CYCM";
         public static final String CYCM_LSH = "CYCM_LSH";
-        public static final String LSH_LOUTPOST = "LSH_LOUTPOST";
+        public static final String CYCF_LMDP = "CYCF_LMDP";
+        public static final String LMDP_LOUTPOST = "LMDP_LOUTPOST";
     }
 }
