@@ -152,7 +152,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     private int turretCameraTargets = 0;
 
     @Setter
-    private Superstructure.GenericSuperstructureState superstructureState = GenericSuperstructureState.IDLE;
+    private GenericSuperstructureState superstructureState = GenericSuperstructureState.IDLE;
 
     private final ValueCacher<Object, ScoringState> currentScoringStates = new ValueCacher<>(this::_calculateScoringState);
     private final ValueCacher<Object, ScoringState> nextScoringStates = new ValueCacher<>(() -> this._calculateNextScoringState(0.02));
@@ -504,6 +504,8 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
                         yield Patterns.PASSING_AND_INTAKE;
                     else
                         yield Patterns.PASSING;
+            case MANUAL:
+                yield Patterns.MANUAL;
         };
     }
 

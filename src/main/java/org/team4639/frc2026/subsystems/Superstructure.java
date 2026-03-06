@@ -2,18 +2,24 @@
 
 package org.team4639.frc2026.subsystems;
 
-import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import org.team4639.frc2026.Constants;
 import org.team4639.frc2026.FieldConstants;
 import org.team4639.frc2026.RobotState;
+import org.team4639.frc2026.constants.shooter.ShooterLookupTable;
+import org.team4639.frc2026.constants.shooter.ShooterScoringData;
 import org.team4639.frc2026.subsystems.hood.Hood;
 import org.team4639.frc2026.subsystems.kicker.Kicker;
 import org.team4639.frc2026.subsystems.shooter.Shooter;
 import org.team4639.frc2026.subsystems.spindexer.Spindexer;
 import org.team4639.frc2026.subsystems.turret.Turret;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import static edu.wpi.first.units.Units.*;
 
 public class Superstructure extends SubsystemBase{
 
@@ -29,6 +35,8 @@ public class Superstructure extends SubsystemBase{
 
     private boolean spinUpShooterWhileIdle = false;
     private double SPIN_UP_TIME_PERIOD = 0.5;
+
+    private boolean disableTurret = false;
 
     public Superstructure(Turret turret, Hood hood, Shooter shooter, Kicker kicker, Spindexer spindexer, RobotState state){
         this.turret = turret;
@@ -59,7 +67,11 @@ public class Superstructure extends SubsystemBase{
 
             kicker.setWantedState(Kicker.WantedState.IDLE);
             spindexer.setWantedState(Spindexer.WantedState.IDLE);
-            turret.setWantedState(Turret.WantedState.HUB_TRACK);
+            turret.setWantedState(
+                    disableTurret
+                            ? Turret.WantedState.IDLE
+                            : Turret.WantedState.HUB_TRACK
+            );
 
             hood.setWantedState(Hood.WantedState.IDLE);
 
@@ -109,7 +121,8 @@ public class Superstructure extends SubsystemBase{
         return this.run(() -> {
             hood.setWantedState(Hood.WantedState.SCORING);
             shooter.setWantedState(Shooter.WantedState.SCORING);
-            turret.setWantedState(Turret.WantedState.SCORING);
+            turret.setWantedState(
+                    Turret.WantedState.SCORING);
 
             spindexer.setWantedState(Spindexer.WantedState.IDLE);
             kicker.setWantedState(Kicker.WantedState.IDLE);
@@ -181,10 +194,61 @@ public class Superstructure extends SubsystemBase{
         });
     }
 
+    public Command autoSpinUpIndefinite() {
+        return this.run(() -> {
+            hood.setWantedState(Hood.WantedState.IDLE);
+            shooter.setWantedState(Shooter.WantedState.SCORING);
+            turret.setWantedState(
+                    Turret.WantedState.SCORING);
+
+            spindexer.setWantedState(Spindexer.WantedState.IDLE);
+            kicker.setWantedState(Kicker.WantedState.IDLE);
+
+            state.setSuperstructureState(GenericSuperstructureState.WAITING);
+        });
+    }
+
+    public Command manualFromCorner() {
+        var cornerSetpoint = ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(
+                new Pose2d(Units.inchesToMeters(17), Units.inchesToMeters(17), Rotation2d.kZero).plus(new Transform2d(
+                        Constants.SimConstants.originToTurretRotation.getX(), 0, Rotation2d.kZero
+                ).inverse()),
+                FieldConstants.Hub.topCenterPoint.toTranslation2d()
+        );
+        return this.runOnce(() -> disableTurret = true)
+                .andThen(this.run(() -> {
+                    shooter.setMANUAL_RPM(cornerSetpoint.shooterRPM().in(Rotations.per(Minute)));
+                    shooter.setWantedState(Shooter.WantedState.MANUAL);
+                    hood.setMANUAL_HOOD_ANGLE(cornerSetpoint.hoodAngle().in(Degrees));
+                    hood.setWantedState(Hood.WantedState.MANUAL);
+
+                    turret.setWantedState(Turret.WantedState.IDLE);
+
+                    spindexer.setWantedState(Spindexer.WantedState.IDLE);
+                    kicker.setWantedState(Kicker.WantedState.IDLE);
+                })).until(() -> shooter.atSetpoint() && shooter.getSetpointRPM() > 0)
+                .andThen(this.run(() -> {
+                    shooter.setMANUAL_RPM(cornerSetpoint.shooterRPM().in(Rotations.per(Minute)));
+                    shooter.setWantedState(Shooter.WantedState.MANUAL);
+                    hood.setMANUAL_HOOD_ANGLE(cornerSetpoint.hoodAngle().in(Degrees));
+                    hood.setWantedState(Hood.WantedState.MANUAL);
+
+                    turret.setWantedState(Turret.WantedState.IDLE);
+
+                    spindexer.setWantedState(Spindexer.WantedState.SPIN);
+                    kicker.setWantedState(Kicker.WantedState.KICK);
+                }));
+    }
+
+    public InstantCommand toggleTurretDisable() {
+        return new InstantCommand(() -> disableTurret = !disableTurret);
+    }
+
     public enum GenericSuperstructureState{
         IDLE,
         WAITING,
         SHOOT,
-        PASS
+        PASS,
+        MANUAL
     }
 }

@@ -7,6 +7,7 @@ import edu.wpi.first.math.Pair;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import lombok.Getter;
+import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
@@ -30,6 +31,9 @@ public class Hood extends FullSubsystem {
 
     private final double HOOD_TOLERANCE_DEGREES = 5;
 
+    @Setter
+    private double MANUAL_HOOD_ANGLE = 20;
+
     private final LoggedTunableNumber desiredHoodAngle = new LoggedTunableNumber("Desired Hood Angle").initDefault(20);
 
     @Getter
@@ -38,7 +42,8 @@ public class Hood extends FullSubsystem {
     public enum WantedState {
         IDLE,
         SCORING,
-        PASSING
+        PASSING,
+        MANUAL
     }
 
     public enum SystemState {
@@ -46,7 +51,8 @@ public class Hood extends FullSubsystem {
         HOME_UP,
         IDLE,
         SCORING,
-        PASSING
+        PASSING,
+        MANUAL
     }
 
     private WantedState wantedState = WantedState.IDLE;
@@ -127,6 +133,7 @@ public class Hood extends FullSubsystem {
             }
             case SCORING -> SystemState.SCORING;
             case PASSING -> SystemState.PASSING;
+            case MANUAL -> SystemState.MANUAL;
         };
     }
 
@@ -137,6 +144,8 @@ public class Hood extends FullSubsystem {
     private void handleHomeUp() {
         io.setVoltage(-HOME_VOLTAGE);
     }
+
+    private void handleManual() { io.setPosition(MANUAL_HOOD_ANGLE);}
 
     private void handleIdle() {
         getSetpointAngle();
@@ -184,6 +193,7 @@ public class Hood extends FullSubsystem {
         return switch (systemState) {
             case SCORING -> SCORING_HOOD_ANGLE = state.calculateScoringState(this).hoodAngle().in(Degrees);
             case PASSING -> PASSING_HOOD_ANGLE = state.calculatePassingState(this).hoodAngle().in(Degrees);
+            case MANUAL -> MANUAL_HOOD_ANGLE;
             default -> Constants.HOOD_MIN_ANGLE_DEGREES;
         };
     }
@@ -218,6 +228,9 @@ public class Hood extends FullSubsystem {
                 break;
             case PASSING:
                 handlePassing();
+                break;
+            case MANUAL:
+                handleManual();
                 break;
         }
     }

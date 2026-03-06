@@ -99,73 +99,27 @@ public class AutoCommands3 {
                                         intakeStructure.stopIntake(),
                                         intakeStructure.retract()
                                 ).until(
-                                        () -> state.getEstimatedPose().getX() > FieldConstants.LinesVertical.neutralZoneNear + 1
+                                        () -> state.getEstimatedPose().getX() > FieldConstants.LinesVertical.neutralZoneNear + 0.75
                                 ),
                                 new ParallelCommandGroup(
                                         intakeStructure.intake(),
                                         intakeStructure.extend()
                                 )
                         ),
-                        superstructure.trackHub()
+                        superstructure.trackHub(),
+                        Vision.visionOff()
                 ),
                 new ParallelDeadlineGroup(
                         followPathMirrored(AutoPaths.CYCF_LSH, false, state),
-                        new SequentialCommandGroup(
-                                new ParallelCommandGroup(
-                                        intakeStructure.intake(),
-                                        intakeStructure.extend()
-                                ).until(
-                                        () -> state.getEstimatedPose().getX() < FieldConstants.LinesVertical.neutralZoneNear + 1
-                                ),
-                                new ParallelCommandGroup(
-                                        intakeStructure.retract(),
-                                        intakeStructure.stopIntake()
-                                )
-                        ),
+                        intakeStructure.intake(),
+                        intakeStructure.extend(),
                         superstructure.trackHub()
                 ),
                 new ParallelCommandGroup(
                         drive.run(drive::stopWithX),
                         intakeStructure.agitate(),
                         superstructure.requestScoring()
-                ).withTimeout(4),
-                new ParallelDeadlineGroup(
-                        followPathMirrored(AutoPaths.LSH_CYCM, false, state),
-                        new SequentialCommandGroup(
-                                new ParallelCommandGroup(
-                                        intakeStructure.stopIntake(),
-                                        intakeStructure.retract()
-                                ).until(
-                                        () -> state.getEstimatedPose().getX() > FieldConstants.LinesVertical.neutralZoneNear + 1
-                                ),
-                                new ParallelCommandGroup(
-                                        intakeStructure.intake(),
-                                        intakeStructure.extend()
-                                )
-                        ),
-                        superstructure.trackHub()
-                ),
-                new ParallelDeadlineGroup(
-                        followPathMirrored(AutoPaths.CYCM_LSH, false, state),
-                        new SequentialCommandGroup(
-                                new ParallelCommandGroup(
-                                        intakeStructure.intake(),
-                                        intakeStructure.extend()
-                                ).until(
-                                        () -> state.getEstimatedPose().getX() < FieldConstants.LinesVertical.neutralZoneNear + 1
-                                ),
-                                new ParallelCommandGroup(
-                                        intakeStructure.retract(),
-                                        intakeStructure.stopIntake()
-                                )
-                        ),
-                        superstructure.trackHub()
-                ),
-                new ParallelCommandGroup(
-                        drive.run(drive::stopWithX),
-                        intakeStructure.agitate(),
-                        superstructure.requestScoring()
-                ).withTimeout(4)
+                )
         );
     }
 
@@ -193,7 +147,7 @@ public class AutoCommands3 {
                         intakeStructure.extend(),
                         intakeStructure.intake(),
                         superstructure.trackHub()
-                ).until(() -> state.getEstimatedPose().getX() < 3.240 + 0.1),
+                ).until(() -> state.getEstimatedPose().getX() < 3.568 + 0.1),
                 new ParallelCommandGroup(
                         drive.run(
                                 () -> drive.runVelocity(
@@ -203,7 +157,7 @@ public class AutoCommands3 {
                                                 0,
                                                 state.getEstimatedPose().getRotation())
                                 )
-                        ).until(() -> state.getEstimatedPose().getX() < 0.740)
+                        ).until(() -> state.getEstimatedPose().getX() < 0.770)
                                 .andThen(drive.run(drive::stopWithX)),
                         intakeStructure.extend(),
                         intakeStructure.intake(),

@@ -7,6 +7,7 @@ import edu.wpi.first.math.Pair;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import lombok.Getter;
+import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.Constants;
@@ -26,6 +27,9 @@ public class Shooter extends FullSubsystem {
     @AutoLogOutput(key = "Shooter Scoring RPM")
     private double SCORING_RPM = 0;
 
+    @Setter
+    private double MANUAL_RPM = 0;
+
     private final double SHOOTING_RPM_TOLERANCE = 50;
 
     private final LoggedTunableNumber desiredRPM = new LoggedTunableNumber("Desired RPM").initDefault(0);
@@ -37,14 +41,16 @@ public class Shooter extends FullSubsystem {
         OFF,
         IDLE,
         SCORING,
-        PASSING
+        PASSING,
+        MANUAL
     }
 
     public enum SystemState {
         OFF,
         IDLE,
         SCORING,
-        PASSING
+        PASSING,
+        MANUAL
     }
 
     private WantedState wantedState = WantedState.OFF;
@@ -90,6 +96,7 @@ public class Shooter extends FullSubsystem {
             case SCORING -> SystemState.SCORING;
             case PASSING -> SystemState.PASSING;
             case IDLE -> SystemState.IDLE;
+            case MANUAL ->  SystemState.MANUAL;
             default -> SystemState.OFF;
         };
     }
@@ -109,6 +116,10 @@ public class Shooter extends FullSubsystem {
     private void handleIdle() {
         io.setVoltage(IDLE_VOLTAGE);
         //io.setRPM(400);
+    }
+
+    private void handleManual() {
+        io.setRPM(MANUAL_RPM);
     }
 
     public void setWantedState(WantedState wantedState) {
@@ -138,6 +149,7 @@ public class Shooter extends FullSubsystem {
         return switch (systemState) {
             case SCORING -> SCORING_RPM = state.calculateScoringState(this).shooterRPM().in(Rotations.per(Minute));
             case PASSING -> PASSING_RPM = state.calculateScoringState(this).shooterRPM().in(Rotations.per(Minute));
+            case MANUAL -> MANUAL_RPM;
             default -> 0;
         };
     }
@@ -170,6 +182,8 @@ public class Shooter extends FullSubsystem {
             case PASSING:
                 handlePassing();
                 break;
+            case MANUAL:
+                handleManual();
         }
     }
 }
