@@ -574,7 +574,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         var y = getTurretPose().getY();
         return FieldConstants.LinesHorizontal.center - FieldConstants.Hub.width / 2.0
                 < y && y <
-                FieldConstants.LinesVertical.center + FieldConstants.Hub.width / 2.0;
+                FieldConstants.LinesHorizontal.center + FieldConstants.Hub.width / 2.0;
     }
 
     public void acceptCANMeasurement(boolean isConnected){
