@@ -7,11 +7,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.*;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import org.team4639.frc2026.Constants;
 import org.team4639.frc2026.FieldConstants;
 import org.team4639.frc2026.RobotState;
-import org.team4639.frc2026.constants.shooter.ShooterLookupTable;
 import org.team4639.frc2026.constants.shooter.ShooterScoringData;
 import org.team4639.frc2026.subsystems.hood.Hood;
 import org.team4639.frc2026.subsystems.kicker.Kicker;
@@ -75,7 +73,7 @@ public class Superstructure extends SubsystemBase{
 
             hood.setWantedState(Hood.WantedState.IDLE);
 
-            state.setSuperstructureState(GenericSuperstructureState.IDLE);
+            state.setSuperstructureState(disableTurret ? GenericSuperstructureState.MANUAL : GenericSuperstructureState.IDLE);
         }).finallyDo(resetSuperstructure);
     }
 
@@ -208,8 +206,8 @@ public class Superstructure extends SubsystemBase{
         });
     }
 
-    public Command manualFromCorner() {
-        var cornerSetpoint = ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(
+    public Command manual4() {
+        var setpoint = ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(
                 new Pose2d(Units.inchesToMeters(17), Units.inchesToMeters(17), Rotation2d.kZero).plus(new Transform2d(
                         Constants.SimConstants.originToTurretRotation.getX(), 0, Rotation2d.kZero
                 ).inverse()),
@@ -217,9 +215,9 @@ public class Superstructure extends SubsystemBase{
         );
         return this.runOnce(() -> disableTurret = true)
                 .andThen(this.run(() -> {
-                    shooter.setMANUAL_RPM(cornerSetpoint.shooterRPM().in(Rotations.per(Minute)));
+                    shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Rotations.per(Minute)));
                     shooter.setWantedState(Shooter.WantedState.MANUAL);
-                    hood.setMANUAL_HOOD_ANGLE(cornerSetpoint.hoodAngle().in(Degrees));
+                    hood.setMANUAL_HOOD_ANGLE(setpoint.hoodAngle().in(Degrees));
                     hood.setWantedState(Hood.WantedState.MANUAL);
 
                     turret.setWantedState(Turret.WantedState.IDLE);
@@ -228,9 +226,99 @@ public class Superstructure extends SubsystemBase{
                     kicker.setWantedState(Kicker.WantedState.IDLE);
                 })).until(() -> shooter.atSetpoint() && shooter.getSetpointRPM() > 0)
                 .andThen(this.run(() -> {
-                    shooter.setMANUAL_RPM(cornerSetpoint.shooterRPM().in(Rotations.per(Minute)));
+                    shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Rotations.per(Minute)));
                     shooter.setWantedState(Shooter.WantedState.MANUAL);
-                    hood.setMANUAL_HOOD_ANGLE(cornerSetpoint.hoodAngle().in(Degrees));
+                    hood.setMANUAL_HOOD_ANGLE(setpoint.hoodAngle().in(Degrees));
+                    hood.setWantedState(Hood.WantedState.MANUAL);
+
+                    turret.setWantedState(Turret.WantedState.IDLE);
+
+                    spindexer.setWantedState(Spindexer.WantedState.SPIN);
+                    kicker.setWantedState(Kicker.WantedState.KICK);
+                }));
+    }
+
+    public Command manual3() {
+        var setpoint = ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(
+               new Pose2d(FieldConstants.Hub.topCenterPoint.toTranslation2d(), Rotation2d.kZero).plus(new Transform2d(1.97 + (4.9 - 1.97) * 3.0 / 4.0, 0, Rotation2d.kZero).inverse()),
+                FieldConstants.Hub.topCenterPoint.toTranslation2d()
+        );
+        return this.runOnce(() -> disableTurret = true)
+                .andThen(this.run(() -> {
+                    shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Rotations.per(Minute)));
+                    shooter.setWantedState(Shooter.WantedState.MANUAL);
+                    hood.setMANUAL_HOOD_ANGLE(setpoint.hoodAngle().in(Degrees));
+                    hood.setWantedState(Hood.WantedState.MANUAL);
+
+                    turret.setWantedState(Turret.WantedState.IDLE);
+
+                    spindexer.setWantedState(Spindexer.WantedState.IDLE);
+                    kicker.setWantedState(Kicker.WantedState.IDLE);
+                })).until(() -> shooter.atSetpoint() && shooter.getSetpointRPM() > 0)
+                .andThen(this.run(() -> {
+                    shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Rotations.per(Minute)));
+                    shooter.setWantedState(Shooter.WantedState.MANUAL);
+                    hood.setMANUAL_HOOD_ANGLE(setpoint.hoodAngle().in(Degrees));
+                    hood.setWantedState(Hood.WantedState.MANUAL);
+
+                    turret.setWantedState(Turret.WantedState.IDLE);
+
+                    spindexer.setWantedState(Spindexer.WantedState.SPIN);
+                    kicker.setWantedState(Kicker.WantedState.KICK);
+                }));
+    }
+
+    public Command manual2() {
+        var setpoint = ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(
+                new Pose2d(FieldConstants.Hub.topCenterPoint.toTranslation2d(), Rotation2d.kZero).plus(new Transform2d(1.97 + (4.9 - 1.97) * 2.0 / 4.0, 0, Rotation2d.kZero).inverse()),
+                FieldConstants.Hub.topCenterPoint.toTranslation2d()
+        );
+        return this.runOnce(() -> disableTurret = true)
+                .andThen(this.run(() -> {
+                    shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Rotations.per(Minute)));
+                    shooter.setWantedState(Shooter.WantedState.MANUAL);
+                    hood.setMANUAL_HOOD_ANGLE(setpoint.hoodAngle().in(Degrees));
+                    hood.setWantedState(Hood.WantedState.MANUAL);
+
+                    turret.setWantedState(Turret.WantedState.IDLE);
+
+                    spindexer.setWantedState(Spindexer.WantedState.IDLE);
+                    kicker.setWantedState(Kicker.WantedState.IDLE);
+                })).until(() -> shooter.atSetpoint() && shooter.getSetpointRPM() > 0)
+                .andThen(this.run(() -> {
+                    shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Rotations.per(Minute)));
+                    shooter.setWantedState(Shooter.WantedState.MANUAL);
+                    hood.setMANUAL_HOOD_ANGLE(setpoint.hoodAngle().in(Degrees));
+                    hood.setWantedState(Hood.WantedState.MANUAL);
+
+                    turret.setWantedState(Turret.WantedState.IDLE);
+
+                    spindexer.setWantedState(Spindexer.WantedState.SPIN);
+                    kicker.setWantedState(Kicker.WantedState.KICK);
+                }));
+    }
+
+    public Command manual1() {
+        var setpoint = ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(
+                new Pose2d(FieldConstants.Hub.topCenterPoint.toTranslation2d(), Rotation2d.kZero).plus(new Transform2d(1.97 + (4.9 - 1.97) * 1.0 / 4.0, 0, Rotation2d.kZero).inverse()),
+                FieldConstants.Hub.topCenterPoint.toTranslation2d()
+        );
+        return this.runOnce(() -> disableTurret = true)
+                .andThen(this.run(() -> {
+                    shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Rotations.per(Minute)));
+                    shooter.setWantedState(Shooter.WantedState.MANUAL);
+                    hood.setMANUAL_HOOD_ANGLE(setpoint.hoodAngle().in(Degrees));
+                    hood.setWantedState(Hood.WantedState.MANUAL);
+
+                    turret.setWantedState(Turret.WantedState.IDLE);
+
+                    spindexer.setWantedState(Spindexer.WantedState.IDLE);
+                    kicker.setWantedState(Kicker.WantedState.IDLE);
+                })).until(() -> shooter.atSetpoint() && shooter.getSetpointRPM() > 0)
+                .andThen(this.run(() -> {
+                    shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Rotations.per(Minute)));
+                    shooter.setWantedState(Shooter.WantedState.MANUAL);
+                    hood.setMANUAL_HOOD_ANGLE(setpoint.hoodAngle().in(Degrees));
                     hood.setWantedState(Hood.WantedState.MANUAL);
 
                     turret.setWantedState(Turret.WantedState.IDLE);

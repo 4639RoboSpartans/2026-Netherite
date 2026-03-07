@@ -74,8 +74,7 @@ public class Turret extends FullSubsystem {
         turretIO.updateInputs(turretInputs);
         leftEncoderIO.updateInputs(leftEncoderInputs);
         rightEncoderIO.updateInputs(rightEncoderInputs);
-        initialTurretRotation = getTurretRotation(leftEncoderInputs.positionRotations, rightEncoderInputs.positionRotations);
-        initialRotorRotation = turretInputs.motorPositionRotations;
+        rezeroTurret();
 
         setDefaultCommand(this.run(this::runStateMachine));
         Logger.recordOutput("Turret/SystemState", systemState);
@@ -127,8 +126,7 @@ public class Turret extends FullSubsystem {
                 var isCRTStable = CRTMeasurements.stream().anyMatch(measurement -> !MathUtil.isNear(measurement, averageCRT, 1E-2));
 
                 if (isCRTStable && Constants.TURRET_MIN_ROTATIONS <= averageCRT && averageCRT <= Constants.TURRET_MAX_ROTATIONS) {
-                    initialTurretRotation = getTurretRotation(leftEncoderInputs.positionRotations, rightEncoderInputs.positionRotations);
-                    initialRotorRotation = turretInputs.motorPositionRotations;
+                    rezeroTurret();
 
                     CRTMeasurements.clear();
                 }
@@ -351,5 +349,10 @@ public class Turret extends FullSubsystem {
     @AutoLogOutput(key = "Scoring Turret Rotation")
     private double getScoringTurretRotation(){
         return SCORING_TURRET_ROTATION.rotation;
+    }
+
+    public void rezeroTurret() {
+        initialTurretRotation = getTurretRotation(leftEncoderInputs.positionRotations, rightEncoderInputs.positionRotations);
+        initialRotorRotation = turretInputs.motorPositionRotations;
     }
 }

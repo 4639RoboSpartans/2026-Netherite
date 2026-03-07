@@ -165,6 +165,9 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     private final Queue<Boolean> canIsConnected = new LinkedList<>();
     private final Queue<Boolean> temperaturesAreFine = new LinkedList<>();
 
+    @Setter @Getter
+    private double RPMFudge = 1;
+
     /**
      * Returns the pose relative to the blue alliance wall.
      * Should be used sparingly, for all internal calculations,
@@ -578,5 +581,13 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
 
     public void acceptTemperatureMeasurement(double tempCelsius){
         this.temperaturesAreFine.add(tempCelsius < 100);
+    }
+
+    public void fudgeUp() {
+        this.RPMFudge *= 1.01;
+    }
+
+    public void fudgeDown() {
+        this.RPMFudge /= 1.01;
     }
 }

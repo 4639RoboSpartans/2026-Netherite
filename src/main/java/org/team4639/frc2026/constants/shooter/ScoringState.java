@@ -19,4 +19,14 @@ public record ScoringState(AngularVelocity shooterRPM, Angle hoodAngle, Angle tu
     public String toString() {
         return "RPM: " + shooterRPM.in(Rotations.per(Minute)) + " Hood Angle: " + hoodAngle.in(Rotations) + " turretAngle: "  + turretAngle.in(Rotations);
     }
+
+    public ScoringState replace(AngularVelocity shooterRPM, Angle hoodAngle, Angle turretAngle) {
+        var newShooterRPM = this.shooterRPM;
+        var newHoodAngle = this.hoodAngle;
+        var newTurretAngle = this.turretAngle;
+
+        if (shooterRPM != null) {
+            newShooterRPM = shooterRPM;
+        }
+    }
 }
