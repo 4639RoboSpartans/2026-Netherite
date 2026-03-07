@@ -13,7 +13,7 @@ import static edu.wpi.first.units.Units.*;
 public class PassingLookupTable {
     private static final InterpolatingDoubleTreeMap passingDistanceToShooterRPM = InterpolatingDoubleTreeMap.ofEntries(
             new AbstractMap.SimpleImmutableEntry<>(FieldConstants.LinesVertical.allianceZone/2, 1000.0),
-            new AbstractMap.SimpleImmutableEntry<>(FieldConstants.LinesVertical.oppAllianceZone, 6000.0)
+            new AbstractMap.SimpleImmutableEntry<>(FieldConstants.LinesVertical.oppAllianceZone, 7000.0)
     );
 
     private static final InterpolatingDoubleTreeMap passingDistanceToHoodRotations = InterpolatingDoubleTreeMap.ofEntries(

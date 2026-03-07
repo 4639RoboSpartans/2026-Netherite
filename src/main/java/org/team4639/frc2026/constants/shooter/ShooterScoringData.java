@@ -71,11 +71,13 @@ public class ShooterScoringData {
                     new AbstractMap.SimpleImmutableEntry<>(4.90, 30.0 / 360.0)
             ),
                     scoringDistanceToTOF = InterpolatingDoubleTreeMap.ofEntries(
+                            new AbstractMap.SimpleImmutableEntry<>(2.47, 0.9527272727),
                             new AbstractMap.SimpleImmutableEntry<>(2.47, 0.9927272727),
                             new AbstractMap.SimpleImmutableEntry<>(2.7, 1.016),
                             new AbstractMap.SimpleImmutableEntry<>(2.97, 1.089411765),
                             new AbstractMap.SimpleImmutableEntry<>(3.3, 1.1336666667),
                             new AbstractMap.SimpleImmutableEntry<>(3.66, 1.271052632),
+                            new AbstractMap.SimpleImmutableEntry<>(4.0, 1.351052632),
                             new AbstractMap.SimpleImmutableEntry<>(4.25, 1.169),
                             new AbstractMap.SimpleImmutableEntry<>(4.45, 1.171428571),
                             new AbstractMap.SimpleImmutableEntry<>(4.7, 1.2146666667),

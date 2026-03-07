@@ -322,17 +322,17 @@ public class RobotContainer {
 
         driver.a().onTrue(intakeStructure.intake()
                 .alongWith(Commands.run(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 1))
-                        .withTimeout(0.1).finallyDo(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 0))
+                        .withTimeout(0.25).finallyDo(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 0))
                 ));
         driver.b().onTrue(intakeStructure.stopIntake().alongWith(Commands.run(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 1))
-                .withTimeout(0.1).finallyDo(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 0))
+                .withTimeout(0.25).finallyDo(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 0))
         ));
 
         driver.x().onTrue(intakeStructure.extend().alongWith(Commands.run(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 1))
-                .withTimeout(0.1).finallyDo(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 0))
+                .withTimeout(0.25).finallyDo(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 0))
         ));
         driver.y().onTrue(intakeStructure.retract().alongWith(Commands.run(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 1))
-                .withTimeout(0.1).finallyDo(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 0))
+                .withTimeout(0.25).finallyDo(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 0))
         ));
 
         driver.rightBumper().or(driver.leftBumper()).whileTrue(intakeStructure.agitate());
@@ -347,6 +347,10 @@ public class RobotContainer {
 
         operator.povUp().onTrue(Commands.runOnce(RobotState.getInstance()::fudgeUp));
         operator.povDown().onTrue(Commands.runOnce(RobotState.getInstance()::fudgeDown));
+
+        operator.povLeft().onTrue(Commands.runOnce(RobotState.getInstance()::toggleIntakeProtection));
+
+        operator.a().and(operator.b()).onTrue(Commands.runOnce(RobotState.getInstance()::resetGyro));
     }
 
     private void configureSimButtonBindings() {

@@ -10,5 +10,6 @@ public interface EncoderIO {
     @AutoLog
     class EncoderIOInputs {
         public double positionRotations = 0.0;
+        public double positionWithoutOffset = 0.0;
     }
 }

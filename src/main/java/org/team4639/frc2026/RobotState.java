@@ -22,6 +22,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
+import lombok.experimental.ExtensionMethod;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.Constants.Mode;
@@ -48,6 +50,7 @@ import org.team4639.frc2026.util.ValueCacher;
 import org.team4639.lib.led.pattern.LEDPattern;
 import org.team4639.lib.util.VirtualSubsystem;
 import org.team4639.lib.util.geometry.AllianceFlipUtil;
+import org.team4639.lib.util.geometry.GeomUtil;
 
 import java.util.*;
 
@@ -61,6 +64,7 @@ import static edu.wpi.first.units.Units.*;
  * however there are methods available to access the true on-field pose
  * mainly for interplay with vision, but they should be used sparingly.
  */
+@ExtensionMethod(GeomUtil.class)
 public class RobotState extends VirtualSubsystem implements VisionConsumer, TurretCamera.TurretVisionConsumer {
     // Singleton
     private static RobotState instance = new RobotState();
@@ -99,6 +103,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
      * Pose <b>relative to our alliance wall</b>
      */
     private Pose2d estimatedPose = Pose2d.kZero;
+    private ChassisSpeeds lastChassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
     @Getter
     private ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
@@ -165,8 +170,13 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     private final Queue<Boolean> canIsConnected = new LinkedList<>();
     private final Queue<Boolean> temperaturesAreFine = new LinkedList<>();
 
-    @Setter @Getter
+    @Getter
     private double RPMFudge = 1;
+
+    @Accessors(fluent = true)
+    @Getter
+    private boolean useIntakeProtection = true;
+
 
     /**
      * Returns the pose relative to the blue alliance wall.
@@ -286,7 +296,15 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     }
 
     public void updateChassisSpeeds(ChassisSpeeds chassisSpeeds) {
+        lastChassisSpeeds = this.chassisSpeeds;
         this.chassisSpeeds = chassisSpeeds;
+    }
+
+    public double getAccelerationMPSSquared(){
+        var x = (chassisSpeeds.vxMetersPerSecond - lastChassisSpeeds.vyMetersPerSecond)/0.02;
+        var y = (chassisSpeeds.vyMetersPerSecond - lastChassisSpeeds.vyMetersPerSecond)/0.02;
+
+        return Math.hypot(x, y);
     }
 
     public void updateShooterState(AngularVelocity shooterRPM, Angle hoodAngle, Angle turretAngle) {
@@ -508,22 +526,22 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     public LEDPattern getDesiredLEDPattern() {
         return switch(superstructureState){
             case IDLE:
-                if (intakeStates.getFirst() == Intake.WantedState.INTAKE)
+                if (intakeStates.getSecond() == Intake.SystemState.INTAKE)
                     yield Patterns.DEFAULT_INTAKE;
                 else
                     yield Patterns.DEFAULT;
             case WAITING:
-                if (intakeStates.getFirst() == Intake.WantedState.INTAKE)
+                if (intakeStates.getSecond() == Intake.SystemState.INTAKE)
                     yield Patterns.SHOOTER_REQUESTED_AND_INTAKE;
                 else
                     yield Patterns.SHOOTER_REQUESTED;
             case SHOOT:
-                    if (intakeStates.getFirst() == Intake.WantedState.INTAKE)
+                    if (intakeStates.getSecond() == Intake.SystemState.INTAKE)
                         yield Patterns.SHOOTING_AND_INTAKE;
                     else
                         yield Patterns.SHOOTING;
             case PASS:
-                    if (intakeStates.getFirst() == Intake.WantedState.INTAKE)
+                    if (intakeStates.getSecond() == Intake.SystemState.INTAKE)
                         yield Patterns.PASSING_AND_INTAKE;
                     else
                         yield Patterns.PASSING;
@@ -544,23 +562,9 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         );
 
         var nearestHub = getTurretPose().getTranslation().nearest(Set.of(ourHub, opponentHub));
-        var farthestHub = nearestHub.equals(ourHub) ? opponentHub : ourHub;
 
-        Rotation2d nearestHubFieldRelative = nearestHub.minus(getTurretPose().getTranslation()).getAngle();
-        var maybeTurretRotationNearestHub = MathUtil.inputModulus(nearestHubFieldRelative.minus(getTurretPose().getRotation()).getRotations(), 0, 1);
 
-        if (org.team4639.frc2026.subsystems.turret.Constants.TURRET_MIN_ROTATIONS < maybeTurretRotationNearestHub && maybeTurretRotationNearestHub < org.team4639.frc2026.subsystems.turret.Constants.TURRET_MAX_ROTATIONS) {
-            return nearestHubFieldRelative;
-        }
-
-        Rotation2d farthestHubFieldRelative = farthestHub.minus(getTurretPose().getTranslation()).getAngle();
-        var maybeTurretRotationFarthestHub = MathUtil.inputModulus(farthestHubFieldRelative.minus(getTurretPose().getRotation()).getRotations(), 0, 1);
-
-        if (org.team4639.frc2026.subsystems.turret.Constants.TURRET_MIN_ROTATIONS < maybeTurretRotationFarthestHub && maybeTurretRotationFarthestHub < org.team4639.frc2026.subsystems.turret.Constants.TURRET_MAX_ROTATIONS) {
-            return farthestHubFieldRelative;
-        }
-
-        return nearestHubFieldRelative;
+        return nearestHub.minus(getTurretPose().getTranslation()).getAngle();
     }
 
     @Setter @Getter
@@ -591,5 +595,13 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
 
     public void fudgeDown() {
         this.RPMFudge /= 1.01;
+    }
+
+    public void toggleIntakeProtection(){
+        this.useIntakeProtection = !this.useIntakeProtection;
+    }
+
+    public void resetGyro() {
+        resetPose(getEstimatedPose().withRotation(new Rotation2d()));
     }
 }

@@ -7,6 +7,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -79,6 +80,8 @@ public class Turret extends FullSubsystem {
         setDefaultCommand(this.run(this::runStateMachine));
         Logger.recordOutput("Turret/SystemState", systemState);
         PhoenixOdometryThread.getInstance().start();
+
+        SmartDashboard.putBoolean("Rezero Encoders", false);
     }
 
     @Override
@@ -114,9 +117,19 @@ public class Turret extends FullSubsystem {
             );
         }
 
-        var speeds = state.getChassisSpeeds();
-        if (MathUtil.isNear(Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond), 0, 1E-3)
-                && MathUtil.isNear(speeds.omegaRadiansPerSecond, 0, 1E-3)
+        if (SmartDashboard.getBoolean("Rezero Encoders", false)) {
+            if (leftEncoderIO instanceof EncoderIOCANCoder) {
+                ((EncoderIOCANCoder) leftEncoderIO).setOffsetRotations(leftEncoderInputs.positionWithoutOffset);
+            }
+
+            if (rightEncoderIO instanceof EncoderIOCANCoder) {
+                ((EncoderIOCANCoder) rightEncoderIO).setOffsetRotations(rightEncoderInputs.positionWithoutOffset);
+            }
+        }
+
+        /*var speeds = state.getChassisSpeeds();
+        if (MathUtil.isNear(Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond), 0, 5E-2)
+                && MathUtil.isNear(speeds.omegaRadiansPerSecond, 0, 5E-2)
                 && MathUtil.isNear(turretInputs.motorVelocity, 0, 1E-3)) {
             CRTMeasurements.add(CRT());
             if (turretRezeroDebouncer.calculate(true)) {
@@ -134,7 +147,7 @@ public class Turret extends FullSubsystem {
         } else {
             turretRezeroDebouncer.calculate(false);
             CRTMeasurements.clear();
-        }
+        }*/
     }
 
 

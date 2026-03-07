@@ -5,11 +5,13 @@ package org.team4639.frc2026.subsystems.turret;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import lombok.Setter;
 import org.team4639.frc2026.util.CanDeviceId;
 
 public class EncoderIOCANCoder implements EncoderIO {
     private final CANcoder encoder;
-    private final double offsetRotations;
+    @Setter
+    private double offsetRotations;
 
     public EncoderIOCANCoder(CanDeviceId canDeviceId, double offsetRotations, boolean inverted) {
         encoder = new CANcoder(canDeviceId.getDeviceNumber(), canDeviceId.getBus());
@@ -25,5 +27,6 @@ public class EncoderIOCANCoder implements EncoderIO {
     @Override
     public void updateInputs(EncoderIOInputs inputs) {
         inputs.positionRotations = encoder.getAbsolutePosition().getValueAsDouble() + offsetRotations;
+        inputs.positionWithoutOffset = encoder.getAbsolutePosition().getValueAsDouble();
     }
 }
