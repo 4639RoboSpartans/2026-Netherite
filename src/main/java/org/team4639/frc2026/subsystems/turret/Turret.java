@@ -103,9 +103,6 @@ public class Turret extends FullSubsystem {
         for (int i = 0; i < timestamps.length; i ++){
             state.acceptTurretMeasurement(turretRotations[i], timestamps[i]);
         }
-
-        state.acceptCANMeasurement(turretInputs.turretMotorConnected);
-        state.acceptTemperatureMeasurement(turretInputs.motorTemperature);
     }
 
     @Override
@@ -144,6 +141,7 @@ public class Turret extends FullSubsystem {
         }
     }
 
+
     private void runStateMachine() {
         SystemState newState = handleStateTransitions();
         if (newState != systemState) {
@@ -175,6 +173,9 @@ public class Turret extends FullSubsystem {
     public void periodicAfterScheduler() {
         RobotState.getInstance().setTurretStates(new Pair<>(wantedState, systemState));
         RobotState.getInstance().accept(turretInputs);
+
+        state.acceptCANMeasurement(turretInputs.turretMotorConnected);
+        state.acceptTemperatureMeasurement(turretInputs.motorTemperature);
     }
 
     private SystemState handleStateTransitions() {

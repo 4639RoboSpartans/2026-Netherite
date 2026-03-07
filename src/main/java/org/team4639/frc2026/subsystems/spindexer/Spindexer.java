@@ -54,14 +54,18 @@ public class Spindexer extends FullSubsystem {
     public void periodicBeforeScheduler() {
         io.updateInputs(inputs);
         Logger.processInputs("Spindexer", inputs);
-        state.setSpindexerStates(new Pair<>(this.wantedState, this.systemState));
-        state.acceptCANMeasurement(inputs.motorConnected);
-        state.acceptTemperatureMeasurement(inputs.motorTemperature);
     }
 
     @Override
     public void periodic() {
 
+    }
+
+    @Override
+    public void periodicAfterScheduler() {
+        state.setSpindexerStates(new Pair<>(this.wantedState, this.systemState));
+        state.acceptCANMeasurement(inputs.motorConnected);
+        state.acceptTemperatureMeasurement(inputs.motorTemperature);
     }
 
     private void runStateMachine() {

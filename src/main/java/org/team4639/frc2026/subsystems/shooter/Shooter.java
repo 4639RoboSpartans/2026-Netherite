@@ -59,6 +59,9 @@ public class Shooter extends FullSubsystem {
     public Shooter(ShooterIO io, RobotState state) {
         this.io = io;
         this.state = state;
+
+        this.setDefaultCommand(this.run(this::runStateMachine));
+        Logger.recordOutput("Shooter/SystemState", systemState.toString());
     }
 
     @Override
@@ -66,14 +69,6 @@ public class Shooter extends FullSubsystem {
         io.updateInputs(inputs);
         Logger.processInputs("Shooter", inputs);
         state.updateShooterState(Rotations.per(Minute).of(inputs.leftRPM), null, null);
-
-        this.setDefaultCommand(this.run(this::runStateMachine));
-        Logger.recordOutput("Shooter/SystemState", systemState.toString());
-
-        state.acceptCANMeasurement(inputs.leftConnected);
-        state.acceptCANMeasurement(inputs.rightConnected);
-        state.acceptTemperatureMeasurement(inputs.leftTemperature);
-        state.acceptTemperatureMeasurement(inputs.rightTemperature);
     }
 
     @Override
@@ -94,6 +89,11 @@ public class Shooter extends FullSubsystem {
     public void periodicAfterScheduler() {
         RobotState.getInstance().setShooterStates(new Pair<>(wantedState, systemState));
         RobotState.getInstance().accept(inputs);
+
+        state.acceptCANMeasurement(inputs.leftConnected);
+        state.acceptCANMeasurement(inputs.rightConnected);
+        state.acceptTemperatureMeasurement(inputs.leftTemperature);
+        state.acceptTemperatureMeasurement(inputs.rightTemperature);
     }
 
     private SystemState handleStateTransitions() {

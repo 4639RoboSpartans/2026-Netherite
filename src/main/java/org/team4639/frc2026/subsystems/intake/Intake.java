@@ -55,9 +55,6 @@ public class Intake extends FullSubsystem {
     public void periodicBeforeScheduler() {
         rollerIO.updateInputs(rollerInputs);
         Logger.processInputs("Intake Rollers", rollerInputs);
-        state.setIntakeStates(new Pair<>(this.wantedState, this.systemState));
-        state.acceptCANMeasurement(rollerInputs.connected);
-        state.acceptTemperatureMeasurement(rollerInputs.temperature);
     }
 
     @Override
@@ -69,6 +66,14 @@ public class Intake extends FullSubsystem {
                 PIDs.rollerkS,
                 PIDs.rollerkV,
                 PIDs.rollerkA);
+    }
+
+    @Override
+    public void periodicAfterScheduler() {
+        state.setIntakeStates(new Pair<>(this.wantedState, this.systemState));
+
+        state.acceptCANMeasurement(rollerInputs.connected);
+        state.acceptTemperatureMeasurement(rollerInputs.temperature);
     }
 
     public SystemState handleStateTransitions() {

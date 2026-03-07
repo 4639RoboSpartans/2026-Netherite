@@ -50,9 +50,6 @@ public class Kicker extends FullSubsystem {
     public void periodicBeforeScheduler() {
         io.updateInputs(inputs);
         Logger.processInputs("Kicker", inputs);
-        state.setKickerStates(new Pair<>(this.wantedState, this.systemState));
-        state.acceptCANMeasurement(inputs.motorConnected);
-        state.acceptTemperatureMeasurement(inputs.motorTemperature);
     }
 
     @Override
@@ -66,6 +63,14 @@ public class Kicker extends FullSubsystem {
                 PIDs.kickerKS,
                 PIDs.kickerKV,
                 PIDs.kickerKA);
+    }
+
+    @Override
+    public void periodicAfterScheduler() {
+        state.setKickerStates(new Pair<>(this.wantedState, this.systemState));
+
+        state.acceptCANMeasurement(inputs.motorConnected);
+        state.acceptTemperatureMeasurement(inputs.motorTemperature);
     }
 
     private void runStateMachine() {

@@ -74,9 +74,6 @@ public class Hood extends FullSubsystem {
         io.updateInputs(inputs);
         Logger.processInputs("Hood", inputs);
         state.updateShooterState(null, Degrees.of(inputs.pivotPositionDegrees), null);
-
-        state.acceptCANMeasurement(inputs.hoodMotorConnected);
-        state.acceptTemperatureMeasurement(inputs.pivotTemperature);
     }
 
     @Override
@@ -104,9 +101,11 @@ public class Hood extends FullSubsystem {
 
     @Override
     public void periodicAfterScheduler() {
-        //TODO: use PIV state
-        RobotState.getInstance().setHoodStates(new Pair<>(wantedState, systemState));
-        RobotState.getInstance().accept(inputs);
+        state.setHoodStates(new Pair<>(wantedState, systemState));
+        state.accept(inputs);
+
+        state.acceptCANMeasurement(inputs.hoodMotorConnected);
+        state.acceptTemperatureMeasurement(inputs.pivotTemperature);
     }
 
     private SystemState handleStateTransitions() {

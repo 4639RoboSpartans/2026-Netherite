@@ -78,6 +78,10 @@ public class Extension extends FullSubsystem {
         Logger.processInputs("Extension", inputs);
 
         state.updateIntakePosition((inputs.position - retractedRotorPosition) / (extendedRotorPosition - retractedRotorPosition));
+    }
+
+    @Override
+    public void periodicAfterScheduler() {
         state.setExtensionStates(new Pair<>(this.wantedState, this.systemState));
 
         state.acceptCANMeasurement(inputs.connected);
