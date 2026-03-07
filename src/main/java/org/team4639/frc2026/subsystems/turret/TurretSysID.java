@@ -2,6 +2,7 @@
 
 package org.team4639.frc2026.subsystems.turret;
 
+import com.ctre.phoenix6.SignalLogger;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.subsystems.shooter.Shooter;
 import org.team4639.frc2026.subsystems.shooter.ShooterIO.ShooterIOInputs;
@@ -27,17 +28,11 @@ public abstract sealed class TurretSysID {
                             Volts.per(Second).of(0.5),
                             Volts.of(6),
                             Seconds.of(16),
-                            (state) -> Logger.recordOutput("SysIdTestState", state.toString())
+                            (state) -> SignalLogger.writeString("Turret SysID State", state.toString())
                     ),
                     new SysIdRoutine.Mechanism(
                             turret::setVoltage,
-                            log -> {
-                                // default = REV, left is leader
-                                log.motor("Shooter")
-                                        .angularVelocity(Rotations.per(Minute).of(inputs.motorVelocity))
-                                        .angularPosition(Rotations.of(inputs.motorPositionRotations))
-                                        .voltage(Volts.of(inputs.motorVoltage));
-                            }
+                            log -> {}
                             , turret)
             );
         }

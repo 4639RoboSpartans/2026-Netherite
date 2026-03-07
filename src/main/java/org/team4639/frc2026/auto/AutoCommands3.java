@@ -152,7 +152,7 @@ public class AutoCommands3 {
                         drive.run(
                                 () -> drive.runVelocity(
                                         ChassisSpeeds.fromFieldRelativeSpeeds(
-                                                -0.4,
+                                                -0.6,
                                                 0,
                                                 0,
                                                 state.getEstimatedPose().getRotation())

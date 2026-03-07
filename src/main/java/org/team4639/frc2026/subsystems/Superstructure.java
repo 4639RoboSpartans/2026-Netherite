@@ -180,7 +180,7 @@ public class Superstructure extends SubsystemBase{
 
             // hood will never change and shooter is allowed to fluctuate, mainly we are concerned about turret
 
-            if (turret.atSetpoint()){
+            if (turret.atSetpoint() && !state.passingWillHitHub()){
                 spindexer.setWantedState(Spindexer.WantedState.SPIN);
                 kicker.setWantedState(Kicker.WantedState.KICK);
 

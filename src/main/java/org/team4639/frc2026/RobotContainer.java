@@ -325,8 +325,6 @@ public class RobotContainer {
         driver.y().onTrue(intakeStructure.retract());
 
         driver.rightBumper().or(driver.leftBumper()).whileTrue(intakeStructure.agitate());
-
-        driver.povUp().whileTrue(DriveCommands.feedforwardCharacterization(drive));
     }
 
     private void configureSimButtonBindings() {

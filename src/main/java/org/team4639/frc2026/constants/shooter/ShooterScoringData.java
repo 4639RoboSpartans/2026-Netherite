@@ -37,7 +37,7 @@ public class ShooterScoringData {
             new AbstractMap.SimpleImmutableEntry<>(4.25, 3100.0),
             new AbstractMap.SimpleImmutableEntry<>(4.43, 3200.0),
             new AbstractMap.SimpleImmutableEntry<>(4.69, 3300.0),
-            new AbstractMap.SimpleImmutableEntry<>(4.90, 3300.0)
+            new AbstractMap.SimpleImmutableEntry<>(4.90, 3325.0)
     ),
             /*scoringDistanceToHoodAngle = InterpolatingDoubleTreeMap.ofEntries(
                     new AbstractMap.SimpleImmutableEntry<>(1.97, 20.0 / 360.0),

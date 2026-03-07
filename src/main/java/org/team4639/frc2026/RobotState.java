@@ -301,7 +301,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
 
     @Override
     public void acceptTurretVision(int cameraIndex, Pose2d visionTurretPoseMeters, double timestampSeconds, Matrix<N3, N1> visionMeasurementStdDevs, int numtargets) {
-        try {
+        /*try {
             if (turretRobotRelativeBuffer.getInternalBuffer().lastKey() - poseBufferSizeSec > timestampSeconds) {
                 return;
             }
@@ -313,10 +313,10 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
 
         if (sample.isEmpty()) return;
 
-        // transform turret
+        // transform turret*/
         var estimatedRobotPose = visionTurretPoseMeters.transformBy(
                 new Transform2d(Constants.SimConstants.originToTurretRotation.toTranslation2d(),
-               Rotation2d.fromRotations(sample.get())).inverse()
+               Rotation2d.fromRotations(getScoringState().turretAngle().in(Rotations))).inverse()
         );
 
         this.turretCameraTargets = numtargets;
@@ -530,5 +530,12 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
 
     public void acceptTurretMeasurement(double rotations, double timestamp){
         turretRobotRelativeBuffer.addSample(timestamp, rotations);
+    }
+
+    public boolean passingWillHitHub() {
+        var y = getTurretPose().getY();
+        return FieldConstants.LinesHorizontal.center - FieldConstants.Hub.width / 2.0
+                < y && y <
+                FieldConstants.LinesVertical.center + FieldConstants.Hub.width / 2.0;
     }
 }

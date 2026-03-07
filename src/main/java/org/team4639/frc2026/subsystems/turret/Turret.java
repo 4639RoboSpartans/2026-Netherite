@@ -5,6 +5,7 @@ package org.team4639.frc2026.subsystems.turret;
 import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Voltage;
 import lombok.Getter;
@@ -14,7 +15,10 @@ import org.team4639.frc2026.RobotState;
 import org.team4639.lib.util.FullSubsystem;
 import org.team4639.lib.util.LoggedTunableNumber;
 
+import java.nio.Buffer;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static edu.wpi.first.units.Units.Rotations;
@@ -34,8 +38,8 @@ public class Turret extends FullSubsystem {
     private TurretSetpoint PASSING_TURRET_ROTATION = new TurretSetpoint(0, 0);
     private TurretSetpoint HUB_TRACK_TURRET_ROTATION = new TurretSetpoint(0, 0);
 
-    private final double initialTurretRotation;
-    private final double initialRotorRotation;
+    private double initialTurretRotation;
+    private double initialRotorRotation;
 
     protected static final double ODOMETRY_FREQUENCY = CANBus.roboRIO().isNetworkFD() ? 250.0 : 100.0;
 
@@ -43,6 +47,9 @@ public class Turret extends FullSubsystem {
 
     @Getter
     private final TurretSysID sysID = new TurretSysID.TurretSysIDWPI(this, turretInputs);
+
+    private final Debouncer turretRezeroDebouncer = new Debouncer(0.5);
+    private final Queue<Double> CRTMeasurements = new LinkedList<>();
 
     public enum WantedState {
         IDLE,
@@ -108,6 +115,29 @@ public class Turret extends FullSubsystem {
                 PIDs.turretKpSim, PIDs.turretKiSim, PIDs.turretKdSim,
                 PIDs.turretKsSim, PIDs.turretKvSim, PIDs.turretKaSim
             );
+        }
+
+        var speeds = state.getChassisSpeeds();
+        if (MathUtil.isNear(Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond), 0, 1E-3)
+                && MathUtil.isNear(speeds.omegaRadiansPerSecond, 0, 1E-3)
+                && MathUtil.isNear(turretInputs.motorVelocity, 0, 1E-3)) {
+            CRTMeasurements.add(CRT());
+            if (turretRezeroDebouncer.calculate(true)) {
+                var averageCRT = CRTMeasurements.stream().reduce(Double::sum).orElse(-1.0) / CRTMeasurements.size();
+
+                boolean allInTolerance = true;
+                var isCRTStable = CRTMeasurements.stream().anyMatch(measurement -> !MathUtil.isNear(measurement, averageCRT, 1E-2));
+
+                if (isCRTStable && Constants.TURRET_MIN_ROTATIONS <= averageCRT && averageCRT <= Constants.TURRET_MAX_ROTATIONS) {
+                    initialTurretRotation = getTurretRotation(leftEncoderInputs.positionRotations, rightEncoderInputs.positionRotations);
+                    initialRotorRotation = turretInputs.motorPositionRotations;
+
+                    CRTMeasurements.clear();
+                }
+            }
+        } else {
+            turretRezeroDebouncer.calculate(false);
+            CRTMeasurements.clear();
         }
     }
 
@@ -243,10 +273,10 @@ public class Turret extends FullSubsystem {
     private void handleScoring() {
         TurretSetpoint turretSetpoint = getTurretSetpoint();
         double nearestTurretRotation = getNearestTurretRotation(MathUtil.clamp(turretSetpoint.rotation, Constants.TURRET_MIN_ROTATIONS, Constants.TURRET_MAX_ROTATIONS));
-        double rotationsPerSecondAdjusted = (
-                MathUtil.isNear(getTurretRotationFromRotorRotation(), Constants.TURRET_MAX_ROTATIONS, Constants.ROTOR_ROTATION_TOLERANCE)
-                || MathUtil.isNear(getTurretRotationFromRotorRotation(), Constants.TURRET_MIN_ROTATIONS, Constants.ROTOR_ROTATION_TOLERANCE)
-        ) ? 0.0 : turretSetpoint.rotationsPerSecond;
+        double rotationsPerSecondAdjusted = /*(
+                MathUtil.isNear(getTurretRotationFromRotorRotation(), Constants.TURRET_MAX_ROTATIONS, Constants.ROTOR_ROTATION_TOLERANCE * Constants.MOTOR_TO_TURRET_GEAR_RATIO)
+                || MathUtil.isNear(getTurretRotationFromRotorRotation(), Constants.TURRET_MIN_ROTATIONS, Constants.ROTOR_ROTATION_TOLERANCE * Constants.MOTOR_TO_TURRET_GEAR_RATIO)
+        ) ? 0.0 : turretSetpoint.rotationsPerSecond;*/ 0.0;
 
         turretIO.setRotorRotationSetpoint(getRotorRotationsFromAbsoluteTurretRotation(nearestTurretRotation), getRotorVelocityFromTurretVelocity(rotationsPerSecondAdjusted));
     }
