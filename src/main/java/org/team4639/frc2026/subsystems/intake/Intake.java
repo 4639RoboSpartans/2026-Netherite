@@ -56,6 +56,8 @@ public class Intake extends FullSubsystem {
         rollerIO.updateInputs(rollerInputs);
         Logger.processInputs("Intake Rollers", rollerInputs);
         state.setIntakeStates(new Pair<>(this.wantedState, this.systemState));
+        state.acceptCANMeasurement(rollerInputs.connected);
+        state.acceptTemperatureMeasurement(rollerInputs.temperature);
     }
 
     @Override

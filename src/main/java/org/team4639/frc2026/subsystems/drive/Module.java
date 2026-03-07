@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
+import org.team4639.frc2026.RobotState;
 
 public class Module {
     private final ModuleIO io;
@@ -58,6 +59,12 @@ public class Module {
         driveDisconnectedAlert.set(!inputs.driveConnected);
         turnDisconnectedAlert.set(!inputs.turnConnected);
         turnEncoderDisconnectedAlert.set(!inputs.turnEncoderConnected);
+
+        RobotState.getInstance().acceptCANMeasurement(inputs.driveConnected);
+        RobotState.getInstance().acceptCANMeasurement(inputs.turnConnected);
+
+        RobotState.getInstance().acceptTemperatureMeasurement(inputs.driveTemperatureCelsius);
+        RobotState.getInstance().acceptTemperatureMeasurement(inputs.turnTemperatureCelsius);
     }
 
     /** Runs the module with the specified setpoint state. Mutates the state to optimize it. */

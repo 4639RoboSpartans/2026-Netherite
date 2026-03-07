@@ -69,6 +69,11 @@ public class Shooter extends FullSubsystem {
 
         this.setDefaultCommand(this.run(this::runStateMachine));
         Logger.recordOutput("Shooter/SystemState", systemState.toString());
+
+        state.acceptCANMeasurement(inputs.leftConnected);
+        state.acceptCANMeasurement(inputs.rightConnected);
+        state.acceptTemperatureMeasurement(inputs.leftTemperature);
+        state.acceptTemperatureMeasurement(inputs.rightTemperature);
     }
 
     @Override

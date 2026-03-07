@@ -79,6 +79,9 @@ public class Extension extends FullSubsystem {
 
         state.updateIntakePosition((inputs.position - retractedRotorPosition) / (extendedRotorPosition - retractedRotorPosition));
         state.setExtensionStates(new Pair<>(this.wantedState, this.systemState));
+
+        state.acceptCANMeasurement(inputs.connected);
+        state.acceptTemperatureMeasurement(inputs.temperature);
     }
 
     private void runStateMachine() {

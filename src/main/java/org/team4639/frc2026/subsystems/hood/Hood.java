@@ -74,6 +74,9 @@ public class Hood extends FullSubsystem {
         io.updateInputs(inputs);
         Logger.processInputs("Hood", inputs);
         state.updateShooterState(null, Degrees.of(inputs.pivotPositionDegrees), null);
+
+        state.acceptCANMeasurement(inputs.hoodMotorConnected);
+        state.acceptTemperatureMeasurement(inputs.pivotTemperature);
     }
 
     @Override

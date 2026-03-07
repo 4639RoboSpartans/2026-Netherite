@@ -165,6 +165,9 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
 
     private final TimeInterpolatableBuffer<Double> turretRobotRelativeBuffer = TimeInterpolatableBuffer.createDoubleBuffer(poseBufferSizeSec);
 
+    private final Queue<Boolean> canIsConnected = new LinkedList<>();
+    private final Queue<Boolean> temperaturesAreFine = new LinkedList<>();
+
     /**
      * Returns the pose relative to the blue alliance wall.
      * Should be used sparingly, for all internal calculations,
@@ -357,6 +360,12 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         SmartDashboard.putNumber("Turret to Passing Line", getTurretPose().getX() - FieldConstants.LinesVertical.allianceZone/2);
 
         ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(getTurretPose(), FieldConstants.Hub.innerCenterPoint.toTranslation2d());
+
+        SmartDashboard.putBoolean("CAN Measurements", canIsConnected.stream().allMatch(measurement -> measurement));
+        SmartDashboard.putBoolean("Motor Temperatures", temperaturesAreFine.stream().allMatch(measurement -> measurement));
+
+        canIsConnected.clear();
+        temperaturesAreFine.clear();
     }
 
     @Override
@@ -537,5 +546,13 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         return FieldConstants.LinesHorizontal.center - FieldConstants.Hub.width / 2.0
                 < y && y <
                 FieldConstants.LinesVertical.center + FieldConstants.Hub.width / 2.0;
+    }
+
+    public void acceptCANMeasurement(boolean isConnected){
+        this.canIsConnected.add(isConnected);
+    }
+
+    public void acceptTemperatureMeasurement(double tempCelsius){
+        this.temperaturesAreFine.add(tempCelsius < 100);
     }
 }

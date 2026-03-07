@@ -103,6 +103,9 @@ public class Turret extends FullSubsystem {
         for (int i = 0; i < timestamps.length; i ++){
             state.acceptTurretMeasurement(turretRotations[i], timestamps[i]);
         }
+
+        state.acceptCANMeasurement(turretInputs.turretMotorConnected);
+        state.acceptTemperatureMeasurement(turretInputs.motorTemperature);
     }
 
     @Override

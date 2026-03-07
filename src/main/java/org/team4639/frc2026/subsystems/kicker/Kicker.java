@@ -48,13 +48,15 @@ public class Kicker extends FullSubsystem {
 
     @Override
     public void periodicBeforeScheduler() {
+        io.updateInputs(inputs);
+        Logger.processInputs("Kicker", inputs);
         state.setKickerStates(new Pair<>(this.wantedState, this.systemState));
+        state.acceptCANMeasurement(inputs.motorConnected);
+        state.acceptTemperatureMeasurement(inputs.motorTemperature);
     }
 
     @Override
     public void periodic() {
-        io.updateInputs(inputs);
-        Logger.processInputs("Kicker", inputs);
 
 
         LoggedTunableNumber.ifChanged(hashCode(), io::applyNewGains,
