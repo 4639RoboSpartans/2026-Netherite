@@ -320,11 +320,20 @@ public class RobotContainer {
         driver.rightTrigger().whileTrue(superstructure.requestScoring());
         driver.leftTrigger().whileTrue(superstructure.requestPassing());
 
-        driver.a().onTrue(intakeStructure.intake().alongWith(Commands.run(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 1)).withTimeout(0.1)));
-        driver.b().onTrue(intakeStructure.stopIntake().alongWith(Commands.run(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 1)).withTimeout(0.1)));
+        driver.a().onTrue(intakeStructure.intake()
+                .alongWith(Commands.run(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 1))
+                        .withTimeout(0.1).finallyDo(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 0))
+                ));
+        driver.b().onTrue(intakeStructure.stopIntake().alongWith(Commands.run(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 1))
+                .withTimeout(0.1).finallyDo(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 0))
+        ));
 
-        driver.x().onTrue(intakeStructure.extend().alongWith(Commands.run(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 1)).withTimeout(0.1)));
-        driver.y().onTrue(intakeStructure.retract().alongWith(Commands.run(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 1)).withTimeout(0.1)));
+        driver.x().onTrue(intakeStructure.extend().alongWith(Commands.run(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 1))
+                .withTimeout(0.1).finallyDo(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 0))
+        ));
+        driver.y().onTrue(intakeStructure.retract().alongWith(Commands.run(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 1))
+                .withTimeout(0.1).finallyDo(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 0))
+        ));
 
         driver.rightBumper().or(driver.leftBumper()).whileTrue(intakeStructure.agitate());
 
