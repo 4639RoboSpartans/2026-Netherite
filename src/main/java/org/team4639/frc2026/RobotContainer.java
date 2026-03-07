@@ -327,6 +327,17 @@ public class RobotContainer {
         driver.y().onTrue(intakeStructure.retract().alongWith(Commands.run(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 1)).withTimeout(0.1)));
 
         driver.rightBumper().or(driver.leftBumper()).whileTrue(intakeStructure.agitate());
+
+        operator.leftTrigger().whileTrue(superstructure.manual1());
+        operator.leftBumper().whileTrue(superstructure.manual2());
+        operator.rightBumper().whileTrue(superstructure.manual3());
+        operator.rightTrigger().whileTrue(superstructure.manual4());
+
+        operator.y().onTrue(superstructure.toggleTurretDisable());
+        operator.x().onTrue(Commands.runOnce(turret::rezeroTurret));
+
+        operator.povUp().onTrue(Commands.runOnce(RobotState.getInstance()::fudgeUp));
+        operator.povDown().onTrue(Commands.runOnce(RobotState.getInstance()::fudgeDown));
     }
 
     private void configureSimButtonBindings() {

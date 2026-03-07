@@ -304,6 +304,8 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
 
     @Override
     public void acceptTurretVision(int cameraIndex, Pose2d visionTurretPoseMeters, double timestampSeconds, Matrix<N3, N1> visionMeasurementStdDevs, int numtargets) {
+        if (superstructureState == GenericSuperstructureState.MANUAL) return;
+
         /*try {
             if (turretRobotRelativeBuffer.getInternalBuffer().lastKey() - poseBufferSizeSec > timestampSeconds) {
                 return;
