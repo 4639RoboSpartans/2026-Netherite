@@ -6,7 +6,6 @@ import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Voltage;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -15,7 +14,6 @@ import org.team4639.frc2026.RobotState;
 import org.team4639.lib.util.FullSubsystem;
 import org.team4639.lib.util.LoggedTunableNumber;
 
-import java.nio.Buffer;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -318,7 +316,7 @@ public class Turret extends FullSubsystem {
                             -state.getGyroRotationsPerSecond());
             case HUB_TRACK -> HUB_TRACK_TURRET_ROTATION =
                     new TurretSetpoint(
-                            MathUtil.inputModulus(state.getTurretToHubFieldRelative().getRotations(), 0, 1) - state.getEstimatedPose().getRotation().getRotations(),
+                            MathUtil.inputModulus(state.getBestHubTrackFieldRelative().getRotations(), 0, 1) - state.getEstimatedPose().getRotation().getRotations(),
                             0);
         };
     }

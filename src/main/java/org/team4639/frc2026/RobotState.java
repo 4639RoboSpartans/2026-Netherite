@@ -27,11 +27,9 @@ import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.Constants.Mode;
 import org.team4639.frc2026.constants.led.Patterns;
 import org.team4639.frc2026.constants.shooter.PassingLookupTable;
-import org.team4639.frc2026.constants.shooter.PassingTargets;
 import org.team4639.frc2026.constants.shooter.ScoringState;
 import org.team4639.frc2026.constants.shooter.ShooterScoringData;
 import org.team4639.frc2026.constants.zone.RebuiltZones;
-import org.team4639.frc2026.subsystems.Superstructure;
 import org.team4639.frc2026.subsystems.Superstructure.GenericSuperstructureState;
 import org.team4639.frc2026.subsystems.drive.Drive;
 import org.team4639.frc2026.subsystems.extension.Extension;
@@ -52,7 +50,6 @@ import org.team4639.lib.util.VirtualSubsystem;
 import org.team4639.lib.util.geometry.AllianceFlipUtil;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -530,8 +527,35 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         };
     }
 
-    public Rotation2d getTurretToHubFieldRelative() {
-        return (FieldConstants.Hub.topCenterPoint.toTranslation2d().minus(getEstimatedPose().getTranslation()).getAngle());
+    /**
+     * Attempt to find the best hub for the turret to track while idling
+     * @return
+     */
+    public Rotation2d getBestHubTrackFieldRelative() {
+        var ourHub = FieldConstants.Hub.topCenterPoint.toTranslation2d();
+        var opponentHub = new Translation2d(
+                FieldConstants.fieldLength - ourHub.getX(),
+                FieldConstants.fieldWidth - ourHub.getY()
+        );
+
+        var nearestHub = getTurretPose().getTranslation().nearest(Set.of(ourHub, opponentHub));
+        var farthestHub = nearestHub.equals(ourHub) ? opponentHub : ourHub;
+
+        Rotation2d nearestHubFieldRelative = nearestHub.minus(getTurretPose().getTranslation()).getAngle();
+        var maybeTurretRotationNearestHub = MathUtil.inputModulus(nearestHubFieldRelative.minus(getTurretPose().getRotation()).getRotations(), 0, 1);
+
+        if (org.team4639.frc2026.subsystems.turret.Constants.TURRET_MIN_ROTATIONS < maybeTurretRotationNearestHub && maybeTurretRotationNearestHub < org.team4639.frc2026.subsystems.turret.Constants.TURRET_MAX_ROTATIONS) {
+            return nearestHubFieldRelative;
+        }
+
+        Rotation2d farthestHubFieldRelative = farthestHub.minus(getTurretPose().getTranslation()).getAngle();
+        var maybeTurretRotationFarthestHub = MathUtil.inputModulus(farthestHubFieldRelative.minus(getTurretPose().getRotation()).getRotations(), 0, 1);
+
+        if (org.team4639.frc2026.subsystems.turret.Constants.TURRET_MIN_ROTATIONS < maybeTurretRotationFarthestHub && maybeTurretRotationFarthestHub < org.team4639.frc2026.subsystems.turret.Constants.TURRET_MAX_ROTATIONS) {
+            return farthestHubFieldRelative;
+        }
+
+        return nearestHubFieldRelative;
     }
 
     @Setter @Getter

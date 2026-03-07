@@ -45,7 +45,6 @@ public class AllianceFlipUtil {
     public static boolean shouldFlip() {
         var ret = DriverStation.getAlliance().isPresent()
                 && DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
-        Logger.recordOutput("Should Flip", ret);
         return ret;
     }
 }
