@@ -28,5 +28,19 @@ public record ScoringState(AngularVelocity shooterRPM, Angle hoodAngle, Angle tu
         if (shooterRPM != null) {
             newShooterRPM = shooterRPM;
         }
+
+        if (hoodAngle != null) {
+            newHoodAngle = hoodAngle;
+        }
+
+        if (turretAngle != null) {
+            newTurretAngle = turretAngle;
+        }
+
+        return new ScoringState(newShooterRPM, newHoodAngle, newTurretAngle);
+    }
+
+    public ScoringState times(double rpmScalar, double hoodAngleScalar, double turretAngleScalar){
+        return replace(shooterRPM.times(rpmScalar), hoodAngle.times(hoodAngleScalar), turretAngle.times(turretAngleScalar));
     }
 }

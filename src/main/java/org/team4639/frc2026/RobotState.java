@@ -452,7 +452,7 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         Translation2d hubTranslation = FieldConstants.Hub.topCenterPoint.toTranslation2d();
         Pose2d turretPose = getEstimatedPose().transformBy(new Transform2d(Constants.SimConstants.originToTurretRotation.toTranslation2d(), new Rotation2d()));
 
-        return calculateScoringState(hubTranslation, turretPose, getChassisSpeeds());
+        return calculateScoringState(hubTranslation, turretPose, getChassisSpeeds()).times(getRPMFudge(), 1, 1);
     }
 
     public ScoringState calculateScoringState(Object caller) {
