@@ -31,9 +31,6 @@ public class Superstructure extends SubsystemBase {
 
   private final Runnable resetSuperstructure;
 
-  private boolean spinUpShooterWhileIdle = false;
-  private double SPIN_UP_TIME_PERIOD = 0.5;
-
   private boolean disableTurret = false;
 
   public Superstructure(
@@ -63,12 +60,7 @@ public class Superstructure extends SubsystemBase {
   public Command idle() {
     return this.run(
             () -> {
-              if (spinUpShooterWhileIdle)
-                shooter.setWantedState(
-                    state.robotInAllianceZone.getAsBoolean()
-                        ? Shooter.WantedState.SCORING
-                        : Shooter.WantedState.PASSING);
-              else shooter.setWantedState(Shooter.WantedState.IDLE);
+             shooter.setWantedState(Shooter.WantedState.IDLE);
 
               kicker.setWantedState(Kicker.WantedState.IDLE);
               spindexer.setWantedState(Spindexer.WantedState.IDLE);
@@ -88,12 +80,7 @@ public class Superstructure extends SubsystemBase {
   public Command trackHub() {
     return this.run(
             () -> {
-              if (spinUpShooterWhileIdle)
-                shooter.setWantedState(
-                    state.robotInAllianceZone.getAsBoolean()
-                        ? Shooter.WantedState.SCORING
-                        : Shooter.WantedState.PASSING);
-              else shooter.setWantedState(Shooter.WantedState.IDLE);
+              shooter.setWantedState(Shooter.WantedState.IDLE);
 
               kicker.setWantedState(Kicker.WantedState.IDLE);
               spindexer.setWantedState(Spindexer.WantedState.IDLE);

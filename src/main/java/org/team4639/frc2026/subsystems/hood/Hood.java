@@ -33,9 +33,6 @@ public class Hood extends FullSubsystem {
 
   @Setter private double MANUAL_HOOD_ANGLE = 20;
 
-  private final LoggedTunableNumber desiredHoodAngle =
-      new LoggedTunableNumber("Desired Hood Angle").initDefault(20);
-
   @Getter private final HoodSysID sysID = new HoodSysID.HoodSysIDWPI(this, inputs);
 
   public enum WantedState {

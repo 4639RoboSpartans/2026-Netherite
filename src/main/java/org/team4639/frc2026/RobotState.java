@@ -21,7 +21,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import java.util.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,7 +33,6 @@ import org.team4639.frc2026.constants.led.Patterns;
 import org.team4639.frc2026.constants.shooter.PassingLookupTable;
 import org.team4639.frc2026.constants.shooter.ScoringState;
 import org.team4639.frc2026.constants.shooter.ShooterScoringData;
-import org.team4639.frc2026.constants.zone.RebuiltZones;
 import org.team4639.frc2026.subsystems.Superstructure.GenericSuperstructureState;
 import org.team4639.frc2026.subsystems.drive.Drive;
 import org.team4639.frc2026.subsystems.extension.Extension;
@@ -157,13 +155,6 @@ public class RobotState extends VirtualSubsystem
       new ValueCacher<>(this::_calculatePassingState);
   private final ValueCacher<Object, Pose2d> getNextPose =
       new ValueCacher<>(() -> calculateNextPose(0.02));
-
-  public final Trigger robotInAllianceZone =
-      RebuiltZones.OUR_ALLIANCE_ZONE.contains(this::getEstimatedPose);
-  public final Trigger robotInNeutralZone =
-      RebuiltZones.NEUTRAL_ZONE.contains(this::getEstimatedPose);
-  public final Trigger robotInNOTAllianceZone =
-      RebuiltZones.NOT_OUR_ALLIANCE_ZONE.contains(this::getEstimatedPose);
 
   private final TimeInterpolatableBuffer<Double> turretRobotRelativeBuffer =
       TimeInterpolatableBuffer.createDoubleBuffer(poseBufferSizeSec);

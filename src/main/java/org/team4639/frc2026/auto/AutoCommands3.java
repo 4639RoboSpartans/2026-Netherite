@@ -42,45 +42,7 @@ public class AutoCommands3 {
         new ParallelCommandGroup(
             drive.run(drive::stopWithX),
             intakeStructure.agitate(),
-            superstructure.requestScoring()) // .withTimeout(4),
-        /*new ParallelDeadlineGroup(
-                followPath(AutoPaths.LSH_CYCM, false, state),
-                new SequentialCommandGroup(
-                        new ParallelCommandGroup(
-                                intakeStructure.stopIntake(),
-                                intakeStructure.retract()
-                        ).until(
-                                () -> state.getEstimatedPose().getX() > FieldConstants.LinesVertical.neutralZoneNear + 1
-                        ),
-                        new ParallelCommandGroup(
-                                intakeStructure.intake(),
-                                intakeStructure.extend()
-                        )
-                ),
-                superstructure.trackHub(),
-                Vision.visionOff()
-        ),
-        new ParallelDeadlineGroup(
-                followPath(AutoPaths.CYCM_LSH, false, state),
-                new SequentialCommandGroup(
-                        new ParallelCommandGroup(
-                                intakeStructure.intake(),
-                                intakeStructure.extend()
-                        ).until(
-                                () -> state.getEstimatedPose().getX() < FieldConstants.LinesVertical.neutralZoneNear + 1
-                        ),
-                        new ParallelCommandGroup(
-                                intakeStructure.retract(),
-                                intakeStructure.stopIntake()
-                        )
-                ),
-                superstructure.trackHub()
-        ),
-        new ParallelCommandGroup(
-                drive.run(drive::stopWithX),
-                intakeStructure.agitate(),
-                superstructure.requestScoring()
-        ).withTimeout(4)*/
+            superstructure.requestScoring())
         );
   }
 
@@ -152,15 +114,11 @@ public class AutoCommands3 {
   private static Command followPath(String pathName, boolean resetPose, RobotState state) {
     try {
       PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
-      var waypoints = path.getWaypoints();
-      Translation2d last = waypoints.get(waypoints.size() - 1).anchor();
-      double toleranceMeters = 0.1;
       return AutoBuilder.followPath(path)
           .beforeStarting(
               resetPose
                   ? new InstantCommand(() -> state.resetPose(path.getStartingHolonomicPose().get()))
-                  : Commands.none()); // .until(() ->
-      // Math.abs(state.getEstimatedPose().getTranslation().getDistance(last)) < toleranceMeters);
+                  : Commands.none());
     } catch (IOException e) {
       throw new RuntimeException(e);
     } catch (ParseException e) {
@@ -171,15 +129,11 @@ public class AutoCommands3 {
   private static Command followPathMirrored(String pathName, boolean resetPose, RobotState state) {
     try {
       PathPlannerPath path = PathPlannerPath.fromPathFile(pathName).mirrorPath();
-      var waypoints = path.getWaypoints();
-      Translation2d last = waypoints.get(waypoints.size() - 1).anchor();
-      double toleranceMeters = 0.1;
       return AutoBuilder.followPath(path)
           .beforeStarting(
               resetPose
                   ? new InstantCommand(() -> state.resetPose(path.getStartingHolonomicPose().get()))
-                  : Commands.none()); // .until(() ->
-      // Math.abs(state.getEstimatedPose().getTranslation().getDistance(last)) < toleranceMeters);
+                  : Commands.none());
     } catch (IOException e) {
       throw new RuntimeException(e);
     } catch (ParseException e) {

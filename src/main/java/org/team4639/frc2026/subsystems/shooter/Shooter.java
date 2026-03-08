@@ -128,7 +128,6 @@ public class Shooter extends FullSubsystem {
 
   private void handleIdle() {
     io.setVoltage(IDLE_VOLTAGE);
-    // io.setRPM(400);
   }
 
   private void handleManual() {

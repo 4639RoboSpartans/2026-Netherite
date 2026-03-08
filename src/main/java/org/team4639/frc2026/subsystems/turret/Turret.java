@@ -281,23 +281,10 @@ public class Turret extends FullSubsystem {
   }
 
   public double getNearestTurretRotation(double clampedRotation) {
-    //        if (clampedRotation < 0.4 && clampedRotation > -0.4) {
-    //            return clampedRotation;
-    //        }
-    //        double currentTurretRotation = getTurretRotationFromRotorRotation();
-    //        if (currentTurretRotation * clampedRotation > 0) return clampedRotation;
-    //        if (currentTurretRotation < 0 && clampedRotation >= 0.4) {
-    //            return clampedRotation - 1;
-    //        } else if (currentTurretRotation > 0 && clampedRotation <= -0.4) {
-    //            return clampedRotation + 1;
-    //        } else {
-    //            return clampedRotation;
-    //        }
     return clampedRotation;
   }
 
   private void handleIdle() {
-    // turretIO.setRotorRotationSetpoint(getRotorRotationsFromAbsoluteTurretRotation(IDLE_TURRET_ROTATION));
     turretIO.setVoltage(0);
   }
 
@@ -309,10 +296,7 @@ public class Turret extends FullSubsystem {
                 turretSetpoint.rotation,
                 Constants.TURRET_MIN_ROTATIONS,
                 Constants.TURRET_MAX_ROTATIONS));
-    double rotationsPerSecondAdjusted = /*(
-                MathUtil.isNear(getTurretRotationFromRotorRotation(), Constants.TURRET_MAX_ROTATIONS, Constants.ROTOR_ROTATION_TOLERANCE * Constants.MOTOR_TO_TURRET_GEAR_RATIO)
-                || MathUtil.isNear(getTurretRotationFromRotorRotation(), Constants.TURRET_MIN_ROTATIONS, Constants.ROTOR_ROTATION_TOLERANCE * Constants.MOTOR_TO_TURRET_GEAR_RATIO)
-        ) ? 0.0 : turretSetpoint.rotationsPerSecond;*/ 0.0;
+    double rotationsPerSecondAdjusted = 0.0;
 
     turretIO.setRotorRotationSetpoint(
         getRotorRotationsFromAbsoluteTurretRotation(nearestTurretRotation),
