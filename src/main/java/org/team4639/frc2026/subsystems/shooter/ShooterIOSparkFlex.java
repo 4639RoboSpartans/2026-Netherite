@@ -45,6 +45,7 @@ public class ShooterIOSparkFlex implements ShooterIO {
         .appliedOutputPeriodMs(5)
         .busVoltagePeriodMs(5)
         .outputCurrentPeriodMs(5);
+    shooterConfig.encoder.velocityConversionFactor(1.0 / 60.0);
 
     leftShooter =
         new SparkFlex(
@@ -57,8 +58,7 @@ public class ShooterIOSparkFlex implements ShooterIO {
 
     leaderConfig
         .idleMode(SparkBaseConfig.IdleMode.kCoast)
-        .smartCurrentLimit(50, 50)
-        .apply(new EncoderConfig().velocityConversionFactor(1 / 60.0));
+        .smartCurrentLimit(50, 50);
     leaderConfig.closedLoop.feedForward.sva(0.074548, 0.10976, 0.044959);
     leaderConfig
         .closedLoop
@@ -107,8 +107,6 @@ public class ShooterIOSparkFlex implements ShooterIO {
             applied, SparkBase.ControlType.kVelocity, ClosedLoopSlot.kSlot0);
     Logger.recordOutput("Shooter Setpoint RPS", closedLoopController.getSetpoint());
     Logger.recordOutput("Shooter RevLib Error", err.toString());
-    /*leftShooter.setVoltage(ff.calculate(applied)*/
-    /*+ pid.calculate(leftShooter.getEncoder().getVelocity(), applied)*/ ;
   }
 
   public void updateGains() {

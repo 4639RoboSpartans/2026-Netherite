@@ -68,23 +68,16 @@ public class HoodIOTalonFX implements HoodIO {
     hoodVelocity = hoodMotor.getVelocity();
     motorVoltage = hoodMotor.getMotorVoltage();
     motorCurrent = hoodMotor.getStatorCurrent();
-
-    /*double mechanismRotationsFromEncoder = MathUtil.inputModulus(hoodEncoder.getPosition().getValueAsDouble() - 0.752197, -0.05, 0.95) * Constants.ENCODER_TO_PIVOT_GEAR_RATIO;
-    hoodMotor.setPosition(mechanismRotationsFromEncoder + Units.degreesToRotations(Constants.HOOD_MIN_ANGLE_DEGREES));*/
   }
 
   @Override
   public void setSetpointDegrees(double setpointDegrees) {
     request.Position = Units.degreesToRotations(setpointDegrees);
     hoodMotor.setControl(request);
-    Logger.recordOutput("Hood Controller Setpoint", request.Position);
   }
 
   @Override
   public void updateInputs(HoodIOInputs inputs) {
-    /*double mechanismRotationsFromEncoder = MathUtil.inputModulus(hoodEncoder.getPosition().getValueAsDouble() - 0.752197, -0.05, 0.95) * Constants.ENCODER_TO_PIVOT_GEAR_RATIO;
-    hoodMotor.setPosition(mechanismRotationsFromEncoder + Units.degreesToRotations(Constants.HOOD_MIN_ANGLE_DEGREES));*/
-
     inputs.hoodMotorConnected =
         BaseStatusSignal.refreshAll(
                 motorVoltage, motorCurrent, hoodMotor.getDeviceTemp(), hoodVelocity, hoodPosition)
@@ -94,9 +87,6 @@ public class HoodIOTalonFX implements HoodIO {
     inputs.pivotTemperature = hoodMotor.getDeviceTemp().getValueAsDouble();
     inputs.pivotPositionDegrees = hoodPosition.getValueAsDouble() * 360;
     inputs.pivotVelocityDegrees = hoodVelocity.getValueAsDouble() * 360;
-
-    Logger.recordOutput("Hood Encoder Rotations", hoodEncoder.getPosition().getValueAsDouble());
-    Logger.recordOutput("Hood Rotations", hoodPosition.getValueAsDouble());
   }
 
   @Override
