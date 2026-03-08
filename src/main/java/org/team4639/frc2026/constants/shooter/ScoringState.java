@@ -2,11 +2,11 @@
 
 package org.team4639.frc2026.constants.shooter;
 
-import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import org.team4639.lib.unit.Units2;
 
 /**
  * @param shooterRPM shooter flywheel RPM
@@ -17,7 +17,7 @@ public record ScoringState(AngularVelocity shooterRPM, Angle hoodAngle, Angle tu
   @Override
   public String toString() {
     return "RPM: "
-        + shooterRPM.in(Rotations.per(Minute))
+        + shooterRPM.in(Units2.RPM)
         + " Hood Angle: "
         + hoodAngle.in(Rotations)
         + " turretAngle: "

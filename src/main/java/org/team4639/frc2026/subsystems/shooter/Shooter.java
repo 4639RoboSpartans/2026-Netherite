@@ -14,6 +14,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.Constants;
 import org.team4639.frc2026.RobotState;
+import org.team4639.lib.unit.Units2;
 import org.team4639.lib.util.FullSubsystem;
 import org.team4639.lib.util.LoggedTunableNumber;
 
@@ -68,7 +69,7 @@ public class Shooter extends FullSubsystem {
   public void periodicBeforeScheduler() {
     io.updateInputs(inputs);
     Logger.processInputs("Shooter", inputs);
-    state.updateShooterState(Rotations.per(Minute).of(inputs.leftRPM), null, null);
+    state.updateShooterState(Units2.RPM.of(inputs.leftRPM), null, null);
   }
 
   @Override
@@ -160,10 +161,8 @@ public class Shooter extends FullSubsystem {
 
   public double getSetpointRPM() {
     return switch (systemState) {
-      case SCORING -> SCORING_RPM =
-          state.calculateScoringState(this).shooterRPM().in(Rotations.per(Minute));
-      case PASSING -> PASSING_RPM =
-          state.calculateScoringState(this).shooterRPM().in(Rotations.per(Minute));
+      case SCORING -> SCORING_RPM = state.calculateScoringState(this).shooterRPM().in(Units2.RPM);
+      case PASSING -> PASSING_RPM = state.calculateScoringState(this).shooterRPM().in(Units2.RPM);
       case MANUAL -> MANUAL_RPM;
       default -> 0;
     };

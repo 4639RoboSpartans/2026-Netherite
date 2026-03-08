@@ -18,6 +18,7 @@ import org.team4639.frc2026.subsystems.kicker.Kicker;
 import org.team4639.frc2026.subsystems.shooter.Shooter;
 import org.team4639.frc2026.subsystems.spindexer.Spindexer;
 import org.team4639.frc2026.subsystems.turret.Turret;
+import org.team4639.lib.unit.Units2;
 
 public class Superstructure extends SubsystemBase {
 
@@ -60,7 +61,7 @@ public class Superstructure extends SubsystemBase {
   public Command idle() {
     return this.run(
             () -> {
-             shooter.setWantedState(Shooter.WantedState.IDLE);
+              shooter.setWantedState(Shooter.WantedState.IDLE);
 
               kicker.setWantedState(Kicker.WantedState.IDLE);
               spindexer.setWantedState(Spindexer.WantedState.IDLE);
@@ -215,7 +216,7 @@ public class Superstructure extends SubsystemBase {
         .andThen(
             this.run(
                 () -> {
-                  shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Rotations.per(Minute)));
+                  shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Units2.RPM));
                   shooter.setWantedState(Shooter.WantedState.MANUAL);
                   hood.setMANUAL_HOOD_ANGLE(setpoint.hoodAngle().in(Degrees));
                   hood.setWantedState(Hood.WantedState.MANUAL);
@@ -229,7 +230,7 @@ public class Superstructure extends SubsystemBase {
         .andThen(
             this.run(
                 () -> {
-                  shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Rotations.per(Minute)));
+                  shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Units2.RPM));
                   shooter.setWantedState(Shooter.WantedState.MANUAL);
                   hood.setMANUAL_HOOD_ANGLE(setpoint.hoodAngle().in(Degrees));
                   hood.setWantedState(Hood.WantedState.MANUAL);
@@ -253,7 +254,7 @@ public class Superstructure extends SubsystemBase {
         .andThen(
             this.run(
                 () -> {
-                  shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Rotations.per(Minute)));
+                  shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Units2.RPM));
                   shooter.setWantedState(Shooter.WantedState.MANUAL);
                   hood.setMANUAL_HOOD_ANGLE(setpoint.hoodAngle().in(Degrees));
                   hood.setWantedState(Hood.WantedState.MANUAL);
@@ -267,7 +268,7 @@ public class Superstructure extends SubsystemBase {
         .andThen(
             this.run(
                 () -> {
-                  shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Rotations.per(Minute)));
+                  shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Units2.RPM));
                   shooter.setWantedState(Shooter.WantedState.MANUAL);
                   hood.setMANUAL_HOOD_ANGLE(setpoint.hoodAngle().in(Degrees));
                   hood.setWantedState(Hood.WantedState.MANUAL);
@@ -291,7 +292,7 @@ public class Superstructure extends SubsystemBase {
         .andThen(
             this.run(
                 () -> {
-                  shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Rotations.per(Minute)));
+                  shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Units2.RPM));
                   shooter.setWantedState(Shooter.WantedState.MANUAL);
                   hood.setMANUAL_HOOD_ANGLE(setpoint.hoodAngle().in(Degrees));
                   hood.setWantedState(Hood.WantedState.MANUAL);
@@ -305,7 +306,7 @@ public class Superstructure extends SubsystemBase {
         .andThen(
             this.run(
                 () -> {
-                  shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Rotations.per(Minute)));
+                  shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Units2.RPM));
                   shooter.setWantedState(Shooter.WantedState.MANUAL);
                   hood.setMANUAL_HOOD_ANGLE(setpoint.hoodAngle().in(Degrees));
                   hood.setWantedState(Hood.WantedState.MANUAL);
@@ -329,7 +330,7 @@ public class Superstructure extends SubsystemBase {
         .andThen(
             this.run(
                 () -> {
-                  shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Rotations.per(Minute)));
+                  shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Units2.RPM));
                   shooter.setWantedState(Shooter.WantedState.MANUAL);
                   hood.setMANUAL_HOOD_ANGLE(setpoint.hoodAngle().in(Degrees));
                   hood.setWantedState(Hood.WantedState.MANUAL);
@@ -343,7 +344,7 @@ public class Superstructure extends SubsystemBase {
         .andThen(
             this.run(
                 () -> {
-                  shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Rotations.per(Minute)));
+                  shooter.setMANUAL_RPM(setpoint.shooterRPM().in(Units2.RPM));
                   shooter.setWantedState(Shooter.WantedState.MANUAL);
                   hood.setMANUAL_HOOD_ANGLE(setpoint.hoodAngle().in(Degrees));
                   hood.setWantedState(Hood.WantedState.MANUAL);

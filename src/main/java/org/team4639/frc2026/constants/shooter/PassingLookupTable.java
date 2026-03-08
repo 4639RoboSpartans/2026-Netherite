@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import java.util.AbstractMap;
 import org.team4639.frc2026.FieldConstants;
+import org.team4639.lib.unit.Units2;
 
 public class PassingLookupTable {
   private static final InterpolatingDoubleTreeMap passingDistanceToShooterRPM =
@@ -28,7 +29,7 @@ public class PassingLookupTable {
     var distance = turretPose.getX() - passingX;
 
     return new ScoringState(
-        Rotations.per(Minute).of(passingDistanceToShooterRPM.get(distance)),
+        Units2.RPM.of(passingDistanceToShooterRPM.get(distance)),
         Rotations.of(passingDistanceToHoodRotations.get(distance)),
         Degrees.of(180));
   }

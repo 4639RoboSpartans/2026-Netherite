@@ -2,7 +2,6 @@
 
 package org.team4639.frc2026.subsystems.shooter;
 
-import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
@@ -13,6 +12,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.subsystems.shooter.ShooterIO.ShooterIOInputs;
+import org.team4639.lib.unit.Units2;
 
 @RequiredArgsConstructor
 public abstract sealed class ShooterSysID {
@@ -36,7 +36,7 @@ public abstract sealed class ShooterSysID {
                   log -> {
                     // default = REV, left is leader
                     log.motor("Shooter")
-                        .angularVelocity(Rotations.per(Minute).of(inputs.leftRPM))
+                        .angularVelocity(Units2.RPM.of(inputs.leftRPM))
                         .angularPosition(Rotations.of(inputs.leftRotations))
                         .voltage(Volts.of(inputs.leftVoltage));
                   },

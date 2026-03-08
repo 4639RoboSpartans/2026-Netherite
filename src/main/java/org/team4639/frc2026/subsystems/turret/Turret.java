@@ -137,7 +137,6 @@ public class Turret extends FullSubsystem {
             .setOffsetRotations(rightEncoderInputs.positionWithoutOffset);
       }
     }
-
   }
 
   private void runStateMachine() {

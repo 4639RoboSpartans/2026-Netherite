@@ -49,6 +49,7 @@ import org.team4639.frc2026.subsystems.vision.TurretCamera;
 import org.team4639.frc2026.subsystems.vision.Vision.VisionConsumer;
 import org.team4639.frc2026.util.ValueCacher;
 import org.team4639.lib.led.pattern.LEDPattern;
+import org.team4639.lib.unit.Units2;
 import org.team4639.lib.util.VirtualSubsystem;
 import org.team4639.lib.util.geometry.AllianceFlipUtil;
 import org.team4639.lib.util.geometry.GeomUtil;
@@ -123,7 +124,7 @@ public class RobotState extends VirtualSubsystem
 
   @Getter
   private ScoringState scoringState =
-      new ScoringState(Rotations.per(Minute).of(0.0), Rotations.of(0), Rotations.of(0));
+      new ScoringState(Units2.RPM.of(0.0), Rotations.of(0), Rotations.of(0));
 
   @Setter @Getter private Pair<Hood.WantedState, Hood.SystemState> hoodStates;
 
@@ -302,7 +303,7 @@ public class RobotState extends VirtualSubsystem
   public void updateShooterState(AngularVelocity shooterRPM, Angle hoodAngle, Angle turretAngle) {
     AngularVelocity newShooterRPM = scoringState.shooterRPM();
     if (shooterRPM != null) newShooterRPM = shooterRPM;
-    SmartDashboard.putNumber("Scoring/ShooterRPM", newShooterRPM.in(Rotations.per(Minute)));
+    SmartDashboard.putNumber("Scoring/ShooterRPM", newShooterRPM.in(Units2.RPM));
     Angle newHoodAngle = scoringState.hoodAngle();
     if (hoodAngle != null) newHoodAngle = hoodAngle;
     SmartDashboard.putNumber("Scoring/HoodAngle", newHoodAngle.in(Rotations));
@@ -371,8 +372,7 @@ public class RobotState extends VirtualSubsystem
     SmartDashboard.putData(ROBOT_FIELD_TRUE_KEY, robotFieldTrue);
 
     ScoringState scoringState = calculateScoringState(this);
-    SmartDashboard.putNumber(
-        "Scoring/CalculatedRPM", scoringState.shooterRPM().in(Rotations.per(Minute)));
+    SmartDashboard.putNumber("Scoring/CalculatedRPM", scoringState.shooterRPM().in(Units2.RPM));
     SmartDashboard.putNumber("Scoring/CalculatedHoodAngle", scoringState.hoodAngle().in(Rotations));
     SmartDashboard.putNumber(
         "Scoring/CalculatedTurretAngle", scoringState.turretAngle().in(Rotations));

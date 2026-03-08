@@ -2,7 +2,6 @@
 
 package org.team4639.frc2026.constants.shooter;
 
-import static edu.wpi.first.units.Units.Minute;
 import static edu.wpi.first.units.Units.Rotations;
 
 import edu.wpi.first.math.VecBuilder;
@@ -13,6 +12,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import org.team4639.lib.unit.Units2;
 
 /**
  * @param scoringDistanceToRPM meters -> RPM
@@ -37,9 +37,7 @@ public record ShooterLookupTable(
     double shooterRPM = scoringDistanceToRPM.get(distanceMeters);
     double hoodAngle = scoringDistanceToHoodAngle.get(distanceMeters);
     return new ScoringState(
-        Rotations.per(Minute).of(shooterRPM),
-        Rotations.of(hoodAngle),
-        fieldRelativeHubDirection.getMeasure());
+        Units2.RPM.of(shooterRPM), Rotations.of(hoodAngle), fieldRelativeHubDirection.getMeasure());
   }
 
   public ScoringState convergeShooterStateSOTFTurret(
@@ -64,7 +62,7 @@ public record ShooterLookupTable(
     double shooterRPM = scoringDistanceToRPM.get(distanceMeters);
     double hoodAngle = scoringDistanceToHoodAngle.get(distanceMeters);
     return new ScoringState(
-        Rotations.per(Minute).of(shooterRPM),
+        Units2.RPM.of(shooterRPM),
         Rotations.of(hoodAngle),
         finalRobotToHubTranslation.getAngle().getMeasure());
   }

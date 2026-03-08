@@ -4,7 +4,6 @@ package org.team4639.frc2026.auto;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.*;
 import java.io.IOException;
@@ -42,8 +41,7 @@ public class AutoCommands3 {
         new ParallelCommandGroup(
             drive.run(drive::stopWithX),
             intakeStructure.agitate(),
-            superstructure.requestScoring())
-        );
+            superstructure.requestScoring()));
   }
 
   public static Command RIGHT_DOUBLE_SWIPE(
