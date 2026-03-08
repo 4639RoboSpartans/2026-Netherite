@@ -13,60 +13,61 @@ import org.team4639.lib.util.Phoenix6Factory;
 import org.team4639.lib.util.PhoenixUtil;
 
 public class KickerIOTalonFX implements KickerIO {
-    private final TalonFX kickerMotor;
+  private final TalonFX kickerMotor;
 
-    private final VoltageOut voltageControl = new VoltageOut(0);
-    private final VelocityVoltage velocityControl = new VelocityVoltage(0);
+  private final VoltageOut voltageControl = new VoltageOut(0);
+  private final VelocityVoltage velocityControl = new VelocityVoltage(0);
 
-    public KickerIOTalonFX(PortConfiguration ports) {
-        kickerMotor = Phoenix6Factory.createDefaultTalon(ports.KickerMotorID, false);
+  public KickerIOTalonFX(PortConfiguration ports) {
+    kickerMotor = Phoenix6Factory.createDefaultTalon(ports.KickerMotorID, false);
 
-        TalonFXConfiguration config = new TalonFXConfiguration();
-        config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        config.CurrentLimits.SupplyCurrentLimitEnable = true;
-        config.CurrentLimits.SupplyCurrentLimit = 40;
-        config.CurrentLimits.StatorCurrentLimitEnable = true;
-        config.CurrentLimits.StatorCurrentLimit = 80;
-        config.Slot0.kV = 0.10888;
-        config.Slot0.kS = 0.095981;
-        config.Slot0.kA = 0.0015124;
+    TalonFXConfiguration config = new TalonFXConfiguration();
+    config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.SupplyCurrentLimit = 40;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.CurrentLimits.StatorCurrentLimit = 80;
+    config.Slot0.kV = 0.10888;
+    config.Slot0.kS = 0.095981;
+    config.Slot0.kA = 0.0015124;
 
-        PhoenixUtil.tryUntilOk(5, () -> kickerMotor.getConfigurator().apply(config));
-    }
+    PhoenixUtil.tryUntilOk(5, () -> kickerMotor.getConfigurator().apply(config));
+  }
 
-    @Override
-    public void updateInputs(KickerIOInputs inputs) {
-        inputs.motorConnected = BaseStatusSignal.refreshAll(
+  @Override
+  public void updateInputs(KickerIOInputs inputs) {
+    inputs.motorConnected =
+        BaseStatusSignal.refreshAll(
                 kickerMotor.getMotorVoltage(),
                 kickerMotor.getStatorCurrent(),
                 kickerMotor.getVelocity(),
-                kickerMotor.getDeviceTemp()
-        ).isOK();
-        inputs.motorVoltage = kickerMotor.getMotorVoltage().getValueAsDouble();
-        inputs.motorCurrent = kickerMotor.getStatorCurrent().getValueAsDouble();
-        inputs.motorVelocity = kickerMotor.getVelocity().getValueAsDouble();
-        inputs.motorTemperature = kickerMotor.getDeviceTemp().getValueAsDouble();
-        inputs.motorPosition = kickerMotor.getPosition().getValueAsDouble();
-    }
+                kickerMotor.getDeviceTemp())
+            .isOK();
+    inputs.motorVoltage = kickerMotor.getMotorVoltage().getValueAsDouble();
+    inputs.motorCurrent = kickerMotor.getStatorCurrent().getValueAsDouble();
+    inputs.motorVelocity = kickerMotor.getVelocity().getValueAsDouble();
+    inputs.motorTemperature = kickerMotor.getDeviceTemp().getValueAsDouble();
+    inputs.motorPosition = kickerMotor.getPosition().getValueAsDouble();
+  }
 
-    @Override
-    public void setVoltage(double appliedVoltage)  {
-        kickerMotor.setControl(voltageControl.withOutput(appliedVoltage));
-    }
+  @Override
+  public void setVoltage(double appliedVoltage) {
+    kickerMotor.setControl(voltageControl.withOutput(appliedVoltage));
+  }
 
-    @Override
-    public void setRotorVelocityRPM(double targetVelocity) {
-        kickerMotor.setControl(velocityControl.withVelocity(targetVelocity * (32. / 9) * (1. / 60)));
-    }
+  @Override
+  public void setRotorVelocityRPM(double targetVelocity) {
+    kickerMotor.setControl(velocityControl.withVelocity(targetVelocity * (32. / 9) * (1. / 60)));
+  }
 
-    @Override
-    public void applyNewGains(double[] newGains){
-        var config = new TalonFXConfiguration().Slot0;
-        config.kP = newGains[0];
-        config.kI = newGains[1];
-        config.kD = newGains[2];
-        config.kS = newGains[3];
-        config.kV = newGains[4];
-        config.kA = newGains[5];
-    }
+  @Override
+  public void applyNewGains(double[] newGains) {
+    var config = new TalonFXConfiguration().Slot0;
+    config.kP = newGains[0];
+    config.kI = newGains[1];
+    config.kD = newGains[2];
+    config.kS = newGains[3];
+    config.kV = newGains[4];
+    config.kA = newGains[5];
+  }
 }

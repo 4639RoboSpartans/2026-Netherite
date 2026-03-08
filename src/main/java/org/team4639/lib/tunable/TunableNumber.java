@@ -17,18 +17,19 @@ import org.team4639.lib.functional.DoubleSupplier2;
  * @author elliot
  */
 public class TunableNumber implements Sendable, DoubleSupplier2, Supplier<Double> {
-    private double value;
-    private boolean hasChanged = false;
+  private double value;
+  private boolean hasChanged = false;
 
-    public TunableNumber(double value) {
-        this.value = value;
-    }
+  public TunableNumber(double value) {
+    this.value = value;
+  }
 
-    public TunableNumber() {
-        this(0);
-    }
+  public TunableNumber() {
+    this(0);
+  }
 
-    private DoubleConsumer sendableConsumer = new DoubleConsumer2() {
+  private DoubleConsumer sendableConsumer =
+      new DoubleConsumer2() {
 
         /**
          * Performs this operation on the given argument.
@@ -37,51 +38,51 @@ public class TunableNumber implements Sendable, DoubleSupplier2, Supplier<Double
          */
         @Override
         public void accept(double value) {
-            hasChanged = TunableNumber.this.value != value;
-            TunableNumber.this.value = value;
+          hasChanged = TunableNumber.this.value != value;
+          TunableNumber.this.value = value;
         }
-    };
+      };
 
-    @Override
-    public void initSendable(SendableBuilder sendableBuilder) {
-        sendableBuilder.addDoubleProperty("Value", () -> value, sendableConsumer);
-    }
+  @Override
+  public void initSendable(SendableBuilder sendableBuilder) {
+    sendableBuilder.addDoubleProperty("Value", () -> value, sendableConsumer);
+  }
 
-    public void addDoubleConsumer(DoubleConsumer consumer) {
-        sendableConsumer = sendableConsumer.andThen(consumer);
-    }
+  public void addDoubleConsumer(DoubleConsumer consumer) {
+    sendableConsumer = sendableConsumer.andThen(consumer);
+  }
 
-    /**
-     * Sends this TunableNumber to SmartDashboard.
-     *
-     * @param name
-     */
-    public TunableNumber send(String name) {
-        SmartDashboard.putData(name, this);
-        return this;
-    }
+  /**
+   * Sends this TunableNumber to SmartDashboard.
+   *
+   * @param name
+   */
+  public TunableNumber send(String name) {
+    SmartDashboard.putData(name, this);
+    return this;
+  }
 
-    /**
-     * Gets a result.
-     *
-     * @return a result
-     */
-    @Override
-    public double getAsDouble() {
-        return value;
-    }
+  /**
+   * Gets a result.
+   *
+   * @return a result
+   */
+  @Override
+  public double getAsDouble() {
+    return value;
+  }
 
-    /**
-     * Gets a result.
-     *
-     * @return a result
-     */
-    @Override
-    public Double get() {
-        return value;
-    }
+  /**
+   * Gets a result.
+   *
+   * @return a result
+   */
+  @Override
+  public Double get() {
+    return value;
+  }
 
-    public boolean hasChanged() {
-        return hasChanged;
-    }
+  public boolean hasChanged() {
+    return hasChanged;
+  }
 }

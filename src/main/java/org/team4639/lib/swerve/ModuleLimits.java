@@ -2,4 +2,5 @@
 
 package org.team4639.lib.swerve;
 
-public record ModuleLimits(double maxDriveVelocity, double maxDriveAcceleration, double maxSteeringVelocity) {}
+public record ModuleLimits(
+    double maxDriveVelocity, double maxDriveAcceleration, double maxSteeringVelocity) {}

@@ -8,32 +8,23 @@ import edu.wpi.first.wpilibj.RobotState;
 import java.util.function.Supplier;
 
 public class VisionIOLimelight4 extends VisionIOLimelight {
-    public String name;
+  public String name;
 
-    public VisionIOLimelight4(String name, Supplier<Rotation2d> rotationSupplier) {
-        super(name, rotationSupplier);
-        this.name = name;
+  public VisionIOLimelight4(String name, Supplier<Rotation2d> rotationSupplier) {
+    super(name, rotationSupplier);
+    this.name = name;
 
-        NetworkTableInstance.getDefault()
-                .getTable(name)
-                .getEntry("imumode_set")
-                .setInteger(0);
+    NetworkTableInstance.getDefault().getTable(name).getEntry("imumode_set").setInteger(0);
+  }
+
+  @Override
+  public void updateInputs(VisionIOInputs inputs) {
+    super.updateInputs(inputs);
+    if (RobotState.isDisabled()) {
+      // Throttle Limelights so temperature dont rise
+      NetworkTableInstance.getDefault().getTable(name).getEntry("throttle_set").setInteger(0);
+    } else {
+      NetworkTableInstance.getDefault().getTable(name).getEntry("throttle_set").setInteger(0);
     }
-
-    @Override
-    public void updateInputs(VisionIOInputs inputs) {
-        super.updateInputs(inputs);
-        if (RobotState.isDisabled()) {
-            // Throttle Limelights so temperature dont rise
-            NetworkTableInstance.getDefault()
-                    .getTable(name)
-                    .getEntry("throttle_set")
-                    .setInteger(0);
-        } else {
-            NetworkTableInstance.getDefault()
-                    .getTable(name)
-                    .getEntry("throttle_set")
-                    .setInteger(0);
-        }
-    }
+  }
 }

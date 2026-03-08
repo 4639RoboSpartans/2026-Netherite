@@ -7,21 +7,21 @@ import java.util.function.DoubleConsumer;
 
 @FunctionalInterface
 public interface DoubleConsumer2 extends DoubleConsumer {
-    public default DoubleConsumer2 and(DoubleConsumer otherConsumer) {
-        Objects.requireNonNull(otherConsumer);
-        var self = this;
-        return new DoubleConsumer2() {
+  public default DoubleConsumer2 and(DoubleConsumer otherConsumer) {
+    Objects.requireNonNull(otherConsumer);
+    var self = this;
+    return new DoubleConsumer2() {
 
-            /**
-             * Performs this operation on the given argument.
-             *
-             * @param value the input argument
-             */
-            @Override
-            public void accept(double value) {
-                self.accept(value);
-                otherConsumer.accept(value);
-            }
-        };
-    }
+      /**
+       * Performs this operation on the given argument.
+       *
+       * @param value the input argument
+       */
+      @Override
+      public void accept(double value) {
+        self.accept(value);
+        otherConsumer.accept(value);
+      }
+    };
+  }
 }

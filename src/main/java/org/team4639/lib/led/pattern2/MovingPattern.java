@@ -6,16 +6,16 @@ import edu.wpi.first.wpilibj.util.Color;
 import org.team4639.lib.led.pattern.LEDPattern;
 
 public class MovingPattern implements LEDPattern {
-    private LEDPattern pattern;
-    private double ledsPerSecond;
+  private LEDPattern pattern;
+  private double ledsPerSecond;
 
-    public MovingPattern(LEDPattern pattern, double ledsPerSecond) {
-        this.pattern = pattern;
-        this.ledsPerSecond = ledsPerSecond;
-    }
+  public MovingPattern(LEDPattern pattern, double ledsPerSecond) {
+    this.pattern = pattern;
+    this.ledsPerSecond = ledsPerSecond;
+  }
 
-    @Override
-    public Color get(int led, double time) {
-        return pattern.get(led + (int) (ledsPerSecond * time), time);
-    }
+  @Override
+  public Color get(int led, double time) {
+    return pattern.get(led + (int) (ledsPerSecond * time), time);
+  }
 }

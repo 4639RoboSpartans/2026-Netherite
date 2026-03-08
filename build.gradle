@@ -189,6 +189,7 @@ spotless {
             include "**/*.java"
             exclude "**/build/**", "**/build-*/**"
         }
+        googleJavaFormat()
         toggleOffOn()
         trimTrailingWhitespace()
         endWithNewline()

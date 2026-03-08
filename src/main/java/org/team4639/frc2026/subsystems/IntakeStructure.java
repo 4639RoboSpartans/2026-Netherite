@@ -11,99 +11,125 @@ import org.team4639.frc2026.subsystems.extension.Extension;
 import org.team4639.frc2026.subsystems.intake.Intake;
 
 public class IntakeStructure {
-    public static final double AGITATE_PERIOD = 1;
-    private final Intake intake;
-    private final Extension extension;
+  public static final double AGITATE_PERIOD = 1;
+  private final Intake intake;
+  private final Extension extension;
 
-    private final Subsystem intakeDummy;
-    private final Subsystem extensionDummy;
+  private final Subsystem intakeDummy;
+  private final Subsystem extensionDummy;
 
-    private final RobotState robotState;
+  private final RobotState robotState;
 
-    // When the driver commands a state we remember it after using a command such as agitate that
-    // changes the state automatically and set it back to the proper state;
-    private Extension.WantedState lastExtensionWantedState = Extension.WantedState.IDLE;
-    private Intake.WantedState lastIntakeWantedState = Intake.WantedState.IDLE;
+  // When the driver commands a state we remember it after using a command such as agitate that
+  // changes the state automatically and set it back to the proper state;
+  private Extension.WantedState lastExtensionWantedState = Extension.WantedState.IDLE;
+  private Intake.WantedState lastIntakeWantedState = Intake.WantedState.IDLE;
 
-    public IntakeStructure(Intake intake, Extension extension, RobotState robotState){
-        this.intake = intake;
-        this.extension = extension;
+  public IntakeStructure(Intake intake, Extension extension, RobotState robotState) {
+    this.intake = intake;
+    this.extension = extension;
 
-        this.intakeDummy = new Subsystem() { };
-        this.extensionDummy = new Subsystem() { };
+    this.intakeDummy = new Subsystem() {};
+    this.extensionDummy = new Subsystem() {};
 
-        this.robotState = robotState;
+    this.robotState = robotState;
 
-        new Trigger(() -> intakeDummy.getCurrentCommand() == null && lastIntakeWantedState == Intake.WantedState.IDLE).onTrue(stopIntake());
-        new Trigger(() -> intakeDummy.getCurrentCommand() == null && lastIntakeWantedState == Intake.WantedState.INTAKE).onTrue(intake());
-        new Trigger(() -> intakeDummy.getCurrentCommand() == null && lastIntakeWantedState == Intake.WantedState.OUTTAKE).onTrue(outtake());
+    new Trigger(
+            () ->
+                intakeDummy.getCurrentCommand() == null
+                    && lastIntakeWantedState == Intake.WantedState.IDLE)
+        .onTrue(stopIntake());
+    new Trigger(
+            () ->
+                intakeDummy.getCurrentCommand() == null
+                    && lastIntakeWantedState == Intake.WantedState.INTAKE)
+        .onTrue(intake());
+    new Trigger(
+            () ->
+                intakeDummy.getCurrentCommand() == null
+                    && lastIntakeWantedState == Intake.WantedState.OUTTAKE)
+        .onTrue(outtake());
 
-        new Trigger(() -> extensionDummy.getCurrentCommand() == null && lastExtensionWantedState == Extension.WantedState.IDLE).onTrue(retract());
-        new Trigger(() -> extensionDummy.getCurrentCommand() == null && lastExtensionWantedState == Extension.WantedState.EXTENDED).onTrue(extend());
-    }
+    new Trigger(
+            () ->
+                extensionDummy.getCurrentCommand() == null
+                    && lastExtensionWantedState == Extension.WantedState.IDLE)
+        .onTrue(retract());
+    new Trigger(
+            () ->
+                extensionDummy.getCurrentCommand() == null
+                    && lastExtensionWantedState == Extension.WantedState.EXTENDED)
+        .onTrue(extend());
+  }
 
-    public Command extend() {
-        return extensionDummy.run(
-                () -> {
-                    extension.setWantedState(Extension.WantedState.EXTENDED);
-                }
-        ).finallyDo(this::updateLastWantedStates);
-    }
+  public Command extend() {
+    return extensionDummy
+        .run(
+            () -> {
+              extension.setWantedState(Extension.WantedState.EXTENDED);
+            })
+        .finallyDo(this::updateLastWantedStates);
+  }
 
-    public Command retract() {
-        return extensionDummy.run(
-                () -> {
-                    extension.setWantedState(Extension.WantedState.IDLE);
-                }
-                ).finallyDo(this::updateLastWantedStates);
-    }
+  public Command retract() {
+    return extensionDummy
+        .run(
+            () -> {
+              extension.setWantedState(Extension.WantedState.IDLE);
+            })
+        .finallyDo(this::updateLastWantedStates);
+  }
 
-    public Command intake() {
-        return intakeDummy.run(
-                () -> {
-                    intake.setWantedState(Intake.WantedState.INTAKE);
-                }
-        ).finallyDo(this::updateLastWantedStates);
-    }
+  public Command intake() {
+    return intakeDummy
+        .run(
+            () -> {
+              intake.setWantedState(Intake.WantedState.INTAKE);
+            })
+        .finallyDo(this::updateLastWantedStates);
+  }
 
-    public Command stopIntake() {
-        return intakeDummy.run(
-                () -> {
-                    intake.setWantedState(Intake.WantedState.IDLE);
-                }
-        ).finallyDo(this::updateLastWantedStates);
-    }
+  public Command stopIntake() {
+    return intakeDummy
+        .run(
+            () -> {
+              intake.setWantedState(Intake.WantedState.IDLE);
+            })
+        .finallyDo(this::updateLastWantedStates);
+  }
 
-    public Command outtake() {
-        return intakeDummy.run(
-                () -> {
-                    intake.setWantedState(Intake.WantedState.OUTTAKE);
-                }
-        ).finallyDo(this::updateLastWantedStates);
-    }
+  public Command outtake() {
+    return intakeDummy
+        .run(
+            () -> {
+              intake.setWantedState(Intake.WantedState.OUTTAKE);
+            })
+        .finallyDo(this::updateLastWantedStates);
+  }
 
-    public Command agitate() {
-        return Commands.either(agitateInOut(), agitateOutIn(),
-                () -> robotState.getExtensionStates().getFirst() == Extension.WantedState.EXTENDED
-        );
-    }
+  public Command agitate() {
+    return Commands.either(
+        agitateInOut(),
+        agitateOutIn(),
+        () -> robotState.getExtensionStates().getFirst() == Extension.WantedState.EXTENDED);
+  }
 
-    private Command agitateInOut() {
-        return ((
-                retract().withTimeout(AGITATE_PERIOD / 2)
-                        .andThen(extend().withTimeout(AGITATE_PERIOD / 2)))
-                .repeatedly());
-    }
+  private Command agitateInOut() {
+    return ((retract()
+            .withTimeout(AGITATE_PERIOD / 2)
+            .andThen(extend().withTimeout(AGITATE_PERIOD / 2)))
+        .repeatedly());
+  }
 
-    private Command agitateOutIn() {
-        return ((
-                extend().withTimeout(AGITATE_PERIOD / 2)
-                        .andThen(retract().withTimeout(AGITATE_PERIOD / 2)))
-                .repeatedly());
-    }
+  private Command agitateOutIn() {
+    return ((extend()
+            .withTimeout(AGITATE_PERIOD / 2)
+            .andThen(retract().withTimeout(AGITATE_PERIOD / 2)))
+        .repeatedly());
+  }
 
-    private void updateLastWantedStates() {
-        this.lastExtensionWantedState = robotState.getExtensionStates().getFirst();
-        this.lastIntakeWantedState = robotState.getIntakeStates().getFirst();
-    }
+  private void updateLastWantedStates() {
+    this.lastExtensionWantedState = robotState.getExtensionStates().getFirst();
+    this.lastIntakeWantedState = robotState.getIntakeStates().getFirst();
+  }
 }

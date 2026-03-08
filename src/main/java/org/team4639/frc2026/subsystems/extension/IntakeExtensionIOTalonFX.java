@@ -12,53 +12,54 @@ import org.team4639.lib.util.Phoenix6Factory;
 import org.team4639.lib.util.PhoenixUtil;
 
 public class IntakeExtensionIOTalonFX implements IntakeExtensionIO {
-    private final TalonFX extensionMotor;
+  private final TalonFX extensionMotor;
 
-    private final TalonFXConfiguration config = new TalonFXConfiguration();
+  private final TalonFXConfiguration config = new TalonFXConfiguration();
 
-    private final VoltageOut request = new VoltageOut(0);
+  private final VoltageOut request = new VoltageOut(0);
 
-    public IntakeExtensionIOTalonFX(PortConfiguration ports) {
-        extensionMotor = Phoenix6Factory.createDefaultTalon(ports.IntakeExtensionMotorID, false);
+  public IntakeExtensionIOTalonFX(PortConfiguration ports) {
+    extensionMotor = Phoenix6Factory.createDefaultTalon(ports.IntakeExtensionMotorID, false);
 
-        config.CurrentLimits.SupplyCurrentLimit = 20;
-        config.CurrentLimits.SupplyCurrentLimitEnable = true;
-        config.CurrentLimits.StatorCurrentLimit = 20;
-        config.CurrentLimits.StatorCurrentLimitEnable = true;
-        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    config.CurrentLimits.SupplyCurrentLimit = 20;
+    config.CurrentLimits.SupplyCurrentLimitEnable = true;
+    config.CurrentLimits.StatorCurrentLimit = 20;
+    config.CurrentLimits.StatorCurrentLimitEnable = true;
+    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-        //config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    // config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
-        PhoenixUtil.tryUntilOk(5, () -> extensionMotor.getConfigurator().apply(config));
-    }
+    PhoenixUtil.tryUntilOk(5, () -> extensionMotor.getConfigurator().apply(config));
+  }
 
-    @Override
-    public void updateInputs(IntakeExtensionIOInputs inputs) {
-        inputs.connected = BaseStatusSignal.refreshAll(
+  @Override
+  public void updateInputs(IntakeExtensionIOInputs inputs) {
+    inputs.connected =
+        BaseStatusSignal.refreshAll(
                 extensionMotor.getMotorVoltage(),
                 extensionMotor.getStatorCurrent(),
                 extensionMotor.getDeviceTemp(),
-                extensionMotor.getVelocity()
-        ).isOK();
-        inputs.voltage = extensionMotor.getMotorVoltage().getValueAsDouble();
-        inputs.current = extensionMotor.getStatorCurrent().getValueAsDouble();
-        inputs.temperature = extensionMotor.getDeviceTemp().getValueAsDouble();
-        inputs.velocity = extensionMotor.getVelocity().getValueAsDouble();
-        inputs.position = extensionMotor.getPosition().getValueAsDouble();
-    }
+                extensionMotor.getVelocity())
+            .isOK();
+    inputs.voltage = extensionMotor.getMotorVoltage().getValueAsDouble();
+    inputs.current = extensionMotor.getStatorCurrent().getValueAsDouble();
+    inputs.temperature = extensionMotor.getDeviceTemp().getValueAsDouble();
+    inputs.velocity = extensionMotor.getVelocity().getValueAsDouble();
+    inputs.position = extensionMotor.getPosition().getValueAsDouble();
+  }
 
-    @Override
-    public void setVoltage(double appliedVoltage) {
-        extensionMotor.setControl(request.withOutput(appliedVoltage));
-    }
+  @Override
+  public void setVoltage(double appliedVoltage) {
+    extensionMotor.setControl(request.withOutput(appliedVoltage));
+  }
 
-    @Override
-    public void stop() {
-        extensionMotor.stopMotor();
-    }
+  @Override
+  public void stop() {
+    extensionMotor.stopMotor();
+  }
 
-    @Override
-    public void setBrakeMode(boolean brake) {
-        extensionMotor.setNeutralMode(brake ? NeutralModeValue.Brake : NeutralModeValue.Coast);
-    }
+  @Override
+  public void setBrakeMode(boolean brake) {
+    extensionMotor.setNeutralMode(brake ? NeutralModeValue.Brake : NeutralModeValue.Coast);
+  }
 }

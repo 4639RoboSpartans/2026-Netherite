@@ -3,5 +3,5 @@
 package org.team4639.frc2026.subsystems.extension;
 
 public class Constants {
-    public static final double ROTOR_RANGE = 13.665527 - (-6.997559);
+  public static final double ROTOR_RANGE = 13.665527 - (-6.997559);
 }

@@ -3,11 +3,11 @@
 package org.team4639.lib.util;
 
 public class Container<T> {
-    public T value;
+  public T value;
 
-    public Container() {}
+  public Container() {}
 
-    public Container(T initialValue) {
-        value = initialValue;
-    }
+  public Container(T initialValue) {
+    value = initialValue;
+  }
 }
