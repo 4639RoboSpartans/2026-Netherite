@@ -2,13 +2,10 @@
 
 package org.team4639.frc2026;
 
-import static edu.wpi.first.units.Units.*;
-
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import org.team4639.frc2026.auto.AutoCommands;
 import org.team4639.frc2026.auto.AutoCommands3;
 import org.team4639.frc2026.commands.DriveCommands;
 import org.team4639.frc2026.commands.LEDCommands;
@@ -271,9 +268,6 @@ public class RobotContainer {
     }
 
     // Set up auto routines
-
-    AutoCommands autoCommands = new AutoCommands(drive);
-
     autoChooser = new LoggedLazyAutoChooser("Auto Choices");
 
     autoChooser.addOption(
