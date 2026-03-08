@@ -138,27 +138,6 @@ public class Turret extends FullSubsystem {
       }
     }
 
-    /*var speeds = state.getChassisSpeeds();
-    if (MathUtil.isNear(Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond), 0, 5E-2)
-            && MathUtil.isNear(speeds.omegaRadiansPerSecond, 0, 5E-2)
-            && MathUtil.isNear(turretInputs.motorVelocity, 0, 1E-3)) {
-        CRTMeasurements.add(CRT());
-        if (turretRezeroDebouncer.calculate(true)) {
-            var averageCRT = CRTMeasurements.stream().reduce(Double::sum).orElse(-1.0) / CRTMeasurements.size();
-
-            boolean allInTolerance = true;
-            var isCRTStable = CRTMeasurements.stream().anyMatch(measurement -> !MathUtil.isNear(measurement, averageCRT, 1E-2));
-
-            if (isCRTStable && Constants.TURRET_MIN_ROTATIONS <= averageCRT && averageCRT <= Constants.TURRET_MAX_ROTATIONS) {
-                rezeroTurret();
-
-                CRTMeasurements.clear();
-            }
-        }
-    } else {
-        turretRezeroDebouncer.calculate(false);
-        CRTMeasurements.clear();
-    }*/
   }
 
   private void runStateMachine() {
@@ -167,10 +146,6 @@ public class Turret extends FullSubsystem {
       Logger.recordOutput("Turret/SystemState", newState);
       systemState = newState;
     }
-
-    //        if (DriverStation.isDisabled()) {
-    //            systemState = SystemState.IDLE;
-    //        }
 
     switch (systemState) {
       case IDLE:
