@@ -193,7 +193,6 @@ public class RobotState extends VirtualSubsystem
   // Miscellaneous Robot State
   // -------------------------------------------------------------------------
 
-  @Setter private GenericSuperstructureState superstructureState = GenericSuperstructureState.IDLE;
 
   @Getter
   @AutoLogOutput(key = "Intake Extension Fraction")
