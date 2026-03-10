@@ -650,24 +650,6 @@ public class RobotState extends VirtualSubsystem
   // =========================================================================
 
   public LEDPattern getDesiredLEDPattern() {
-    return switch (superstructureState) {
-      case IDLE:
-        if (intakeStates.getSecond() == Intake.SystemState.INTAKE) yield Patterns.DEFAULT_INTAKE;
-        else yield Patterns.DEFAULT;
-      case WAITING:
-        if (intakeStates.getSecond() == Intake.SystemState.INTAKE)
-          yield Patterns.SHOOTER_REQUESTED_AND_INTAKE;
-        else yield Patterns.SHOOTER_REQUESTED;
-      case SHOOT:
-        if (intakeStates.getSecond() == Intake.SystemState.INTAKE)
-          yield Patterns.SHOOTING_AND_INTAKE;
-        else yield Patterns.SHOOTING;
-      case PASS:
-        if (intakeStates.getSecond() == Intake.SystemState.INTAKE)
-          yield Patterns.PASSING_AND_INTAKE;
-        else yield Patterns.PASSING;
-      case MANUAL:
-        yield Patterns.MANUAL;
-    };
+    return LEDPattern.BLANK;
   }
 }
