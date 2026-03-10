@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
@@ -35,6 +36,8 @@ public class Kicker extends FullSubsystem {
 
   private WantedState wantedState = WantedState.IDLE;
   private SystemState systemState = SystemState.IDLE;
+
+  public final Subsystem dummy = new Subsystem() {};
 
   public Kicker(KickerIO io, RobotState state) {
     this.io = io;

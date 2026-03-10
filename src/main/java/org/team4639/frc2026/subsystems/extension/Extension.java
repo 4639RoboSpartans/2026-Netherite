@@ -6,6 +6,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import lombok.Setter;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
@@ -48,6 +49,8 @@ public class Extension extends FullSubsystem {
 
   private double retractedRotorPosition = 0.0;
   private double extendedRotorPosition = Constants.MOTOR_TO_RACK_GEAR_RATIO;
+
+  public final Subsystem dummy = new Subsystem() {};
 
   public Extension(IntakeExtensionIO io, RobotState state) {
     this.io = io;

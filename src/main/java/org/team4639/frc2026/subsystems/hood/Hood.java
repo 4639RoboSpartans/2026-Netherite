@@ -8,6 +8,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import lombok.Getter;
 import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -55,6 +56,8 @@ public class Hood extends FullSubsystem {
   private SystemState systemState = SystemState.HOME_DOWN;
 
   private WantedState lastZeroedWantedState = wantedState;
+
+  public final Subsystem dummy = new Subsystem() {};
 
   public Hood(HoodIO io, RobotState state) {
     this.io = io;

@@ -8,6 +8,7 @@ import edu.wpi.first.math.Pair;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
@@ -25,6 +26,8 @@ public class Spindexer extends FullSubsystem {
   private final double unjamTimePeriod = 0.2;
 
   @Getter private final SpindexerSysID sysID = new SpindexerSysID.SpindexerSysIDWPI(this, inputs);
+
+  public final Subsystem dummy = new Subsystem() {};
 
   public enum WantedState {
     IDLE,

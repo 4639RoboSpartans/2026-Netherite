@@ -265,8 +265,9 @@ public class RobotState extends VirtualSubsystem
     return secondaryPoseEstimator.getEstimatedPose();
   }
 
+  // use secondary because we always want vision on the turret
   public Pose2d getTurretPose() {
-    return primaryPoseEstimator.getEstimatedPose().transformBy(
+    return secondaryPoseEstimator.getEstimatedPose().transformBy(
             new Transform2d(
                     Constants.SimConstants.originToTurretRotation.toTranslation2d(),
                     Rotation2d.fromRotations(getScoringState().turretAngle().in(Rotations))));

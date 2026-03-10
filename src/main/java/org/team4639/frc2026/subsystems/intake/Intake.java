@@ -3,6 +3,7 @@
 package org.team4639.frc2026.subsystems.intake;
 
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import lombok.Getter;
 import lombok.Setter;
 import org.littletonrobotics.junction.Logger;
@@ -36,6 +37,8 @@ public class Intake extends FullSubsystem {
   @Setter private WantedState wantedState = WantedState.IDLE;
 
   private SystemState systemState = SystemState.IDLE;
+
+  public final Subsystem dummy = new Subsystem() {};
 
   public Intake(IntakeRollerIO rollerIO, RobotState state) {
     this.rollerIO = rollerIO;

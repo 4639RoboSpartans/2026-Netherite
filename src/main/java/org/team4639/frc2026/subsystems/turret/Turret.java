@@ -15,6 +15,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.locks.ReentrantLock;
+
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -63,6 +65,8 @@ public class Turret extends FullSubsystem {
 
   private WantedState wantedState = WantedState.IDLE;
   private SystemState systemState = SystemState.IDLE;
+
+  public final Subsystem dummy = new Subsystem() {};
 
   public Turret(
       TurretIO turretIO, EncoderIO leftEncoderIO, EncoderIO rightEncoderIO, RobotState state) {
@@ -300,7 +304,7 @@ public class Turret extends FullSubsystem {
 
         double rotations =
             currentScoringState.turretAngle().in(Rotations)
-                - state.getEstimatedPose().getRotation().getRotations();
+                - state.getSecondaryEstimatedPose().getRotation().getRotations();
         double rotationsPerSecond =
             (nextScoringState.turretAngle().in(Rotations)
                     - state.calculateNextPose(this).getRotation().getRotations())
@@ -312,12 +316,12 @@ public class Turret extends FullSubsystem {
       case PASSING -> PASSING_TURRET_ROTATION =
           new TurretSetpoint(
               state.calculatePassingState(this).turretAngle().in(Rotations)
-                  - state.getEstimatedPose().getRotation().getRotations(),
+                  - state.getSecondaryEstimatedPose().getRotation().getRotations(),
               -state.getGyroRotationsPerSecond());
       case HUB_TRACK -> HUB_TRACK_TURRET_ROTATION =
           new TurretSetpoint(
               MathUtil.inputModulus(state.getBestHubTrackFieldRelative().getRotations(), 0, 1)
-                  - state.getEstimatedPose().getRotation().getRotations(),
+                  - state.getSecondaryEstimatedPose().getRotation().getRotations(),
               0);
     };
   }

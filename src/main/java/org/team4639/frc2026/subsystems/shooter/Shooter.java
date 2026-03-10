@@ -8,6 +8,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import lombok.Getter;
 import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -37,6 +38,8 @@ public class Shooter extends FullSubsystem {
       new LoggedTunableNumber("Desired RPM").initDefault(0);
 
   @Getter private final ShooterSysID sysID = new ShooterSysID.ShooterSysIDWPI(this, inputs);
+
+  public final Subsystem dummy = new Subsystem() {};
 
   public enum WantedState {
     OFF,
