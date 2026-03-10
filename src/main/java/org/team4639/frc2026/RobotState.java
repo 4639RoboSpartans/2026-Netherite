@@ -419,7 +419,6 @@ public class RobotState extends VirtualSubsystem
           double timestampSeconds,
           Matrix<N3, N1> visionMeasurementStdDevs,
           int numtargets) {
-    if (superstructureState == GenericSuperstructureState.MANUAL) return;
 
     var estimatedRobotPose =
             visionTurretPoseMeters.transformBy(
