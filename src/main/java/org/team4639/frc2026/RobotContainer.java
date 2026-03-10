@@ -65,9 +65,6 @@ public class RobotContainer {
   private final Turret turret;
   private final LEDKicker ledkicker;
 
-  private final Superstructure superstructure;
-  private final IntakeStructure intakeStructure;
-
   // Controller
   private final CommandXboxController driver = new DeadbandXboxController(0);
   private final CommandXboxController operator = new DeadbandXboxController(1);
@@ -140,11 +137,6 @@ public class RobotContainer {
 
         ledkicker = new LEDKicker(new LEDKickerIOHardware(portConfiguration, 150));
 
-        superstructure =
-            new Superstructure(turret, hood, shooter, kicker, spindexer, RobotState.getInstance());
-
-        intakeStructure = new IntakeStructure(intake, extension, RobotState.getInstance());
-
         configureButtonBindings();
         break;
 
@@ -215,11 +207,6 @@ public class RobotContainer {
 
         ledkicker = new LEDKicker(new LEDKickerIOSim());
 
-        superstructure =
-            new Superstructure(turret, hood, shooter, kicker, spindexer, RobotState.getInstance());
-
-        intakeStructure = new IntakeStructure(intake, extension, RobotState.getInstance());
-
         configureSimButtonBindings();
         break;
 
@@ -258,11 +245,6 @@ public class RobotContainer {
 
         ledkicker = new LEDKicker(new LEDKickerIO() {});
 
-        superstructure =
-            new Superstructure(turret, hood, shooter, kicker, spindexer, RobotState.getInstance());
-
-        intakeStructure = new IntakeStructure(intake, extension, RobotState.getInstance());
-
         configureButtonBindings();
         break;
     }
@@ -270,24 +252,6 @@ public class RobotContainer {
     // Set up auto routines
     autoChooser = new LoggedLazyAutoChooser("Auto Choices");
 
-    autoChooser.addOption(
-        "LEFT_DOUBLE_SWIPE",
-        () ->
-            AutoCommands3.LEFT_DOUBLE_SWIPE(
-                    drive, superstructure, intakeStructure, RobotState.getInstance())
-                .withTimeout(20));
-    autoChooser.addOption(
-        "RIGHT_DOUBLE_SWIPE",
-        () ->
-            AutoCommands3.RIGHT_DOUBLE_SWIPE(
-                    drive, superstructure, intakeStructure, RobotState.getInstance())
-                .withTimeout(20));
-    autoChooser.addOption(
-        "RIGHT_SWIPE_OUTPOST",
-        () ->
-            AutoCommands3.RIGHT_SWIPE_OUTPOST(
-                    drive, superstructure, intakeStructure, RobotState.getInstance())
-                .withTimeout(20));
   }
 
   /**
@@ -307,65 +271,6 @@ public class RobotContainer {
                 Math.pow(Math.abs(driver.getRightX()), 0.75) * (driver.getRightX() > 0 ? -1 : 1)));
 
     ledkicker.setDefaultCommand(LEDCommands.useDefaultSchema(ledkicker, RobotState.getInstance()));
-
-    superstructure.setDefaultCommand(superstructure.idle());
-    driver.rightTrigger().whileTrue(superstructure.requestScoring());
-    driver.leftTrigger().whileTrue(superstructure.requestPassing());
-
-    driver
-        .a()
-        .onTrue(
-            intakeStructure
-                .intake()
-                .alongWith(
-                    Commands.run(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 1))
-                        .withTimeout(0.25)
-                        .finallyDo(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 0))));
-    driver
-        .b()
-        .onTrue(
-            intakeStructure
-                .stopIntake()
-                .alongWith(
-                    Commands.run(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 1))
-                        .withTimeout(0.25)
-                        .finallyDo(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 0))));
-
-    driver
-        .x()
-        .onTrue(
-            intakeStructure
-                .extend()
-                .alongWith(
-                    Commands.run(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 1))
-                        .withTimeout(0.25)
-                        .finallyDo(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 0))));
-    driver
-        .y()
-        .onTrue(
-            intakeStructure
-                .retract()
-                .alongWith(
-                    Commands.run(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 1))
-                        .withTimeout(0.25)
-                        .finallyDo(() -> driver.setRumble(GenericHID.RumbleType.kBothRumble, 0))));
-
-    driver.rightBumper().or(driver.leftBumper()).whileTrue(intakeStructure.agitate());
-
-    operator.leftTrigger().whileTrue(superstructure.manual1());
-    operator.leftBumper().whileTrue(superstructure.manual2());
-    operator.rightBumper().whileTrue(superstructure.manual3());
-    operator.rightTrigger().whileTrue(superstructure.manual4());
-
-    operator.y().onTrue(superstructure.toggleTurretDisable());
-    operator.x().onTrue(Commands.runOnce(turret::rezeroTurret));
-
-    operator.povUp().onTrue(Commands.runOnce(RobotState.getInstance()::fudgeUp));
-    operator.povDown().onTrue(Commands.runOnce(RobotState.getInstance()::fudgeDown));
-
-    operator.povLeft().onTrue(Commands.runOnce(RobotState.getInstance()::toggleIntakeProtection));
-
-    operator.a().and(operator.b()).onTrue(Commands.runOnce(RobotState.getInstance()::resetGyro));
   }
 
   private void configureSimButtonBindings() {
