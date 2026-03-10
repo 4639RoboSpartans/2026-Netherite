@@ -97,7 +97,6 @@ public class Shooter extends FullSubsystem {
   @Override
   public void periodicAfterScheduler() {
     RobotState.getInstance().setShooterStates(new Pair<>(wantedState, systemState));
-    RobotState.getInstance().accept(inputs);
 
     state.acceptCANMeasurement(inputs.leftConnected);
     state.acceptCANMeasurement(inputs.rightConnected);

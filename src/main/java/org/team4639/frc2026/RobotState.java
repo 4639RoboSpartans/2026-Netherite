@@ -624,21 +624,6 @@ public class RobotState extends VirtualSubsystem
     return nearestHub.minus(getTurretPose().getTranslation()).getAngle();
   }
 
-  // =========================================================================
-  // Subsystem IO Accept Methods
-  // =========================================================================
-
-  public void accept(ShooterIO.ShooterIOInputs inputs) {
-    // TODO: something with this
-  }
-
-  public void accept(HoodIO.HoodIOInputs inputs) {
-    // TODO: something with this
-  }
-
-  public void accept(TurretIO.TurretIOInputs inputs) {
-    // TODO: something with this
-  }
 
   // =========================================================================
   // Hardware Health Methods

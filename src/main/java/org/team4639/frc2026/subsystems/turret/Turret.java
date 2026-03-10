@@ -165,7 +165,6 @@ public class Turret extends FullSubsystem {
   @Override
   public void periodicAfterScheduler() {
     RobotState.getInstance().setTurretStates(new Pair<>(wantedState, systemState));
-    RobotState.getInstance().accept(turretInputs);
 
     state.acceptCANMeasurement(turretInputs.turretMotorConnected);
     state.acceptTemperatureMeasurement(turretInputs.motorTemperature);

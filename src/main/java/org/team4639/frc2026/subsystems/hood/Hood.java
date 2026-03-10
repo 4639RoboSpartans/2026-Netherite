@@ -104,8 +104,6 @@ public class Hood extends FullSubsystem {
   @Override
   public void periodicAfterScheduler() {
     state.setHoodStates(new Pair<>(wantedState, systemState));
-    state.accept(inputs);
-
     state.acceptCANMeasurement(inputs.hoodMotorConnected);
     state.acceptTemperatureMeasurement(inputs.pivotTemperature);
   }
