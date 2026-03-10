@@ -128,13 +128,10 @@ public class RobotState extends VirtualSubsystem
 
   @Getter private ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
-    // -------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
   // Turret State
   // -------------------------------------------------------------------------
 
-  @Getter
-  @AutoLogOutput(key = "Turret Pose")
-  private Pose2d turretPose = new Pose2d();
 
   @Getter private int turretCameraTargets = 0;
 
@@ -211,7 +208,7 @@ public class RobotState extends VirtualSubsystem
   @Override
   public void periodic() {
     robotFieldInternal.setRobotPose(getEstimatedPose());
-    robotFieldInternal.getObject("Turret Pose").setPose(turretPose);
+    robotFieldInternal.getObject("Turret Pose").setPose(getTurretPose());
     SmartDashboard.putData(ROBOT_FIELD_INTERNAL_KEY, robotFieldInternal);
     robotFieldTrue.setRobotPose(getTrueOnFieldPose());
     SmartDashboard.putData(ROBOT_FIELD_TRUE_KEY, robotFieldTrue);
@@ -266,6 +263,13 @@ public class RobotState extends VirtualSubsystem
 
   public Pose2d getSecondaryEstimatedPose() {
     return secondaryPoseEstimator.getEstimatedPose();
+  }
+
+  public Pose2d getTurretPose() {
+    return primaryPoseEstimator.getEstimatedPose().transformBy(
+            new Transform2d(
+                    Constants.SimConstants.originToTurretRotation.toTranslation2d(),
+                    Rotation2d.fromRotations(getScoringState().turretAngle().in(Rotations))));
   }
 
   /**
