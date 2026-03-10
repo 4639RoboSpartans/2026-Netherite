@@ -43,9 +43,9 @@ public abstract sealed class KickerSysID {
                   kicker::setVoltage,
                   log -> {
                     log.motor("roller")
-                        .angularPosition(Rotations.of(inputs.motorPosition))
-                        .angularVelocity(Rotations.of(inputs.motorVelocity).per(Second))
-                        .voltage(Volts.of(inputs.motorVoltage));
+                        .angularPosition(Rotations.of(inputs.rotations))
+                        .angularVelocity(Rotations.of(inputs.rotationsPerSecond).per(Second))
+                        .voltage(Volts.of(inputs.volts));
                   },
                   kicker));
     }

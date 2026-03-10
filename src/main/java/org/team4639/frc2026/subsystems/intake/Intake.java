@@ -70,7 +70,7 @@ public class Intake extends FullSubsystem {
     state.setIntakeStates(new Pair<>(this.wantedState, this.systemState));
 
     state.acceptCANMeasurement(rollerInputs.connected);
-    state.acceptTemperatureMeasurement(rollerInputs.temperature);
+    state.acceptTemperatureMeasurement(rollerInputs.celsius);
   }
 
   public SystemState handleStateTransitions() {

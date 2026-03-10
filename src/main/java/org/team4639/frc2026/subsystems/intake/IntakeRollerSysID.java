@@ -43,9 +43,9 @@ public abstract class IntakeRollerSysID {
                   voltage -> intake.setRollerVoltage(voltage.in(Volts)),
                   log -> {
                     log.motor("roller")
-                        .angularPosition(Rotations.of(inputs.position))
-                        .angularVelocity(Rotations.of(inputs.velocity).per(Second))
-                        .voltage(Volts.of(inputs.voltage));
+                        .angularPosition(Rotations.of(inputs.rotations))
+                        .angularVelocity(Rotations.of(inputs.rotationsPerSecond).per(Second))
+                        .voltage(Volts.of(inputs.volts));
                   },
                   intake));
     }

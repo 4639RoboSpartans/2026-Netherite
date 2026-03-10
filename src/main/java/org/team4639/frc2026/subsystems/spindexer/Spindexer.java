@@ -60,8 +60,8 @@ public class Spindexer extends FullSubsystem {
   @Override
   public void periodicAfterScheduler() {
     state.setSpindexerStates(new Pair<>(this.wantedState, this.systemState));
-    state.acceptCANMeasurement(inputs.motorConnected);
-    state.acceptTemperatureMeasurement(inputs.motorTemperature);
+    state.acceptCANMeasurement(inputs.connected);
+    state.acceptTemperatureMeasurement(inputs.celsius);
   }
 
   private void runStateMachine() {
@@ -97,7 +97,7 @@ public class Spindexer extends FullSubsystem {
             yield SystemState.SPIN;
           }
           case SPIN -> {
-            if (Math.abs(inputs.motorCurrent) > 70) {
+            if (Math.abs(inputs.amps) > 70) {
               unjamStartTime = Timer.getTimestamp();
               yield SystemState.UNJAM;
             } else {

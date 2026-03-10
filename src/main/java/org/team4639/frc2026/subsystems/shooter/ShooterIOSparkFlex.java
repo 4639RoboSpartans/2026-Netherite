@@ -81,11 +81,11 @@ public class ShooterIOSparkFlex implements ShooterIO {
   public void updateInputs(ShooterIOInputs inputs) {
     inputs.rightConnected = !leftShooter.getFaults().can;
     inputs.leftConnected = !rightShooter.getFaults().can;
-    inputs.leftVoltage = leftShooter.getBusVoltage();
-    inputs.rightVoltage = rightShooter.getBusVoltage();
-    inputs.leftCurrent = leftShooter.getOutputCurrent();
-    inputs.rightCurrent = rightShooter.getOutputCurrent();
-    inputs.leftTemperature = leftShooter.getMotorTemperature();
+    inputs.leftVolts = leftShooter.getBusVoltage();
+    inputs.rightVolts = rightShooter.getBusVoltage();
+    inputs.leftAmps = leftShooter.getOutputCurrent();
+    inputs.rightAmps = rightShooter.getOutputCurrent();
+    inputs.leftCelsius = leftShooter.getMotorTemperature();
     inputs.rightTemperature = rightShooter.getMotorTemperature();
     inputs.leftRPM = (leftShooter.getEncoder().getVelocity() * 60) / SHOOTER_GEAR_RATIO;
     inputs.rightRPM = (rightShooter.getEncoder().getVelocity() * 60) / SHOOTER_GEAR_RATIO;

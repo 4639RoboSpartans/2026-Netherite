@@ -41,9 +41,9 @@ public sealed class SpindexerSysID {
                   spindexer::setVoltage,
                   log -> {
                     log.motor("spindexer")
-                        .angularPosition(Rotations.of(inputs.motorPosition))
-                        .angularVelocity(Rotations.of(inputs.motorVelocity).per(Second))
-                        .voltage(Volts.of(inputs.motorVoltage));
+                        .angularPosition(Rotations.of(inputs.rotations))
+                        .angularVelocity(Rotations.of(inputs.rotationsPerSecond).per(Second))
+                        .voltage(Volts.of(inputs.volts));
                   }, // SignalLogger handles logging
                   spindexer));
     }

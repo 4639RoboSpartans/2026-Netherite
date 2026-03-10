@@ -36,18 +36,18 @@ public class KickerIOTalonFX implements KickerIO {
 
   @Override
   public void updateInputs(KickerIOInputs inputs) {
-    inputs.motorConnected =
+    inputs.connected =
         BaseStatusSignal.refreshAll(
                 kickerMotor.getMotorVoltage(),
                 kickerMotor.getStatorCurrent(),
                 kickerMotor.getVelocity(),
                 kickerMotor.getDeviceTemp())
             .isOK();
-    inputs.motorVoltage = kickerMotor.getMotorVoltage().getValueAsDouble();
-    inputs.motorCurrent = kickerMotor.getStatorCurrent().getValueAsDouble();
-    inputs.motorVelocity = kickerMotor.getVelocity().getValueAsDouble();
-    inputs.motorTemperature = kickerMotor.getDeviceTemp().getValueAsDouble();
-    inputs.motorPosition = kickerMotor.getPosition().getValueAsDouble();
+    inputs.volts = kickerMotor.getMotorVoltage().getValueAsDouble();
+    inputs.amps = kickerMotor.getStatorCurrent().getValueAsDouble();
+    inputs.rotationsPerSecond = kickerMotor.getVelocity().getValueAsDouble();
+    inputs.celsius = kickerMotor.getDeviceTemp().getValueAsDouble();
+    inputs.rotations = kickerMotor.getPosition().getValueAsDouble();
   }
 
   @Override

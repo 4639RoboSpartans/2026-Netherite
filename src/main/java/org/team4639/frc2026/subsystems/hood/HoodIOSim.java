@@ -39,12 +39,12 @@ public class HoodIOSim implements HoodIO {
     setSetpointDegrees(pivotSetpointDegrees);
     hoodSim.update(Robot.defaultPeriodSecs);
 
-    inputs.pivotVoltage = appliedVolts;
-    inputs.pivotPositionDegrees =
+    inputs.volts = appliedVolts;
+    inputs.degrees =
         (Units.radiansToRotations(hoodSim.getAngleRads()) - HOOD_ENCODER_MIN_ROTATION)
                 / ENCODER_ROTATIONS_PER_DEGREE
             + HOOD_MIN_ANGLE_DEGREES;
-    inputs.pivotVelocityDegrees = Units.radiansToDegrees(hoodSim.getVelocityRadPerSec());
+    inputs.degreesPerSecond = Units.radiansToDegrees(hoodSim.getVelocityRadPerSec());
   }
 
   @Override

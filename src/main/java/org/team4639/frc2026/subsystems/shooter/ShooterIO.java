@@ -18,11 +18,11 @@ public interface ShooterIO {
   class ShooterIOInputs {
     public boolean rightConnected = true;
     public boolean leftConnected = true;
-    public double leftVoltage;
-    public double rightVoltage;
-    public double leftCurrent;
-    public double rightCurrent;
-    public double leftTemperature;
+    public double leftVolts;
+    public double rightVolts;
+    public double leftAmps;
+    public double rightAmps;
+    public double leftCelsius;
     public double rightTemperature;
     public double leftRPM;
     public double rightRPM;

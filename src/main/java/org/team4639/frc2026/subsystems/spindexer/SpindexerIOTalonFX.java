@@ -36,18 +36,18 @@ public class SpindexerIOTalonFX implements SpindexerIO {
 
   @Override
   public void updateInputs(SpindexerIOInputs inputs) {
-    inputs.motorConnected =
+    inputs.connected =
         BaseStatusSignal.refreshAll(
                 spindexerMotor.getMotorVoltage(),
                 spindexerMotor.getStatorCurrent(),
                 spindexerMotor.getVelocity(),
                 spindexerMotor.getDeviceTemp())
             .isOK();
-    inputs.motorVoltage = spindexerMotor.getMotorVoltage().getValueAsDouble();
-    inputs.motorCurrent = spindexerMotor.getStatorCurrent().getValueAsDouble();
-    inputs.motorVelocity = spindexerMotor.getVelocity().getValueAsDouble();
-    inputs.motorTemperature = spindexerMotor.getDeviceTemp().getValueAsDouble();
-    inputs.motorPosition = spindexerMotor.getPosition().getValueAsDouble();
+    inputs.volts = spindexerMotor.getMotorVoltage().getValueAsDouble();
+    inputs.amps = spindexerMotor.getStatorCurrent().getValueAsDouble();
+    inputs.rotationsPerSecond = spindexerMotor.getVelocity().getValueAsDouble();
+    inputs.celsius = spindexerMotor.getDeviceTemp().getValueAsDouble();
+    inputs.rotations = spindexerMotor.getPosition().getValueAsDouble();
   }
 
   @Override

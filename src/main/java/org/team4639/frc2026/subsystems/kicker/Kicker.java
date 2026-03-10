@@ -68,8 +68,8 @@ public class Kicker extends FullSubsystem {
   public void periodicAfterScheduler() {
     state.setKickerStates(new Pair<>(this.wantedState, this.systemState));
 
-    state.acceptCANMeasurement(inputs.motorConnected);
-    state.acceptTemperatureMeasurement(inputs.motorTemperature);
+    state.acceptCANMeasurement(inputs.connected);
+    state.acceptTemperatureMeasurement(inputs.celsius);
   }
 
   private void runStateMachine() {

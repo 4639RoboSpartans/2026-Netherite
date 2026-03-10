@@ -17,12 +17,12 @@ public interface HoodIO {
 
   @AutoLog
   class HoodIOInputs {
-    public boolean hoodMotorConnected = true;
+    public boolean connected = true;
     public boolean pivotEncoderConnected = true;
-    public double pivotVoltage = 0.0;
-    public double pivotCurrent = 0.0;
-    public double pivotTemperature = 0.0;
-    public double pivotPositionDegrees = 0.0;
-    public double pivotVelocityDegrees = 0.0;
+    public double volts = 0.0;
+    public double amps = 0.0;
+    public double celsius = 0.0;
+    public double degrees = 0.0;
+    public double degreesPerSecond = 0.0;
   }
 }

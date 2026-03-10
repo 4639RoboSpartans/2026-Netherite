@@ -38,7 +38,7 @@ public abstract sealed class ShooterSysID {
                     log.motor("Shooter")
                         .angularVelocity(Units2.RPM.of(inputs.leftRPM))
                         .angularPosition(Rotations.of(inputs.leftRotations))
-                        .voltage(Volts.of(inputs.leftVoltage));
+                        .voltage(Volts.of(inputs.leftVolts));
                   },
                   shooter));
     }

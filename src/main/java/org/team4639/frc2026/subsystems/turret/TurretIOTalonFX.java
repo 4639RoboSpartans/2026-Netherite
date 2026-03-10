@@ -30,9 +30,6 @@ public class TurretIOTalonFX implements TurretIO {
   private final StatusSignal<Voltage> motorVoltage;
   private final StatusSignal<Current> motorCurrent;
 
-  private final Queue<Double> motorPositions;
-  private final Queue<Double> timestampQueue;
-
   public TurretIOTalonFX(PortConfiguration ports) {
     turretMotor = Phoenix6Factory.createDefaultTalon(ports.TurretMotorID);
 
@@ -57,8 +54,6 @@ public class TurretIOTalonFX implements TurretIO {
     motorVoltage = turretMotor.getMotorVoltage();
     motorCurrent = turretMotor.getStatorCurrent();
 
-    motorPositions = PhoenixOdometryThread.getInstance().registerSignal(motorPosition.clone());
-    timestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
 
     /*BaseStatusSignal.setUpdateFrequencyForAll(
             50.0,
@@ -71,7 +66,7 @@ public class TurretIOTalonFX implements TurretIO {
 
   @Override
   public void updateInputs(TurretIOInputs inputs) {
-    inputs.turretMotorConnected =
+    inputs.connected =
         BaseStatusSignal.refreshAll(
                 motorVoltage,
                 motorCurrent,
@@ -79,19 +74,11 @@ public class TurretIOTalonFX implements TurretIO {
                 motorVelocity,
                 motorPosition)
             .isOK();
-    inputs.motorVoltage = motorVoltage.getValueAsDouble();
-    inputs.motorCurrent = motorCurrent.getValueAsDouble();
-    inputs.motorTemperature = turretMotor.getDeviceTemp().getValueAsDouble();
-    inputs.motorVelocity = motorVelocity.getValueAsDouble();
-    inputs.motorPositionRotations = motorPosition.getValueAsDouble();
-
-    inputs.motorPositionsRotations =
-        motorPositions.stream().mapToDouble((Double value) -> value).toArray();
-    inputs.motorPositionsTimestamps =
-        timestampQueue.stream().mapToDouble((Double value) -> value).toArray();
-
-    motorPositions.clear();
-    timestampQueue.clear();
+    inputs.volts = motorVoltage.getValueAsDouble();
+    inputs.amps = motorCurrent.getValueAsDouble();
+    inputs.celsius = turretMotor.getDeviceTemp().getValueAsDouble();
+    inputs.rotationsPerSecond = motorVelocity.getValueAsDouble();
+    inputs.rotations = motorPosition.getValueAsDouble();
   }
 
   @Override

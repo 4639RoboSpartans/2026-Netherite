@@ -19,7 +19,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.util.PortConfiguration;
 import org.team4639.lib.util.Phoenix6Factory;
 import org.team4639.lib.util.PhoenixUtil;
@@ -78,15 +77,15 @@ public class HoodIOTalonFX implements HoodIO {
 
   @Override
   public void updateInputs(HoodIOInputs inputs) {
-    inputs.hoodMotorConnected =
+    inputs.connected =
         BaseStatusSignal.refreshAll(
                 motorVoltage, motorCurrent, hoodMotor.getDeviceTemp(), hoodVelocity, hoodPosition)
             .isOK();
-    inputs.pivotVoltage = motorVoltage.getValueAsDouble();
-    inputs.pivotCurrent = motorCurrent.getValueAsDouble();
-    inputs.pivotTemperature = hoodMotor.getDeviceTemp().getValueAsDouble();
-    inputs.pivotPositionDegrees = hoodPosition.getValueAsDouble() * 360;
-    inputs.pivotVelocityDegrees = hoodVelocity.getValueAsDouble() * 360;
+    inputs.volts = motorVoltage.getValueAsDouble();
+    inputs.amps = motorCurrent.getValueAsDouble();
+    inputs.celsius = hoodMotor.getDeviceTemp().getValueAsDouble();
+    inputs.degrees = hoodPosition.getValueAsDouble() * 360;
+    inputs.degreesPerSecond = hoodVelocity.getValueAsDouble() * 360;
   }
 
   @Override

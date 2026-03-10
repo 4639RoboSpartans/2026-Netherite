@@ -33,8 +33,8 @@ public class ShooterIOSim implements ShooterIO {
     setRPM(flywheelFeedback.getSetpoint());
     flywheelSim.update(Robot.defaultPeriodSecs);
 
-    inputs.leftVoltage = leftAppliedVolts;
-    inputs.rightVoltage = rightAppliedVolts;
+    inputs.leftVolts = leftAppliedVolts;
+    inputs.rightVolts = rightAppliedVolts;
     inputs.leftRPM = flywheelSim.getAngularVelocityRPM();
     inputs.rightRPM = -flywheelSim.getAngularVelocityRPM();
   }

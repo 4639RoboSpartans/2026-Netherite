@@ -18,10 +18,10 @@ public interface IntakeRollerIO {
   @AutoLog
   class IntakeRollerIOInputs {
     public boolean connected = true;
-    public double voltage;
-    public double current;
-    public double temperature;
-    public double velocity;
-    public double position;
+    public double volts;
+    public double amps;
+    public double celsius;
+    public double rotationsPerSecond;
+    public double rotations;
   }
 }

@@ -77,7 +77,6 @@ public class Turret extends FullSubsystem {
 
     setDefaultCommand(this.run(this::runStateMachine));
     Logger.recordOutput("Turret/SystemState", systemState);
-    PhoenixOdometryThread.getInstance().start();
 
     SmartDashboard.putBoolean("Rezero Encoders", false);
   }
@@ -94,16 +93,6 @@ public class Turret extends FullSubsystem {
     motorPositionLock.unlock();
 
     state.updateShooterState(null, null, Rotations.of(getTurretRotationFromRotorRotation()));
-
-    double[] turretRotations =
-        Arrays.stream(turretInputs.motorPositionsRotations)
-            .map(this::getTurretRotationFromRotorRotation)
-            .toArray();
-    double[] timestamps = turretInputs.motorPositionsTimestamps;
-
-    for (int i = 0; i < timestamps.length; i++) {
-      state.acceptTurretMeasurement(turretRotations[i], timestamps[i]);
-    }
   }
 
   @Override
@@ -166,8 +155,8 @@ public class Turret extends FullSubsystem {
   public void periodicAfterScheduler() {
     RobotState.getInstance().setTurretStates(new Pair<>(wantedState, systemState));
 
-    state.acceptCANMeasurement(turretInputs.turretMotorConnected);
-    state.acceptTemperatureMeasurement(turretInputs.motorTemperature);
+    state.acceptCANMeasurement(turretInputs.connected);
+    state.acceptTemperatureMeasurement(turretInputs.celsius);
   }
 
   private SystemState handleStateTransitions() {
@@ -232,7 +221,7 @@ public class Turret extends FullSubsystem {
 
   @AutoLogOutput(key = "TurretRotations")
   public double getTurretRotationFromRotorRotation() {
-    return getTurretRotationFromRotorRotation(turretInputs.motorPositionRotations);
+    return getTurretRotationFromRotorRotation(turretInputs.rotations);
   }
 
   private double getTurretRotationFromRotorRotation(double rotorRotation) {
@@ -347,15 +336,15 @@ public class Turret extends FullSubsystem {
   public boolean atSetpoint() {
     return MathUtil.isNear(
             getRotorSetpoint(),
-            turretInputs.motorPositionRotations,
+            turretInputs.rotations,
             Constants.ROTOR_ROTATION_TOLERANCE)
         || MathUtil.isNear(
             getRotorSetpoint() + 1.0 / Constants.MOTOR_TO_TURRET_GEAR_RATIO,
-            turretInputs.motorPositionRotations,
+            turretInputs.rotations,
             Constants.ROTOR_ROTATION_TOLERANCE)
         || MathUtil.isNear(
             getRotorSetpoint() - 1.0 / Constants.MOTOR_TO_TURRET_GEAR_RATIO,
-            turretInputs.motorPositionRotations,
+            turretInputs.rotations,
             Constants.ROTOR_ROTATION_TOLERANCE);
   }
 
@@ -380,6 +369,6 @@ public class Turret extends FullSubsystem {
     initialTurretRotation =
         getTurretRotation(
             leftEncoderInputs.positionRotations, rightEncoderInputs.positionRotations);
-    initialRotorRotation = turretInputs.motorPositionRotations;
+    initialRotorRotation = turretInputs.rotations;
   }
 }

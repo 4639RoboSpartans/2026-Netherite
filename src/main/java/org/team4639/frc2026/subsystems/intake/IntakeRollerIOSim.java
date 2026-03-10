@@ -29,8 +29,8 @@ public class IntakeRollerIOSim implements IntakeRollerIO {
     setSurfaceVelocityFeetPerSecond(targetVelocity);
     rollerSim.update(Robot.defaultPeriodSecs);
 
-    inputs.voltage = appliedVolts;
-    inputs.velocity =
+    inputs.volts = appliedVolts;
+    inputs.rotationsPerSecond =
         Units.radiansToRotations(rollerSim.getAngularVelocityRadPerSec())
             / Constants.ROTOR_TO_ROLLER_REDUCTION;
   }

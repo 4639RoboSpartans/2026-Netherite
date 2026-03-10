@@ -55,7 +55,7 @@ public class Extension extends FullSubsystem {
     this.inputs = new IntakeExtensionIOInputsAutoLogged();
     io.updateInputs(inputs);
 
-    setHomedPositions(inputs.position, Double.NaN);
+    setHomedPositions(inputs.rotations, Double.NaN);
     setDefaultCommand(run(this::runStateMachine));
 
     Logger.recordOutput("Extension/SystemState", systemState.toString());
@@ -79,7 +79,7 @@ public class Extension extends FullSubsystem {
     Logger.processInputs("Extension", inputs);
 
     state.updateIntakePosition(
-        (inputs.position - retractedRotorPosition)
+        (inputs.rotations - retractedRotorPosition)
             / (extendedRotorPosition - retractedRotorPosition));
   }
 
@@ -88,7 +88,7 @@ public class Extension extends FullSubsystem {
     state.setExtensionStates(new Pair<>(this.wantedState, this.systemState));
 
     state.acceptCANMeasurement(inputs.connected);
-    state.acceptTemperatureMeasurement(inputs.temperature);
+    state.acceptTemperatureMeasurement(inputs.celsius);
   }
 
   private void runStateMachine() {
@@ -131,11 +131,11 @@ public class Extension extends FullSubsystem {
       case EXTENDED:
         if (!DriverStation.isDisabled()) {
           // if intake satisfies zero requirements
-          if (Math.abs(inputs.velocity) < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND
-              || Math.abs(inputs.current) >= ENDSTOP_CURRENT_THRESHOLD) {
+          if (Math.abs(inputs.rotationsPerSecond) < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND
+              || Math.abs(inputs.amps) >= ENDSTOP_CURRENT_THRESHOLD) {
             if (systemState == SystemState.EXTENDED) {
               if (!MathUtil.isNear(
-                  inputs.position, extendedRotorPosition, ROTOR_SETPOINT_TOLERANCE)) {
+                  inputs.rotations, extendedRotorPosition, ROTOR_SETPOINT_TOLERANCE)) {
                 rezero = true;
                 return SystemState.EXTENDING;
               }
@@ -146,7 +146,7 @@ public class Extension extends FullSubsystem {
             } else if ((Timer.getFPGATimestamp() - zeroTimeStamp) >= ZERO_VELOCITY_TIME_PERIOD) {
               io.stop();
               zeroTimeStamp = Double.NaN;
-              setHomedPositions(Double.NaN, inputs.position);
+              setHomedPositions(Double.NaN, inputs.rotations);
               return SystemState.EXTENDED;
             } else {
               return SystemState.EXTENDING;
@@ -161,8 +161,8 @@ public class Extension extends FullSubsystem {
       case IDLE:
         rezero = false;
         if (!DriverStation.isDisabled()) {
-          if (Math.abs(inputs.velocity) < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND
-              || Math.abs(inputs.current) >= ENDSTOP_CURRENT_THRESHOLD) {
+          if (Math.abs(inputs.rotationsPerSecond) < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND
+              || Math.abs(inputs.amps) >= ENDSTOP_CURRENT_THRESHOLD) {
             if (systemState == SystemState.IDLE) {
               return SystemState.IDLE;
             } else if (!Double.isFinite(zeroTimeStamp)) {
@@ -171,7 +171,7 @@ public class Extension extends FullSubsystem {
             } else if ((Timer.getFPGATimestamp() - zeroTimeStamp) >= ZERO_VELOCITY_TIME_PERIOD) {
               io.stop();
               zeroTimeStamp = Double.NaN;
-              setHomedPositions(inputs.position, Double.NaN);
+              setHomedPositions(inputs.rotations, Double.NaN);
               return SystemState.IDLE;
             } else {
               return SystemState.RETRACTING;

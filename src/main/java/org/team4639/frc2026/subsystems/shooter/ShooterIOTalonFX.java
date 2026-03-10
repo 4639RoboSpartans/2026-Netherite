@@ -59,11 +59,11 @@ public class ShooterIOTalonFX implements ShooterIO {
                 leftShooter.getDeviceTemp(),
                 leftShooter.getVelocity())
             .isOK();
-    inputs.leftVoltage = leftShooter.getMotorVoltage().getValueAsDouble();
-    inputs.rightVoltage = rightShooter.getMotorVoltage().getValueAsDouble();
-    inputs.leftCurrent = leftShooter.getSupplyCurrent().getValueAsDouble();
-    inputs.rightCurrent = rightShooter.getSupplyCurrent().getValueAsDouble();
-    inputs.leftTemperature = leftShooter.getDeviceTemp().getValueAsDouble();
+    inputs.leftVolts = leftShooter.getMotorVoltage().getValueAsDouble();
+    inputs.rightVolts = rightShooter.getMotorVoltage().getValueAsDouble();
+    inputs.leftAmps = leftShooter.getSupplyCurrent().getValueAsDouble();
+    inputs.rightAmps = rightShooter.getSupplyCurrent().getValueAsDouble();
+    inputs.leftCelsius = leftShooter.getDeviceTemp().getValueAsDouble();
     inputs.rightTemperature = rightShooter.getDeviceTemp().getValueAsDouble();
     inputs.leftRPM = (leftShooter.getRotorVelocity().getValueAsDouble() * 60) / SHOOTER_GEAR_RATIO;
     inputs.rightRPM =

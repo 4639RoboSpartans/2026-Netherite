@@ -45,11 +45,11 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
                 rollerMotor.getDeviceTemp(),
                 rollerMotor.getVelocity())
             .isOK();
-    inputs.voltage = rollerMotor.getMotorVoltage().getValueAsDouble();
-    inputs.current = rollerMotor.getStatorCurrent().getValueAsDouble();
-    inputs.temperature = rollerMotor.getDeviceTemp().getValueAsDouble();
-    inputs.velocity = rollerMotor.getVelocity().getValueAsDouble();
-    inputs.position = rollerMotor.getPosition().getValueAsDouble();
+    inputs.volts = rollerMotor.getMotorVoltage().getValueAsDouble();
+    inputs.amps = rollerMotor.getStatorCurrent().getValueAsDouble();
+    inputs.celsius = rollerMotor.getDeviceTemp().getValueAsDouble();
+    inputs.rotationsPerSecond = rollerMotor.getVelocity().getValueAsDouble();
+    inputs.rotations = rollerMotor.getPosition().getValueAsDouble();
   }
 
   @Override

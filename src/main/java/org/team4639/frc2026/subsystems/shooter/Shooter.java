@@ -100,7 +100,7 @@ public class Shooter extends FullSubsystem {
 
     state.acceptCANMeasurement(inputs.leftConnected);
     state.acceptCANMeasurement(inputs.rightConnected);
-    state.acceptTemperatureMeasurement(inputs.leftTemperature);
+    state.acceptTemperatureMeasurement(inputs.leftCelsius);
     state.acceptTemperatureMeasurement(inputs.rightTemperature);
   }
 

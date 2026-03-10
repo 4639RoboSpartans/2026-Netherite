@@ -34,9 +34,9 @@ public abstract sealed class HoodSysID {
                   hood::setVoltage,
                   log -> {
                     log.motor("hood")
-                        .angularVelocity(Degrees.per(Second).of(inputs.pivotVelocityDegrees))
-                        .angularPosition(Degrees.of(inputs.pivotPositionDegrees))
-                        .voltage(Volts.of(inputs.pivotVoltage));
+                        .angularVelocity(Degrees.per(Second).of(inputs.degreesPerSecond))
+                        .angularPosition(Degrees.of(inputs.degrees))
+                        .voltage(Volts.of(inputs.volts));
                   },
                   hood));
     }

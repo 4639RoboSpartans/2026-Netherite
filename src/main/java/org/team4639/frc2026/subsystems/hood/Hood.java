@@ -69,7 +69,7 @@ public class Hood extends FullSubsystem {
   public void periodicBeforeScheduler() {
     io.updateInputs(inputs);
     Logger.processInputs("Hood", inputs);
-    state.updateShooterState(null, Degrees.of(inputs.pivotPositionDegrees), null);
+    state.updateShooterState(null, Degrees.of(inputs.degrees), null);
   }
 
   @Override
@@ -91,8 +91,8 @@ public class Hood extends FullSubsystem {
     }
 
     if (this.systemState != SystemState.HOME_UP && this.systemState != SystemState.HOME_DOWN) {
-      if (Math.abs(this.inputs.pivotCurrent) >= 19.0) {
-        if (this.inputs.pivotVoltage < 0) {
+      if (Math.abs(this.inputs.amps) >= 19.0) {
+        if (this.inputs.volts < 0) {
           io.setPosition(Constants.HOOD_MIN_ANGLE_DEGREES);
         } else {
           io.setPosition(Constants.HOOD_MIN_ANGLE_DEGREES + Constants.HOOD_RANGE_DEGREES);
@@ -104,15 +104,15 @@ public class Hood extends FullSubsystem {
   @Override
   public void periodicAfterScheduler() {
     state.setHoodStates(new Pair<>(wantedState, systemState));
-    state.acceptCANMeasurement(inputs.hoodMotorConnected);
-    state.acceptTemperatureMeasurement(inputs.pivotTemperature);
+    state.acceptCANMeasurement(inputs.connected);
+    state.acceptTemperatureMeasurement(inputs.celsius);
   }
 
   private SystemState handleStateTransitions() {
     return switch (wantedState) {
       case IDLE -> {
         if (systemState == SystemState.HOME_DOWN) {
-          if (Math.abs(inputs.pivotCurrent) > 19.0) {
+          if (Math.abs(inputs.amps) > 19.0) {
             io.setPosition(Constants.HOOD_MIN_ANGLE_DEGREES);
             lastZeroedWantedState = WantedState.IDLE;
             yield SystemState.IDLE;
@@ -122,7 +122,7 @@ public class Hood extends FullSubsystem {
         }
 
         if (systemState == SystemState.HOME_UP) {
-          if (Math.abs(inputs.pivotCurrent) > 19.0) {
+          if (Math.abs(inputs.amps) > 19.0) {
             io.setPosition(Constants.HOOD_MIN_ANGLE_DEGREES + Constants.HOOD_RANGE_DEGREES);
             lastZeroedWantedState = WantedState.IDLE;
             yield SystemState.IDLE;
@@ -212,7 +212,7 @@ public class Hood extends FullSubsystem {
   }
 
   public boolean atSetpoint() {
-    return MathUtil.isNear(getSetpointAngle(), inputs.pivotPositionDegrees, HOOD_TOLERANCE_DEGREES);
+    return MathUtil.isNear(getSetpointAngle(), inputs.degrees, HOOD_TOLERANCE_DEGREES);
   }
 
   private void runStateMachine() {

@@ -39,11 +39,11 @@ public class IntakeExtensionIOTalonFX implements IntakeExtensionIO {
                 extensionMotor.getDeviceTemp(),
                 extensionMotor.getVelocity())
             .isOK();
-    inputs.voltage = extensionMotor.getMotorVoltage().getValueAsDouble();
-    inputs.current = extensionMotor.getStatorCurrent().getValueAsDouble();
-    inputs.temperature = extensionMotor.getDeviceTemp().getValueAsDouble();
-    inputs.velocity = extensionMotor.getVelocity().getValueAsDouble();
-    inputs.position = extensionMotor.getPosition().getValueAsDouble();
+    inputs.volts = extensionMotor.getMotorVoltage().getValueAsDouble();
+    inputs.amps = extensionMotor.getStatorCurrent().getValueAsDouble();
+    inputs.celsius = extensionMotor.getDeviceTemp().getValueAsDouble();
+    inputs.rotationsPerSecond = extensionMotor.getVelocity().getValueAsDouble();
+    inputs.rotations = extensionMotor.getPosition().getValueAsDouble();
   }
 
   @Override
