@@ -6,7 +6,6 @@ import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.*;
 import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
@@ -29,7 +28,6 @@ import lombok.experimental.ExtensionMethod;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.Constants.Mode;
-import org.team4639.frc2026.constants.led.Patterns;
 import org.team4639.frc2026.constants.shooter.PassingLookupTable;
 import org.team4639.frc2026.constants.shooter.ScoringState;
 import org.team4639.frc2026.constants.shooter.ShooterScoringData;
@@ -46,6 +44,7 @@ import org.team4639.frc2026.subsystems.vision.Vision.VisionConsumer;
 import org.team4639.frc2026.util.ValueCacher;
 import org.team4639.lib.led.pattern.LEDPattern;
 import org.team4639.lib.unit.Units2;
+import org.team4639.lib.util.PoseEstimator;
 import org.team4639.lib.util.VirtualSubsystem;
 import org.team4639.lib.util.geometry.AllianceFlipUtil;
 import org.team4639.lib.util.geometry.GeomUtil;
@@ -87,9 +86,6 @@ public class RobotState extends VirtualSubsystem
 
   double poseBufferSizeSec = 2.0;
 
-  private final Matrix<N3, N1> qStdDevs =
-          new Matrix<>(VecBuilder.fill(0.000009, 0.000009, 0.000004));
-
   // SmartDashboard / Logger keys
   private final String ROBOT_FIELD_INTERNAL_KEY = "/Internal/Robot Pose";
   private final String ROBOT_FIELD_TRUE_KEY = "/RobotState/Robot Pose";
@@ -104,8 +100,6 @@ public class RobotState extends VirtualSubsystem
 
   private final TimeInterpolatableBuffer<Pose2d> odometryBuffer =
           TimeInterpolatableBuffer.createBuffer(poseBufferSizeSec);
-
-  private final Map<Integer, TimeInterpolatableBuffer<Pose2d>> visionPoseBuffers = new HashMap<>();
 
   private final TimeInterpolatableBuffer<Pose2d> choreoSetpoints =
           TimeInterpolatableBuffer.createBuffer(0.05);
@@ -128,19 +122,13 @@ public class RobotState extends VirtualSubsystem
   /** Assume gyro starts at zero. */
   private Rotation2d gyroOffset = Rotation2d.kZero;
 
-  @AutoLogOutput @Getter private Pose2d odometryPose = Pose2d.kZero;
-
-  /** Pose <b>relative to our alliance wall</b>. */
-  @AutoLogOutput @Getter private Pose2d estimatedPose = Pose2d.kZero;
-
   // -------------------------------------------------------------------------
   // Chassis Speeds
   // -------------------------------------------------------------------------
 
   @Getter private ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
-  private ChassisSpeeds lastChassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
-  // -------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
   // Turret State
   // -------------------------------------------------------------------------
 
@@ -193,6 +181,10 @@ public class RobotState extends VirtualSubsystem
   // Miscellaneous Robot State
   // -------------------------------------------------------------------------
 
+  private final PoseEstimator primaryPoseEstimator = new PoseEstimator(poseBufferSizeSec);
+  private final PoseEstimator secondaryPoseEstimator = new PoseEstimator(poseBufferSizeSec);
+
+  private boolean sendVisionToPrimaryPoseEstimator = true;
 
   @Getter
   @AutoLogOutput(key = "Intake Extension Fraction")
@@ -218,7 +210,7 @@ public class RobotState extends VirtualSubsystem
 
   @Override
   public void periodic() {
-    robotFieldInternal.setRobotPose(estimatedPose);
+    robotFieldInternal.setRobotPose(getEstimatedPose());
     robotFieldInternal.getObject("Turret Pose").setPose(turretPose);
     SmartDashboard.putData(ROBOT_FIELD_INTERNAL_KEY, robotFieldInternal);
     robotFieldTrue.setRobotPose(getTrueOnFieldPose());
@@ -256,7 +248,7 @@ public class RobotState extends VirtualSubsystem
 
   @Override
   public void periodicAfterScheduler() {
-    Logger.recordOutput(ROBOT_FIELD_INTERNAL_KEY, estimatedPose);
+    Logger.recordOutput(ROBOT_FIELD_INTERNAL_KEY, getEstimatedPose());
     Logger.recordOutput(ROBOT_FIELD_TRUE_KEY, getTrueOnFieldPose());
     if (!choreoSetpoints.getInternalBuffer().isEmpty()) {
       Logger.recordOutput(
@@ -268,6 +260,14 @@ public class RobotState extends VirtualSubsystem
   // Pose / Odometry Methods
   // =========================================================================
 
+  public Pose2d getEstimatedPose() {
+    return primaryPoseEstimator.getEstimatedPose();
+  }
+
+  public Pose2d getSecondaryEstimatedPose() {
+    return secondaryPoseEstimator.getEstimatedPose();
+  }
+
   /**
    * Returns the pose relative to the blue alliance wall. Should be used sparingly; for all
    * internal calculations, use {@link RobotState#getEstimatedPose()} instead.
@@ -277,8 +277,8 @@ public class RobotState extends VirtualSubsystem
   }
 
   public void resetPose(Pose2d pose) {
-    poseBuffer.clear();
-    estimatedPose = pose;
+    primaryPoseEstimator.resetPose(pose);
+    secondaryPoseEstimator.resetPose(pose);
     if (Constants.currentMode == Mode.SIM) SimRobot.getInstance().resetPose(pose);
   }
 
@@ -288,39 +288,8 @@ public class RobotState extends VirtualSubsystem
 
   public void addOdometryObservation(
           SwerveModulePosition[] wheelPositions, Optional<Rotation2d> gyroAngle, double timestamp) {
-    addOdometryMeasurement(new OdometryObservation(wheelPositions, gyroAngle, timestamp));
-  }
-
-  private void addOdometryMeasurement(OdometryObservation observation) {
-    Twist2d twist = kinematics.toTwist2d(lastWheelPositions, observation.wheelPositions());
-    lastWheelPositions = observation.wheelPositions();
-
-    if (odometryBuffer.getInternalBuffer().isEmpty())
-      odometryBuffer.addSample(observation.timestamp(), Pose2d.kZero);
-    else
-      odometryBuffer.addSample(
-              observation.timestamp,
-              odometryBuffer
-                      .getInternalBuffer()
-                      .get(odometryBuffer.getInternalBuffer().lastKey())
-                      .exp(twist));
-
-    Pose2d lastOdometryPose = odometryPose;
-    odometryPose = odometryPose.exp(twist);
-    observation.gyroAngle.ifPresent(
-            gyroAngle -> {
-              Rotation2d angle = gyroAngle.plus(gyroOffset);
-              odometryPose = new Pose2d(odometryPose.getTranslation(), angle);
-            });
-    poseBuffer.addSample(observation.timestamp(), odometryPose);
-    Twist2d finalTwist = lastOdometryPose.log(odometryPose);
-    estimatedPose = estimatedPose.exp(finalTwist);
-
-    turretPose =
-            estimatedPose.transformBy(
-                    new Transform2d(
-                            Constants.SimConstants.originToTurretRotation.toTranslation2d(),
-                            Rotation2d.fromRotations(getScoringState().turretAngle().in(Rotations))));
+    primaryPoseEstimator.addOdometryMeasurement(wheelPositions, gyroAngle, timestamp);
+    secondaryPoseEstimator.addOdometryMeasurement(wheelPositions, gyroAngle, timestamp);
   }
 
   public Pose2d calculateNextPose(Object caller) {
@@ -333,38 +302,6 @@ public class RobotState extends VirtualSubsystem
 
   public void setChoreoSetpoint(Pose2d pose) {
     choreoSetpoints.addSample(Timer.getTimestamp(), pose);
-  }
-
-  public Optional<Pose2d> getChoreoSetpoint() {
-    if (choreoSetpoints.getInternalBuffer().isEmpty()) {
-      return Optional.empty();
-    } else {
-      return Optional.of(choreoSetpoints.getInternalBuffer().lastEntry().getValue());
-    }
-  }
-
-  public Rotation2d[] calculateClosestDriveAndTurretRotation(ScoringState desiredScoringState) {
-    Rotation2d currentRobotRotationFieldRelative = getEstimatedPose().getRotation();
-    Rotation2d turretDirectionFieldRelative = new Rotation2d(scoringState.turretAngle());
-    double minDriveDirectionRadians = turretDirectionFieldRelative.getRadians();
-    double maxDriveDirectionRadians = turretDirectionFieldRelative.getRadians() + Math.PI * 3 / 4;
-    if (minDriveDirectionRadians < currentRobotRotationFieldRelative.getRadians()
-            && currentRobotRotationFieldRelative.getRadians() < maxDriveDirectionRadians) {
-      return new Rotation2d[] {
-              currentRobotRotationFieldRelative,
-              turretDirectionFieldRelative.minus(currentRobotRotationFieldRelative)
-      };
-    } else if (minDriveDirectionRadians > currentRobotRotationFieldRelative.getRadians()) {
-      return new Rotation2d[] {
-              Rotation2d.fromRadians(minDriveDirectionRadians),
-              turretDirectionFieldRelative.minus(Rotation2d.fromRadians(minDriveDirectionRadians))
-      };
-    } else {
-      return new Rotation2d[] {
-              Rotation2d.fromRadians(maxDriveDirectionRadians),
-              turretDirectionFieldRelative.minus(Rotation2d.fromRadians(maxDriveDirectionRadians))
-      };
-    }
   }
 
   public Pose3d[] getComponentPoses() {
@@ -403,12 +340,8 @@ public class RobotState extends VirtualSubsystem
           Pose2d visionRobotPoseMeters,
           double timestampSeconds,
           Matrix<N3, N1> visionMeasurementStdDevs) {
-    addVisionObservation(
-            new VisionObservation(
-                    cameraIndex,
-                    AllianceFlipUtil.apply(visionRobotPoseMeters),
-                    timestampSeconds,
-                    visionMeasurementStdDevs));
+    secondaryPoseEstimator.addVisionObservation(cameraIndex, visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+    if (sendVisionToPrimaryPoseEstimator) primaryPoseEstimator.addVisionObservation(cameraIndex, visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
   }
 
   @Override
@@ -430,77 +363,12 @@ public class RobotState extends VirtualSubsystem
     accept(999, estimatedRobotPose, timestampSeconds, visionMeasurementStdDevs);
   }
 
-  private void addVisionObservation(VisionObservation observation) {
-    Logger.recordOutput("Vision Obs Pose", observation.visionPose);
-    try {
-      if (poseBuffer.getInternalBuffer().lastKey() - poseBufferSizeSec > observation.timestamp()) {
-        return;
-      }
-    } catch (NoSuchElementException ex) {
-      return;
-    }
-    var sample = poseBuffer.getSample(observation.timestamp());
-    if (sample.isEmpty()) return;
-
-    if (!visionPoseBuffers.containsKey(observation.camIndex()))
-      visionPoseBuffers.put(
-              observation.camIndex(), TimeInterpolatableBuffer.createBuffer(poseBufferSizeSec));
-    visionPoseBuffers
-            .get(observation.camIndex())
-            .addSample(observation.timestamp(), observation.visionPose());
-
-    var sampleToOdometryTransform = new Transform2d(sample.get(), odometryPose);
-    var odometryToSampleTransform = new Transform2d(odometryPose, sample.get());
-    Pose2d estimateAtTime = estimatedPose.plus(odometryToSampleTransform);
-
-    var r = new double[3];
-    for (int i = 0; i < 3; ++i) {
-      r[i] = observation.stdDevs().get(i, 0) * observation.stdDevs().get(i, 0);
-    }
-    // Solve for closed-form Kalman gain for continuous Kalman filter with A = 0
-    // and C = I. See wpimath/algorithms.md.
-    Matrix<N3, N3> visionK = new Matrix<>(Nat.N3(), Nat.N3());
-    for (int row = 0; row < 3; ++row) {
-      double stdDev = qStdDevs.get(row, 0);
-      if (stdDev == 0.0) {
-        visionK.set(row, row, 0.0);
-      } else {
-        visionK.set(row, row, stdDev / (stdDev + Math.sqrt(stdDev * r[row])));
-      }
-    }
-
-    Transform2d transform = new Transform2d(estimateAtTime, observation.visionPose());
-    var kTimesTransform =
-            visionK.times(
-                    VecBuilder.fill(
-                            transform.getX(), transform.getY(), transform.getRotation().getRadians()));
-    Transform2d scaledTransform =
-            new Transform2d(
-                    kTimesTransform.get(0, 0),
-                    kTimesTransform.get(1, 0),
-                    Rotation2d.fromRadians(kTimesTransform.get(2, 0)));
-
-    estimatedPose = estimateAtTime.plus(scaledTransform).plus(sampleToOdometryTransform);
-    turretPose =
-            estimatedPose.transformBy(
-                    new Transform2d(
-                            Constants.SimConstants.originToTurretRotation.toTranslation2d(),
-                            Rotation2d.fromRotations(getScoringState().turretAngle().in(Rotations))));
-  }
-
   // =========================================================================
   // Chassis Speed Methods
   // =========================================================================
 
   public void updateChassisSpeeds(ChassisSpeeds chassisSpeeds) {
-    lastChassisSpeeds = this.chassisSpeeds;
     this.chassisSpeeds = chassisSpeeds;
-  }
-
-  public double getAccelerationMPSSquared() {
-    var x = (chassisSpeeds.vxMetersPerSecond - lastChassisSpeeds.vyMetersPerSecond) / 0.02;
-    var y = (chassisSpeeds.vyMetersPerSecond - lastChassisSpeeds.vyMetersPerSecond) / 0.02;
-    return Math.hypot(x, y);
   }
 
   // =========================================================================
