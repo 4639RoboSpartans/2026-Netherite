@@ -321,10 +321,10 @@ public class DriveCommands {
       double velocityScaling) {
     ProfiledPIDController pidX =
         new ProfiledPIDController(
-            3, 0, 0, new TrapezoidProfile.Constraints(10 * velocityScaling, 19));
+            3, 0, 0, new TrapezoidProfile.Constraints(5 * velocityScaling, 6));
     ProfiledPIDController pidY =
         new ProfiledPIDController(
-            3, 0, 0, new TrapezoidProfile.Constraints(10 * velocityScaling, 19));
+            3, 0, 0, new TrapezoidProfile.Constraints(5 * velocityScaling, 6));
     PIDController headingController = new PIDController(5, 0, 0);
     headingController.enableContinuousInput(-Math.PI, Math.PI);
     headingController.setSetpoint(destinationPose.getRotation().getRadians());

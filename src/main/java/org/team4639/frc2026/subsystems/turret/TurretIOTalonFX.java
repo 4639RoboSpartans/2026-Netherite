@@ -13,7 +13,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import java.util.Queue;
 import org.team4639.frc2026.util.PortConfiguration;
 import org.team4639.lib.util.Phoenix6Factory;
 import org.team4639.lib.util.PhoenixUtil;
@@ -53,7 +52,6 @@ public class TurretIOTalonFX implements TurretIO {
     motorVelocity = turretMotor.getVelocity();
     motorVoltage = turretMotor.getMotorVoltage();
     motorCurrent = turretMotor.getStatorCurrent();
-
 
     /*BaseStatusSignal.setUpdateFrequencyForAll(
             50.0,

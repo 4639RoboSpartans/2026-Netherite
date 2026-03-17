@@ -6,8 +6,11 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import org.team4639.frc2026.auto.AutoCommands4;
 import org.team4639.frc2026.commands.DriveCommands;
+import org.team4639.frc2026.commands.IntakeCommands;
 import org.team4639.frc2026.commands.LEDCommands;
+import org.team4639.frc2026.commands.SuperstructureCommands;
 import org.team4639.frc2026.constants.ports.Netherite;
 import org.team4639.frc2026.subsystems.drive.*;
 import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
@@ -180,27 +183,41 @@ public class RobotContainer {
         // flip poses so that the vision sees the true on-field pose
         vision =
             new Vision(
-                RobotState.getInstance() // ,
-                //                        new VisionIOPhotonVisionSim(
-                //                                VisionConstants.camera0Name,
-                //                                VisionConstants.robotToCamera0,
-                //                                () ->
-                // AllianceFlipUtil.apply(SimRobot.getInstance()
-                //                                        .getSwerveDriveSimulation()
-                //                                        .getSimulatedDriveTrainPose())),
-                //                        new VisionIOPhotonVisionSim(
-                //                                VisionConstants.camera1Name,
-                //                                VisionConstants.robotToCamera1,
-                //                                () ->
-                // AllianceFlipUtil.apply(SimRobot.getInstance()
-                //                                        .getSwerveDriveSimulation()
-                //                                        .getSimulatedDriveTrainPose()))
-                );
+                RobotState.getInstance(),
+                new VisionIOPhotonVisionSim(
+                    VisionConstants.camera0Name,
+                    VisionConstants.robotToCamera0,
+                    () ->
+                        SimRobot.getInstance()
+                            .getSwerveDriveSimulation()
+                            .getSimulatedDriveTrainPose()),
+                new VisionIOPhotonVisionSim(
+                    VisionConstants.camera1Name,
+                    VisionConstants.robotToCamera1,
+                    () ->
+                        SimRobot.getInstance()
+                            .getSwerveDriveSimulation()
+                            .getSimulatedDriveTrainPose()));
 
-        //                turretCamera = new TurretCamera(RobotState.getInstance(), new
-        // VisionIOPhotonVisionSim("Turret-Sim", new Transform3d(), () ->
-        // RobotState.getInstance().getTurretPose()));
-        turretCamera = new TurretCamera(RobotState.getInstance(), new VisionIO() {});
+        turretCamera =
+            // new TurretCamera(
+            //     RobotState.getInstance(),
+            //     new VisionIOPhotonVisionSim(
+            //         "Turret-Sim",
+            //         new Transform3d(),
+            //         () ->
+            //             SimRobot.getInstance()
+            //                 .getSwerveDriveSimulation()
+            //                 .getSimulatedDriveTrainPose()
+            //                 .transformBy(
+            //                     new Transform2d(
+            //
+            // Constants.SimConstants.originToTurretRotation.toTranslation2d(),
+            //                         Rotation2d.fromRotations(
+            //                             RobotState.getInstance()
+            //                                 .getScoringState()
+            //                                 .turretRotations())))));
+            new TurretCamera(RobotState.getInstance(), new VisionIO() {});
 
         ledkicker = new LEDKicker(new LEDKickerIOSim());
 
@@ -249,6 +266,107 @@ public class RobotContainer {
     // Set up auto routines
     autoChooser = new LoggedLazyAutoChooser("Auto Choices");
 
+    autoChooser.addOption(
+        "LEFT_CITRUS_DOUBLE_SWIPE",
+        () ->
+            AutoCommands4.LEFT_CITRUS_DOUBLE_SWIPE(
+                    drive,
+                    shooter,
+                    hood,
+                    turret,
+                    spindexer,
+                    kicker,
+                    extension,
+                    intake,
+                    RobotState.getInstance())
+                .withTimeout(20));
+
+    autoChooser.addOption(
+        "RIGHT_CITRUS_DOUBLE_SWIPE",
+        () ->
+            AutoCommands4.RIGHT_CITRUS_DOUBLE_SWIPE(
+                    drive,
+                    shooter,
+                    hood,
+                    turret,
+                    spindexer,
+                    kicker,
+                    extension,
+                    intake,
+                    RobotState.getInstance())
+                .withTimeout(20));
+
+    autoChooser.addOption(
+        "LEFT_DOUBLE_SWIPE",
+        () ->
+            AutoCommands4.LEFT_DOUBLE_SWIPE(
+                    drive,
+                    shooter,
+                    hood,
+                    turret,
+                    spindexer,
+                    kicker,
+                    extension,
+                    intake,
+                    RobotState.getInstance())
+                .withTimeout(20));
+
+    autoChooser.addOption(
+        "LEFT_SINGLE_SWIPE",
+        () ->
+            AutoCommands4.LEFT_SINGLE_SWIPE(
+                    drive,
+                    shooter,
+                    hood,
+                    turret,
+                    spindexer,
+                    kicker,
+                    extension,
+                    intake,
+                    RobotState.getInstance())
+                .withTimeout(20));
+    autoChooser.addOption(
+        "RIGHT_SINGLE_SWIPE",
+        () ->
+            AutoCommands4.RIGHT_SINGLE_SWIPE(
+                    drive,
+                    shooter,
+                    hood,
+                    turret,
+                    spindexer,
+                    kicker,
+                    extension,
+                    intake,
+                    RobotState.getInstance())
+                .withTimeout(20));
+    autoChooser.addOption(
+        "LEFT_FAR_SWIPE",
+        () ->
+            AutoCommands4.LEFT_FAR_SWIPE(
+                    drive,
+                    shooter,
+                    hood,
+                    turret,
+                    spindexer,
+                    kicker,
+                    extension,
+                    intake,
+                    RobotState.getInstance())
+                .withTimeout(20));
+    autoChooser.addOption(
+        "RIGHT_FAR_SWIPE",
+        () ->
+            AutoCommands4.RIGHT_FAR_SWIPE(
+                    drive,
+                    shooter,
+                    hood,
+                    turret,
+                    spindexer,
+                    kicker,
+                    extension,
+                    intake,
+                    RobotState.getInstance())
+                .withTimeout(20));
   }
 
   /**
@@ -268,6 +386,29 @@ public class RobotContainer {
                 Math.pow(Math.abs(driver.getRightX()), 0.75) * (driver.getRightX() > 0 ? -1 : 1)));
 
     ledkicker.setDefaultCommand(LEDCommands.useDefaultSchema(ledkicker, RobotState.getInstance()));
+
+    driver
+        .rightTrigger()
+        .whileTrue(
+            SuperstructureCommands.requestScoring(
+                shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
+    driver
+        .leftTrigger()
+        .whileTrue(
+            SuperstructureCommands.requestPassing(
+                shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
+    driver
+        .leftBumper()
+        .or(driver.rightBumper())
+        .whileTrue(IntakeCommands.agitate(extension, intake));
+
+    driver.x().onTrue(IntakeCommands.extend(extension));
+    driver.y().onTrue(IntakeCommands.retract(extension));
+
+    driver.a().onTrue(IntakeCommands.intake(intake));
+    driver.b().onTrue(IntakeCommands.stop(intake));
+
+    driver.back().whileTrue(drive.run(drive::autoConfiguration));
   }
 
   private void configureSimButtonBindings() {

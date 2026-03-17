@@ -29,6 +29,7 @@ import org.team4639.lib.util.VirtualSubsystem;
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
   private RobotContainer robotContainer;
+  private final double bootupTimestamp;
 
   public Robot() {
     // Record metadata
@@ -80,7 +81,7 @@ public class Robot extends LoggedRobot {
     // and put our autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
 
-    SignalLogger.start();
+    bootupTimestamp = Timer.getTimestamp();
   }
 
   /** This function is called periodically during all modes. */
@@ -108,17 +109,7 @@ public class Robot extends LoggedRobot {
     LoggedTracer.record("PeriodicAfterScheduler");
 
     SmartDashboard.putNumber("Match Time", Timer.getMatchTime());
-
-    /*// Get the positions of the fuel (both on the field and in the air)
-    Pose3d[] fuelPoses = SimulatedArena.getInstance()
-            .getGamePiecesArrayByType("Fuel");
-    fuelPosesPublisher.accept(SimulatedArena.getInstance()
-            .getGamePiecesByType("Fuel")
-                    .stream().map(GamePiece::getPose3d)
-            .toArray(Pose3d[]::new)
-    );
-
-    robotContainer.publishComponentPoses();*/
+    SmartDashboard.putNumber("Run Time", Timer.getTimestamp() - bootupTimestamp);
   }
 
   /** This function is called once when the robot is disabled. */

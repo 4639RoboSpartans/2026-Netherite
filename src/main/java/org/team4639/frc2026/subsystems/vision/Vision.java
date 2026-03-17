@@ -13,8 +13,6 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -27,16 +25,6 @@ public class Vision extends SubsystemBase {
   private final VisionIO[] io;
   private final VisionIOInputsAutoLogged[] inputs;
   private final Alert[] disconnectedAlerts;
-
-  public static final Subsystem visionDummy = new SubsystemBase() {};
-
-  public static boolean useVisionMeasurement = true;
-
-  public static Command visionOff() {
-    return visionDummy
-        .run(() -> useVisionMeasurement = false)
-        .finallyDo(() -> useVisionMeasurement = true);
-  }
 
   public Vision(VisionConsumer consumer, VisionIO... io) {
     this.consumer = consumer;

@@ -72,7 +72,7 @@ public class Hood extends FullSubsystem {
   public void periodicBeforeScheduler() {
     io.updateInputs(inputs);
     Logger.processInputs("Hood", inputs);
-    state.updateShooterState(null, Degrees.of(inputs.degrees), null);
+    state.updateShooterState(Double.NaN, inputs.degrees, Double.NaN);
   }
 
   @Override
@@ -205,10 +205,8 @@ public class Hood extends FullSubsystem {
 
   public double getSetpointAngle() {
     return switch (systemState) {
-      case SCORING -> SCORING_HOOD_ANGLE =
-          state.calculateScoringState(this).hoodAngle().in(Degrees);
-      case PASSING -> PASSING_HOOD_ANGLE =
-          state.calculatePassingState(this).hoodAngle().in(Degrees);
+      case SCORING -> SCORING_HOOD_ANGLE = state.calculateScoringState(this).hoodDegrees();
+      case PASSING -> PASSING_HOOD_ANGLE = state.calculatePassingState(this).hoodDegrees();
       case MANUAL -> MANUAL_HOOD_ANGLE;
       default -> Constants.HOOD_MIN_ANGLE_DEGREES;
     };

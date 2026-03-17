@@ -2,43 +2,37 @@
 
 package org.team4639.frc2026.constants.shooter;
 
-import static edu.wpi.first.units.Units.Rotations;
-
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import org.team4639.lib.unit.Units2;
-
 /**
  * @param shooterRPM shooter flywheel RPM
- * @param hoodAngle shooter angle relative to horizontal
- * @param turretAngle turret angle field-relative
+ * @param hoodDegrees shooter angle relative to horizontal
+ * @param turretRotations turret angle field-relative
  */
-public record ScoringState(AngularVelocity shooterRPM, Angle hoodAngle, Angle turretAngle) {
+public record ScoringState(double shooterRPM, double hoodDegrees, double turretRotations) {
   @Override
   public String toString() {
     return "RPM: "
-        + shooterRPM.in(Units2.RPM)
-        + " Hood Angle: "
-        + hoodAngle.in(Rotations)
-        + " turretAngle: "
-        + turretAngle.in(Rotations);
+        + shooterRPM
+        + " Hood Degrees: "
+        + hoodDegrees
+        + " Hurret Rotations: "
+        + turretRotations;
   }
 
-  public ScoringState replace(AngularVelocity shooterRPM, Angle hoodAngle, Angle turretAngle) {
+  public ScoringState replace(double shooterRPM, double hoodDegrees, double turretRotations) {
     var newShooterRPM = this.shooterRPM;
-    var newHoodAngle = this.hoodAngle;
-    var newTurretAngle = this.turretAngle;
+    var newHoodAngle = this.hoodDegrees;
+    var newTurretAngle = this.turretRotations;
 
-    if (shooterRPM != null) {
+    if (!Double.isNaN(shooterRPM)) {
       newShooterRPM = shooterRPM;
     }
 
-    if (hoodAngle != null) {
-      newHoodAngle = hoodAngle;
+    if (!Double.isNaN(hoodDegrees)) {
+      newHoodAngle = hoodDegrees;
     }
 
-    if (turretAngle != null) {
-      newTurretAngle = turretAngle;
+    if (!Double.isNaN(turretRotations)) {
+      newTurretAngle = turretRotations;
     }
 
     return new ScoringState(newShooterRPM, newHoodAngle, newTurretAngle);
@@ -46,8 +40,8 @@ public record ScoringState(AngularVelocity shooterRPM, Angle hoodAngle, Angle tu
 
   public ScoringState times(double rpmScalar, double hoodAngleScalar, double turretAngleScalar) {
     return replace(
-        shooterRPM.times(rpmScalar),
-        hoodAngle.times(hoodAngleScalar),
-        turretAngle.times(turretAngleScalar));
+        shooterRPM * (rpmScalar),
+        hoodDegrees * (hoodAngleScalar),
+        turretRotations * (turretAngleScalar));
   }
 }

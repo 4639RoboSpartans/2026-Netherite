@@ -2,8 +2,6 @@
 
 package org.team4639.frc2026;
 
-import static edu.wpi.first.units.Units.*;
-
 import edu.wpi.first.math.*;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -15,11 +13,11 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import java.util.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,9 +26,8 @@ import lombok.experimental.ExtensionMethod;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.Constants.Mode;
-import org.team4639.frc2026.constants.shooter.PassingLookupTable;
+import org.team4639.frc2026.constants.shooter.LookupTables;
 import org.team4639.frc2026.constants.shooter.ScoringState;
-import org.team4639.frc2026.constants.shooter.ShooterScoringData;
 import org.team4639.frc2026.subsystems.drive.Drive;
 import org.team4639.frc2026.subsystems.extension.Extension;
 import org.team4639.frc2026.subsystems.hood.Hood;
@@ -43,7 +40,6 @@ import org.team4639.frc2026.subsystems.vision.TurretCamera;
 import org.team4639.frc2026.subsystems.vision.Vision.VisionConsumer;
 import org.team4639.frc2026.util.ValueCacher;
 import org.team4639.lib.led.pattern.LEDPattern;
-import org.team4639.lib.unit.Units2;
 import org.team4639.lib.util.PoseEstimator;
 import org.team4639.lib.util.VirtualSubsystem;
 import org.team4639.lib.util.geometry.AllianceFlipUtil;
@@ -58,7 +54,7 @@ import org.team4639.lib.util.geometry.GeomUtil;
  */
 @ExtensionMethod(GeomUtil.class)
 public class RobotState extends VirtualSubsystem
-        implements VisionConsumer, TurretCamera.TurretVisionConsumer {
+    implements VisionConsumer, TurretCamera.TurretVisionConsumer {
 
   // -------------------------------------------------------------------------
   // Singleton
@@ -75,10 +71,10 @@ public class RobotState extends VirtualSubsystem
   // -------------------------------------------------------------------------
 
   private record OdometryObservation(
-          SwerveModulePosition[] wheelPositions, Optional<Rotation2d> gyroAngle, double timestamp) {}
+      SwerveModulePosition[] wheelPositions, Optional<Rotation2d> gyroAngle, double timestamp) {}
 
   private record VisionObservation(
-          int camIndex, Pose2d visionPose, double timestamp, Matrix<N3, N1> stdDevs) {}
+      int camIndex, Pose2d visionPose, double timestamp, Matrix<N3, N1> stdDevs) {}
 
   // -------------------------------------------------------------------------
   // Constants & Configuration
@@ -96,28 +92,28 @@ public class RobotState extends VirtualSubsystem
   // -------------------------------------------------------------------------
 
   private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
-          TimeInterpolatableBuffer.createBuffer(poseBufferSizeSec);
+      TimeInterpolatableBuffer.createBuffer(poseBufferSizeSec);
 
   private final TimeInterpolatableBuffer<Pose2d> odometryBuffer =
-          TimeInterpolatableBuffer.createBuffer(poseBufferSizeSec);
+      TimeInterpolatableBuffer.createBuffer(poseBufferSizeSec);
 
   private final TimeInterpolatableBuffer<Pose2d> choreoSetpoints =
-          TimeInterpolatableBuffer.createBuffer(0.05);
+      TimeInterpolatableBuffer.createBuffer(0.05);
 
   // -------------------------------------------------------------------------
   // Odometry State
   // -------------------------------------------------------------------------
 
   private final SwerveDriveKinematics kinematics =
-          new SwerveDriveKinematics(Drive.getModuleTranslations());
+      new SwerveDriveKinematics(Drive.getModuleTranslations());
 
   private SwerveModulePosition[] lastWheelPositions =
-          new SwerveModulePosition[] {
-                  new SwerveModulePosition(),
-                  new SwerveModulePosition(),
-                  new SwerveModulePosition(),
-                  new SwerveModulePosition()
-          };
+      new SwerveModulePosition[] {
+        new SwerveModulePosition(),
+        new SwerveModulePosition(),
+        new SwerveModulePosition(),
+        new SwerveModulePosition()
+      };
 
   /** Assume gyro starts at zero. */
   private Rotation2d gyroOffset = Rotation2d.kZero;
@@ -132,35 +128,32 @@ public class RobotState extends VirtualSubsystem
   // Turret State
   // -------------------------------------------------------------------------
 
-
   @Getter private int turretCameraTargets = 0;
 
   @Setter @Getter private double gyroRotationsPerSecond;
 
   private final TimeInterpolatableBuffer<Double> turretRobotRelativeBuffer =
-          TimeInterpolatableBuffer.createDoubleBuffer(poseBufferSizeSec);
+      TimeInterpolatableBuffer.createDoubleBuffer(poseBufferSizeSec);
 
   // -------------------------------------------------------------------------
   // Scoring & Shooting State
   // -------------------------------------------------------------------------
 
-  @Getter
-  private ScoringState scoringState =
-          new ScoringState(Units2.RPM.of(0.0), Rotations.of(0), Rotations.of(0));
+  @Getter private ScoringState scoringState = new ScoringState(0, 0, 0);
 
   @Getter private double RPMFudge = 1;
 
   private final ValueCacher<Object, ScoringState> currentScoringStates =
-          new ValueCacher<>(this::_calculateScoringState);
+      new ValueCacher<>(this::_calculateScoringState);
 
   private final ValueCacher<Object, ScoringState> nextScoringStates =
-          new ValueCacher<>(() -> this._calculateNextScoringState(0.02));
+      new ValueCacher<>(() -> this._calculateNextScoringState(0.02));
 
   private final ValueCacher<Object, ScoringState> passingStates =
-          new ValueCacher<>(this::_calculatePassingState);
+      new ValueCacher<>(this::_calculatePassingState);
 
   private final ValueCacher<Object, Pose2d> getNextPose =
-          new ValueCacher<>(() -> calculateNextPose(0.02));
+      new ValueCacher<>(() -> calculateNextPose(0.02));
 
   // -------------------------------------------------------------------------
   // Subsystem State Pairs
@@ -181,7 +174,12 @@ public class RobotState extends VirtualSubsystem
   private final PoseEstimator primaryPoseEstimator = new PoseEstimator(poseBufferSizeSec);
   private final PoseEstimator secondaryPoseEstimator = new PoseEstimator(poseBufferSizeSec);
 
-  private boolean sendVisionToPrimaryPoseEstimator = true;
+  @Setter private boolean sendVisionToPrimaryPoseEstimator = true;
+
+  @Setter private double visionStandardDeviationMultiplier = TRUST_VISION_NORMAL;
+
+  public static final double TRUST_VISION_NORMAL = 1.0;
+  public static final double TRUST_VISION_HIGH = 1.0 / 100.0;
 
   @Getter
   @AutoLogOutput(key = "Intake Extension Fraction")
@@ -193,6 +191,8 @@ public class RobotState extends VirtualSubsystem
 
   private final Queue<Boolean> canIsConnected = new LinkedList<>();
   private final Queue<Boolean> temperaturesAreFine = new LinkedList<>();
+
+  public static final Trigger disabled = RobotModeTriggers.disabled();
 
   // -------------------------------------------------------------------------
   // SmartDashboard / Field Display Objects
@@ -213,31 +213,19 @@ public class RobotState extends VirtualSubsystem
     robotFieldTrue.setRobotPose(getTrueOnFieldPose());
     SmartDashboard.putData(ROBOT_FIELD_TRUE_KEY, robotFieldTrue);
 
-    ScoringState scoringState = calculateScoringState(this);
-    SmartDashboard.putNumber("Scoring/CalculatedRPM", scoringState.shooterRPM().in(Units2.RPM));
-    SmartDashboard.putNumber("Scoring/CalculatedHoodAngle", scoringState.hoodAngle().in(Rotations));
     SmartDashboard.putNumber(
-            "Scoring/CalculatedTurretAngle", scoringState.turretAngle().in(Rotations));
+        "Turret to Goal",
+        getTurretPose()
+            .getTranslation()
+            .getDistance(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
     SmartDashboard.putNumber(
-            "Scoring/CalculatedTurretAngleFieldRelative",
-            getEstimatedPose().getRotation().getMeasure().plus(scoringState.turretAngle()).in(Degrees));
-
-    SmartDashboard.putNumber(
-            "Turret to Goal",
-            getTurretPose()
-                    .getTranslation()
-                    .getDistance(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
-    SmartDashboard.putNumber(
-            "Turret to Passing Line",
-            getTurretPose().getX() - FieldConstants.LinesVertical.allianceZone / 2);
-
-    ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(
-            getTurretPose(), FieldConstants.Hub.innerCenterPoint.toTranslation2d());
+        "Turret to Passing Line",
+        getTurretPose().getX() - FieldConstants.LinesVertical.allianceZone / 2);
 
     SmartDashboard.putBoolean(
-            "CAN Measurements", canIsConnected.stream().allMatch(measurement -> measurement));
+        "CAN Measurements", canIsConnected.stream().allMatch(measurement -> measurement));
     SmartDashboard.putBoolean(
-            "Motor Temperatures", temperaturesAreFine.stream().allMatch(measurement -> measurement));
+        "Motor Temperatures", temperaturesAreFine.stream().allMatch(measurement -> measurement));
 
     canIsConnected.clear();
     temperaturesAreFine.clear();
@@ -247,9 +235,10 @@ public class RobotState extends VirtualSubsystem
   public void periodicAfterScheduler() {
     Logger.recordOutput(ROBOT_FIELD_INTERNAL_KEY, getEstimatedPose());
     Logger.recordOutput(ROBOT_FIELD_TRUE_KEY, getTrueOnFieldPose());
+    Logger.recordOutput("/Internal/Secondary", getSecondaryEstimatedPose());
     if (!choreoSetpoints.getInternalBuffer().isEmpty()) {
       Logger.recordOutput(
-              CHOREO_SETPOINT_KEY, choreoSetpoints.getInternalBuffer().lastEntry().getValue());
+          CHOREO_SETPOINT_KEY, choreoSetpoints.getInternalBuffer().lastEntry().getValue());
     }
   }
 
@@ -267,15 +256,17 @@ public class RobotState extends VirtualSubsystem
 
   // use secondary because we always want vision on the turret
   public Pose2d getTurretPose() {
-    return secondaryPoseEstimator.getEstimatedPose().transformBy(
+    return secondaryPoseEstimator
+        .getEstimatedPose()
+        .transformBy(
             new Transform2d(
-                    Constants.SimConstants.originToTurretRotation.toTranslation2d(),
-                    Rotation2d.fromRotations(getScoringState().turretAngle().in(Rotations))));
+                Constants.SimConstants.originToTurretRotation.toTranslation2d(),
+                Rotation2d.fromRotations(getScoringState().turretRotations())));
   }
 
   /**
-   * Returns the pose relative to the blue alliance wall. Should be used sparingly; for all
-   * internal calculations, use {@link RobotState#getEstimatedPose()} instead.
+   * Returns the pose relative to the blue alliance wall. Should be used sparingly; for all internal
+   * calculations, use {@link RobotState#getEstimatedPose()} instead.
    */
   public Pose2d getTrueOnFieldPose() {
     return AllianceFlipUtil.apply(getEstimatedPose());
@@ -292,7 +283,7 @@ public class RobotState extends VirtualSubsystem
   }
 
   public void addOdometryObservation(
-          SwerveModulePosition[] wheelPositions, Optional<Rotation2d> gyroAngle, double timestamp) {
+      SwerveModulePosition[] wheelPositions, Optional<Rotation2d> gyroAngle, double timestamp) {
     primaryPoseEstimator.addOdometryMeasurement(wheelPositions, gyroAngle, timestamp);
     secondaryPoseEstimator.addOdometryMeasurement(wheelPositions, gyroAngle, timestamp);
   }
@@ -312,26 +303,26 @@ public class RobotState extends VirtualSubsystem
   public Pose3d[] getComponentPoses() {
     Pose3d turretPose = new Pose3d();
     turretPose =
-            turretPose.rotateAround(
-                    Constants.SimConstants.originToTurretRotation,
-                    new Rotation3d(new Rotation2d(scoringState.turretAngle())));
+        turretPose.rotateAround(
+            Constants.SimConstants.originToTurretRotation,
+            new Rotation3d(new Rotation2d(scoringState.turretRotations())));
     Pose3d hoodPose = new Pose3d();
     Rotation2d hoodRotation =
-            Rotation2d.fromDegrees(
-                    -scoringState.hoodAngle().in(Degrees)
-                            + org.team4639.frc2026.subsystems.hood.Constants.HOOD_MIN_ANGLE_DEGREES);
+        Rotation2d.fromDegrees(
+            -scoringState.hoodDegrees()
+                + org.team4639.frc2026.subsystems.hood.Constants.HOOD_MIN_ANGLE_DEGREES);
     hoodPose =
-            hoodPose.rotateAround(
-                    Constants.SimConstants.originToHoodRotation,
-                    new Rotation3d(VecBuilder.fill(0, 1, 0), -hoodRotation.getRadians()));
+        hoodPose.rotateAround(
+            Constants.SimConstants.originToHoodRotation,
+            new Rotation3d(VecBuilder.fill(0, 1, 0), -hoodRotation.getRadians()));
     hoodPose =
-            hoodPose.rotateAround(
-                    Constants.SimConstants.originToTurretRotation,
-                    new Rotation3d(new Rotation2d(scoringState.turretAngle())));
+        hoodPose.rotateAround(
+            Constants.SimConstants.originToTurretRotation,
+            new Rotation3d(new Rotation2d(scoringState.turretRotations())));
     Pose3d intakePose =
-            new Pose3d(
-                    new Translation3d(Units.inchesToMeters(10.396), 0, Units.inchesToMeters(-3.277)),
-                    new Rotation3d());
+        new Pose3d(
+            new Translation3d(Units.inchesToMeters(10.396), 0, Units.inchesToMeters(-3.277)),
+            new Rotation3d());
     return new Pose3d[] {intakePose, turretPose, hoodPose};
   }
 
@@ -341,28 +332,37 @@ public class RobotState extends VirtualSubsystem
 
   @Override
   public void accept(
-          int cameraIndex,
-          Pose2d visionRobotPoseMeters,
-          double timestampSeconds,
-          Matrix<N3, N1> visionMeasurementStdDevs) {
-    secondaryPoseEstimator.addVisionObservation(cameraIndex, visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
-    if (sendVisionToPrimaryPoseEstimator) primaryPoseEstimator.addVisionObservation(cameraIndex, visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+      int cameraIndex,
+      Pose2d visionRobotPoseMeters,
+      double timestampSeconds,
+      Matrix<N3, N1> visionMeasurementStdDevs) {
+    secondaryPoseEstimator.addVisionObservation(
+        cameraIndex,
+        visionRobotPoseMeters,
+        timestampSeconds,
+        visionMeasurementStdDevs.times(visionStandardDeviationMultiplier));
+    if (sendVisionToPrimaryPoseEstimator)
+      primaryPoseEstimator.addVisionObservation(
+          cameraIndex,
+          visionRobotPoseMeters,
+          timestampSeconds,
+          visionMeasurementStdDevs.times(visionStandardDeviationMultiplier));
   }
 
   @Override
   public void acceptTurretVision(
-          int cameraIndex,
-          Pose2d visionTurretPoseMeters,
-          double timestampSeconds,
-          Matrix<N3, N1> visionMeasurementStdDevs,
-          int numtargets) {
+      int cameraIndex,
+      Pose2d visionTurretPoseMeters,
+      double timestampSeconds,
+      Matrix<N3, N1> visionMeasurementStdDevs,
+      int numtargets) {
 
     var estimatedRobotPose =
-            visionTurretPoseMeters.transformBy(
-                    new Transform2d(
-                            Constants.SimConstants.originToTurretRotation.toTranslation2d(),
-                            Rotation2d.fromRotations(getScoringState().turretAngle().in(Rotations)))
-                            .inverse());
+        visionTurretPoseMeters.transformBy(
+            new Transform2d(
+                    Constants.SimConstants.originToTurretRotation.toTranslation2d(),
+                    Rotation2d.fromRotations(getScoringState().turretRotations()))
+                .inverse());
 
     this.turretCameraTargets = numtargets;
     accept(999, estimatedRobotPose, timestampSeconds, visionMeasurementStdDevs);
@@ -380,17 +380,8 @@ public class RobotState extends VirtualSubsystem
   // Scoring & Shooting Methods
   // =========================================================================
 
-  public void updateShooterState(AngularVelocity shooterRPM, Angle hoodAngle, Angle turretAngle) {
-    AngularVelocity newShooterRPM = scoringState.shooterRPM();
-    if (shooterRPM != null) newShooterRPM = shooterRPM;
-    SmartDashboard.putNumber("Scoring/ShooterRPM", newShooterRPM.in(Units2.RPM));
-    Angle newHoodAngle = scoringState.hoodAngle();
-    if (hoodAngle != null) newHoodAngle = hoodAngle;
-    SmartDashboard.putNumber("Scoring/HoodAngle", newHoodAngle.in(Rotations));
-    Angle newTurretAngle = scoringState.turretAngle();
-    if (turretAngle != null) newTurretAngle = turretAngle;
-    SmartDashboard.putNumber("Scoring/TurretAngle", newTurretAngle.in(Rotations));
-    scoringState = new ScoringState(newShooterRPM, newHoodAngle, newTurretAngle);
+  public void updateShooterState(double shooterRPM, double hoodDegrees, double turretRotations) {
+    scoringState = scoringState.replace(shooterRPM, hoodDegrees, turretRotations);
   }
 
   public ScoringState calculateScoringState(Object caller) {
@@ -398,15 +389,10 @@ public class RobotState extends VirtualSubsystem
   }
 
   private ScoringState _calculateScoringState() {
-    Translation2d hubTranslation = FieldConstants.Hub.topCenterPoint.toTranslation2d();
-    Pose2d turretPose =
-            getEstimatedPose()
-                    .transformBy(
-                            new Transform2d(
-                                    Constants.SimConstants.originToTurretRotation.toTranslation2d(),
-                                    new Rotation2d()));
-    return calculateScoringState(hubTranslation, turretPose, getChassisSpeeds())
-            .times(getRPMFudge(), 1, 1);
+    return LookupTables.getScoringState(
+        getEstimatedPose(),
+        getChassisSpeeds(),
+        FieldConstants.Hub.innerCenterPoint.toTranslation2d());
   }
 
   public ScoringState calculateNextScoringState(Object caller) {
@@ -414,38 +400,14 @@ public class RobotState extends VirtualSubsystem
   }
 
   private ScoringState _calculateNextScoringState(double dtSeconds) {
-    Translation2d hubTranslation = FieldConstants.Hub.topCenterPoint.toTranslation2d();
-    Pose2d turretPose =
-            getEstimatedPose()
-                    .exp(getChassisSpeeds().toTwist2d(dtSeconds))
-                    .transformBy(
-                            new Transform2d(
-                                    Constants.SimConstants.originToTurretRotation.toTranslation2d(),
-                                    new Rotation2d()));
-    return calculateScoringState(hubTranslation, turretPose, getChassisSpeeds());
-  }
-
-  private ScoringState calculateScoringState(
-          Translation2d hubTranslation, Pose2d turretPose, ChassisSpeeds chassisSpeeds) {
-    if (MathUtil.isNear(0, chassisSpeeds.vxMetersPerSecond, 0.01)
-            || MathUtil.isNear(0, chassisSpeeds.vyMetersPerSecond, 0.01)) {
-      return ShooterScoringData.shooterLookupTable.calculateShooterStateStationary(
-              turretPose, hubTranslation);
-    } else {
-      Rotation2d robotRotation = turretPose.getRotation();
-      Translation2d robotVelocity =
-              new Translation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
-      Translation2d robotTangentialVelocityTranslation =
-              Constants.SimConstants.originToTurretRotation
-                      .toTranslation2d()
-                      .rotateBy(robotRotation)
-                      .rotateBy(Rotation2d.fromDegrees(90))
-                      .times(chassisSpeeds.omegaRadiansPerSecond);
-      robotTangentialVelocityTranslation.rotateBy(robotRotation);
-      robotVelocity = robotVelocity.plus(robotTangentialVelocityTranslation);
-      return ShooterScoringData.shooterLookupTable.convergeShooterStateSOTFTurret(
-              turretPose, hubTranslation, robotVelocity, 10);
-    }
+    return LookupTables.getScoringState(
+        getEstimatedPose()
+            .exp(
+                ChassisSpeeds.fromFieldRelativeSpeeds(
+                        getChassisSpeeds(), getEstimatedPose().getRotation())
+                    .toTwist2d(dtSeconds)),
+        getChassisSpeeds(),
+        FieldConstants.Hub.innerCenterPoint.toTranslation2d());
   }
 
   public ScoringState calculatePassingState(Object caller) {
@@ -453,14 +415,16 @@ public class RobotState extends VirtualSubsystem
   }
 
   private ScoringState _calculatePassingState() {
-    return PassingLookupTable.getPassingState(
-            getTurretPose(), FieldConstants.LinesVertical.allianceZone / 2.0);
+    return LookupTables.getPassingState(
+        getEstimatedPose(),
+        getChassisSpeeds(),
+        new Translation2d(FieldConstants.LinesVertical.allianceZone, getEstimatedPose().getY()));
   }
 
   public boolean passingWillHitHub() {
     var y = getTurretPose().getY();
     return FieldConstants.LinesHorizontal.center - FieldConstants.Hub.width / 2.0 < y
-            && y < FieldConstants.LinesHorizontal.center + FieldConstants.Hub.width / 2.0;
+        && y < FieldConstants.LinesHorizontal.center + FieldConstants.Hub.width / 2.0;
   }
 
   public void fudgeUp() {
@@ -479,18 +443,15 @@ public class RobotState extends VirtualSubsystem
     turretRobotRelativeBuffer.addSample(timestamp, rotations);
   }
 
-  /**
-   * Attempt to find the best hub for the turret to track while idling.
-   */
+  /** Attempt to find the best hub for the turret to track while idling. */
   public Rotation2d getBestHubTrackFieldRelative() {
     var ourHub = FieldConstants.Hub.topCenterPoint.toTranslation2d();
     var opponentHub =
-            new Translation2d(
-                    FieldConstants.fieldLength - ourHub.getX(), FieldConstants.fieldWidth - ourHub.getY());
+        new Translation2d(
+            FieldConstants.fieldLength - ourHub.getX(), FieldConstants.fieldWidth - ourHub.getY());
     var nearestHub = getTurretPose().getTranslation().nearest(Set.of(ourHub, opponentHub));
     return nearestHub.minus(getTurretPose().getTranslation()).getAngle();
   }
-
 
   // =========================================================================
   // Hardware Health Methods

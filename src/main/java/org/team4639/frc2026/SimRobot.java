@@ -39,7 +39,7 @@ public class SimRobot extends VirtualSubsystem {
                   DCMotor.getKrakenX60(1),
                   Constants.RobotConstants.WHEEL_COF,
                   3))
-          .withBumperSize(Inches.of(32), Inches.of(32));
+          .withBumperSize(Inches.of(34), Inches.of(34));
 
   @Override
   public void periodic() {
@@ -64,6 +64,7 @@ public class SimRobot extends VirtualSubsystem {
     arena.setEfficiencyMode(false);
     SimulatedArena.overrideInstance(arena);
     SimulatedArena.getInstance().addDriveTrainSimulation(this.swerveDriveSimulation);
+    SimulatedArena.getInstance().resetFieldForAuto();
   }
 
   public void shootFuel(ScoringState scoringState) {
@@ -82,14 +83,15 @@ public class SimRobot extends VirtualSubsystem {
             swerveDriveSimulation
                 .getSimulatedDriveTrainPose()
                 .getRotation()
-                .plus(Rotation2d.fromRotations(scoringState.turretAngle().in(Rotations))),
+                .plus(Rotation2d.fromRotations(scoringState.turretRotations())),
             // Initial height of the flying note
             Meters.of(0.508),
             // The launch speed is proportional to the RPM; assumed to be 16 meters/second at 6000
             // RPM
-            Meters.per(Second).of(scoringState.shooterRPM().in(Radians.per(Second)) * 0.0508),
+            Meters.per(Second)
+                .of(Units.rotationsPerMinuteToRadiansPerSecond(scoringState.shooterRPM()) * 0.0508),
             // The angle at which the note is launched
-            Rotations.of(0.25).minus(scoringState.hoodAngle()));
+            Rotations.of(0.25).minus(Degrees.of(scoringState.hoodDegrees())));
     fuelOnFly.setHitTargetCallBack(() -> System.out.println("FUEL hits HUB!"));
     SimulatedArena.getInstance().addGamePieceProjectile(fuelOnFly);
   }

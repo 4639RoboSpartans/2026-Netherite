@@ -19,7 +19,7 @@ public class Spindexer extends FullSubsystem {
   private final SpindexerIO io;
   private final SpindexerIOInputsAutoLogged inputs = new SpindexerIOInputsAutoLogged();
 
-  private final double KICK_RPM = -400;
+  private final double SPIN_RPM = -300;
   private final double IDLE_RPM = 0;
 
   private double unjamStartTime = Double.NaN;
@@ -125,7 +125,7 @@ public class Spindexer extends FullSubsystem {
   }
 
   private void handleKick() {
-    io.setRotorVelocityRPM(KICK_RPM);
+    io.setRotorVelocityRPM(SPIN_RPM);
   }
 
   public void setWantedState(WantedState wantedState) {
@@ -137,6 +137,6 @@ public class Spindexer extends FullSubsystem {
   }
 
   private void handleUnjam() {
-    io.setRotorVelocityRPM(-KICK_RPM);
+    io.setRotorVelocityRPM(-SPIN_RPM);
   }
 }

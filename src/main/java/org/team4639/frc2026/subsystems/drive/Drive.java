@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -321,6 +322,13 @@ public class Drive extends SubsystemBase {
     for (int i = 0; i < 4; i++) {
       headings[i] = getModuleTranslations()[i].getAngle();
     }
+    kinematics.resetHeadings(headings);
+    stop();
+  }
+
+  public void autoConfiguration() {
+    Rotation2d[] headings = new Rotation2d[4];
+    Arrays.fill(headings, Rotation2d.kCCW_90deg);
     kinematics.resetHeadings(headings);
     stop();
   }

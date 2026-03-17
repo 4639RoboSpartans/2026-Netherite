@@ -3,7 +3,6 @@
 package org.team4639.frc2026.subsystems.vision;
 
 import static edu.wpi.first.units.Units.Rotations;
-import static org.team4639.frc2026.subsystems.vision.Vision.useVisionMeasurement;
 import static org.team4639.frc2026.subsystems.vision.VisionConstants.*;
 
 import java.util.function.Predicate;
@@ -29,8 +28,7 @@ public enum VisionFilters {
   DISTANCE(
       observation -> {
         return observation.averageTagDistance() > 3.5;
-      }),
-  TOGGLE(observation -> !useVisionMeasurement);
+      });
 
   /** Returns true if we want to reject the pose and false if we keep it */
   private final Predicate<PoseObservation> test;

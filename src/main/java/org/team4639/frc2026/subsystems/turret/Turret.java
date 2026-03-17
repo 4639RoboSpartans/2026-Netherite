@@ -2,7 +2,6 @@
 
 package org.team4639.frc2026.subsystems.turret;
 
-import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.CANBus;
@@ -11,12 +10,10 @@ import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import java.util.Arrays;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.locks.ReentrantLock;
-
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -96,7 +93,7 @@ public class Turret extends FullSubsystem {
     Logger.processInputs("Right Encoder", rightEncoderInputs);
     motorPositionLock.unlock();
 
-    state.updateShooterState(null, null, Rotations.of(getTurretRotationFromRotorRotation()));
+    state.updateShooterState(Double.NaN, Double.MAX_VALUE, getTurretRotationFromRotorRotation());
   }
 
   @Override
@@ -303,10 +300,10 @@ public class Turret extends FullSubsystem {
         var nextScoringState = state.calculateNextScoringState(this);
 
         double rotations =
-            currentScoringState.turretAngle().in(Rotations)
+            currentScoringState.turretRotations()
                 - state.getSecondaryEstimatedPose().getRotation().getRotations();
         double rotationsPerSecond =
-            (nextScoringState.turretAngle().in(Rotations)
+            (nextScoringState.turretRotations()
                     - state.calculateNextPose(this).getRotation().getRotations())
                 - rotations;
         rotationsPerSecond = rotationsPerSecond / 0.02;
@@ -315,7 +312,7 @@ public class Turret extends FullSubsystem {
       }
       case PASSING -> PASSING_TURRET_ROTATION =
           new TurretSetpoint(
-              state.calculatePassingState(this).turretAngle().in(Rotations)
+              state.calculatePassingState(this).turretRotations()
                   - state.getSecondaryEstimatedPose().getRotation().getRotations(),
               -state.getGyroRotationsPerSecond());
       case HUB_TRACK -> HUB_TRACK_TURRET_ROTATION =
@@ -339,9 +336,7 @@ public class Turret extends FullSubsystem {
   @AutoLogOutput(key = "Turret At Setpoint")
   public boolean atSetpoint() {
     return MathUtil.isNear(
-            getRotorSetpoint(),
-            turretInputs.rotations,
-            Constants.ROTOR_ROTATION_TOLERANCE)
+            getRotorSetpoint(), turretInputs.rotations, Constants.ROTOR_ROTATION_TOLERANCE)
         || MathUtil.isNear(
             getRotorSetpoint() + 1.0 / Constants.MOTOR_TO_TURRET_GEAR_RATIO,
             turretInputs.rotations,

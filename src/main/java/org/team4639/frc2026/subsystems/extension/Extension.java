@@ -14,21 +14,24 @@ import org.team4639.frc2026.subsystems.intake.Constants;
 import org.team4639.lib.util.FullSubsystem;
 
 public class Extension extends FullSubsystem {
+
+  public static final double INTAKE_NOT_MOVING_BACKWARD_RPS = -0.1;
   private final RobotState state;
   private final IntakeExtensionIO io;
   private final IntakeExtensionIOInputsAutoLogged inputs;
 
   private final double ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND = 5;
-  private final double ENDSTOP_CURRENT_THRESHOLD = 20; // just a guess
+  private final double ENDSTOP_CURRENT_THRESHOLD = 20;
   private final double ZERO_VELOCITY_TIME_PERIOD = 0.02;
   private final double ZERO_VOLTAGE_OUT = 4;
   private final double REZERO_VOLTAGE_OUT = 2;
   private final double ZERO_VOLTAGE_IN = 3;
   private final double ROTOR_SETPOINT_TOLERANCE = 5;
+  private final double EXTENDED_VOLTAGE = 0.5;
 
   private boolean rezero = false;
+  private boolean runExtendedVoltage = true;
 
-  private final boolean zeroed = false;
   private double zeroTimeStamp = Double.NaN;
 
   public enum WantedState {
@@ -125,7 +128,7 @@ public class Extension extends FullSubsystem {
   }
 
   public void handleExtended() {
-    io.setVoltage(0);
+    io.setVoltage(runExtendedVoltage ? EXTENDED_VOLTAGE : 0);
     io.setBrakeMode(false);
   }
 
@@ -134,14 +137,21 @@ public class Extension extends FullSubsystem {
       case EXTENDED:
         if (!DriverStation.isDisabled()) {
           // if intake satisfies zero requirements
-          if (Math.abs(inputs.rotationsPerSecond) < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND
+          if (Math.abs(inputs.rotationsPerSecond)
+                  < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND
               || Math.abs(inputs.amps) >= ENDSTOP_CURRENT_THRESHOLD) {
             if (systemState == SystemState.EXTENDED) {
               if (!MathUtil.isNear(
                   inputs.rotations, extendedRotorPosition, ROTOR_SETPOINT_TOLERANCE)) {
-                rezero = true;
-                return SystemState.EXTENDING;
+                if (inputs.rotationsPerSecond > INTAKE_NOT_MOVING_BACKWARD_RPS) {
+                  rezero = true;
+                  return SystemState.EXTENDING;
+                } else {
+                  runExtendedVoltage = false;
+                  return SystemState.EXTENDED;
+                }
               }
+              runExtendedVoltage = true;
               return SystemState.EXTENDED;
             } else if (!Double.isFinite(zeroTimeStamp)) {
               zeroTimeStamp = Timer.getFPGATimestamp();
@@ -150,6 +160,7 @@ public class Extension extends FullSubsystem {
               io.stop();
               zeroTimeStamp = Double.NaN;
               setHomedPositions(Double.NaN, inputs.rotations);
+              runExtendedVoltage = true;
               return SystemState.EXTENDED;
             } else {
               return SystemState.EXTENDING;
@@ -164,7 +175,8 @@ public class Extension extends FullSubsystem {
       case IDLE:
         rezero = false;
         if (!DriverStation.isDisabled()) {
-          if (Math.abs(inputs.rotationsPerSecond) < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND
+          if (Math.abs(inputs.rotationsPerSecond)
+                  < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND
               || Math.abs(inputs.amps) >= ENDSTOP_CURRENT_THRESHOLD) {
             if (systemState == SystemState.IDLE) {
               return SystemState.IDLE;
