@@ -26,6 +26,8 @@ import lombok.experimental.ExtensionMethod;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.Constants.Mode;
+import org.team4639.frc2026.commands.SuperstructureCommands;
+import org.team4639.frc2026.constants.led.Patterns;
 import org.team4639.frc2026.constants.shooter.LookupTables;
 import org.team4639.frc2026.constants.shooter.ScoringState;
 import org.team4639.frc2026.subsystems.drive.Drive;
@@ -482,6 +484,35 @@ public class RobotState extends VirtualSubsystem
   // =========================================================================
 
   public LEDPattern getDesiredLEDPattern() {
-    return LEDPattern.BLANK;
+    return switch(SuperstructureCommands.currentState) {
+        case IDLE -> {
+            if (intakeStates.getSecond() == Intake.SystemState.INTAKE) {
+                yield Patterns.DEFAULT_INTAKE;
+            } else {
+                yield Patterns.DEFAULT;
+            }
+        }
+        case PASS -> {
+            if (intakeStates.getSecond() == Intake.SystemState.INTAKE) {
+                yield Patterns.PASSING_AND_INTAKE;
+            } else {
+                yield Patterns.PASSING;
+            }
+        }
+        case SCORE -> {
+            if (intakeStates.getSecond() == Intake.SystemState.INTAKE) {
+                yield Patterns.SHOOTING_AND_INTAKE;
+            } else {
+                yield Patterns.SHOOTING;
+            }
+        }
+        case WAIT -> {
+            if (intakeStates.getSecond() == Intake.SystemState.INTAKE) {
+                yield Patterns.SHOOTER_REQUESTED_AND_INTAKE;
+            } else {
+                yield Patterns.SHOOTER_REQUESTED;
+            }
+        }
+    };
   }
 }
