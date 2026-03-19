@@ -515,4 +515,8 @@ public class RobotState extends VirtualSubsystem
         }
     };
   }
+
+  public static class FuelEstimator {
+    
+  }
 }
