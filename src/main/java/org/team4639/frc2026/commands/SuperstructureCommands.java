@@ -18,7 +18,7 @@ import org.team4639.frc2026.subsystems.spindexer.Spindexer;
 import org.team4639.frc2026.subsystems.turret.Turret;
 
 public class SuperstructureCommands {
-  public static SuperstructureState currentState = SuperstructureState.WAIT;
+  public static SuperstructureState currentState = SuperstructureState.IDLE;
 
   private static boolean runSpindexerWhileWaiting = true;
 

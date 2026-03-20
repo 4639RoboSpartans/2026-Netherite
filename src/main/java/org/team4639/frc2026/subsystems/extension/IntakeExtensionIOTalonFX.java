@@ -25,7 +25,7 @@ public class IntakeExtensionIOTalonFX implements IntakeExtensionIO {
 
     config.CurrentLimits.SupplyCurrentLimit = 20;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.CurrentLimits.StatorCurrentLimit = 20;
+    config.CurrentLimits.StatorCurrentLimit = 15;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     // config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 

@@ -387,6 +387,10 @@ public class RobotContainer {
 
     ledkicker.setDefaultCommand(LEDCommands.useDefaultSchema(ledkicker, RobotState.getInstance()));
 
+    shooter.dummy.setDefaultCommand(
+        SuperstructureCommands.idle(
+            shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
+
     driver
         .rightTrigger()
         .whileTrue(

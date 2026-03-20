@@ -340,13 +340,13 @@ public class RobotState extends VirtualSubsystem
       Matrix<N3, N1> visionMeasurementStdDevs) {
     secondaryPoseEstimator.addVisionObservation(
         cameraIndex,
-        visionRobotPoseMeters,
+        AllianceFlipUtil.apply(visionRobotPoseMeters),
         timestampSeconds,
         visionMeasurementStdDevs.times(visionStandardDeviationMultiplier));
     if (sendVisionToPrimaryPoseEstimator)
       primaryPoseEstimator.addVisionObservation(
           cameraIndex,
-          visionRobotPoseMeters,
+          AllianceFlipUtil.apply(visionRobotPoseMeters),
           timestampSeconds,
           visionMeasurementStdDevs.times(visionStandardDeviationMultiplier));
   }
@@ -484,35 +484,35 @@ public class RobotState extends VirtualSubsystem
   // =========================================================================
 
   public LEDPattern getDesiredLEDPattern() {
-    return switch(SuperstructureCommands.currentState) {
-        case IDLE -> {
-            if (intakeStates.getSecond() == Intake.SystemState.INTAKE) {
-                yield Patterns.DEFAULT_INTAKE;
-            } else {
-                yield Patterns.DEFAULT;
-            }
+    return switch (SuperstructureCommands.currentState) {
+      case IDLE -> {
+        if (intakeStates.getSecond() == Intake.SystemState.INTAKE) {
+          yield Patterns.DEFAULT_INTAKE;
+        } else {
+          yield Patterns.DEFAULT;
         }
-        case PASS -> {
-            if (intakeStates.getSecond() == Intake.SystemState.INTAKE) {
-                yield Patterns.PASSING_AND_INTAKE;
-            } else {
-                yield Patterns.PASSING;
-            }
+      }
+      case PASS -> {
+        if (intakeStates.getSecond() == Intake.SystemState.INTAKE) {
+          yield Patterns.PASSING_AND_INTAKE;
+        } else {
+          yield Patterns.PASSING;
         }
-        case SCORE -> {
-            if (intakeStates.getSecond() == Intake.SystemState.INTAKE) {
-                yield Patterns.SHOOTING_AND_INTAKE;
-            } else {
-                yield Patterns.SHOOTING;
-            }
+      }
+      case SCORE -> {
+        if (intakeStates.getSecond() == Intake.SystemState.INTAKE) {
+          yield Patterns.SHOOTING_AND_INTAKE;
+        } else {
+          yield Patterns.SHOOTING;
         }
-        case WAIT -> {
-            if (intakeStates.getSecond() == Intake.SystemState.INTAKE) {
-                yield Patterns.SHOOTER_REQUESTED_AND_INTAKE;
-            } else {
-                yield Patterns.SHOOTER_REQUESTED;
-            }
+      }
+      case WAIT -> {
+        if (intakeStates.getSecond() == Intake.SystemState.INTAKE) {
+          yield Patterns.SHOOTER_REQUESTED_AND_INTAKE;
+        } else {
+          yield Patterns.SHOOTER_REQUESTED;
         }
+      }
     };
   }
 

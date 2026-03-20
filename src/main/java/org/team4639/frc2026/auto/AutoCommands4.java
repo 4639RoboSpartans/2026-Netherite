@@ -38,7 +38,7 @@ public class AutoCommands4 {
 
   public static final Pose2d LEFT_TRENCH_ALIGN_SETPOINT_TO_NEUTRAL_ZONE =
       new Pose2d(
-          LEFT_TRENCH_ALIGN_SETPOINT_TO_ALLIANCE_ZONE.getX() + 0.25,
+          LEFT_TRENCH_ALIGN_SETPOINT_TO_ALLIANCE_ZONE.getX() + 1,
           LEFT_TRENCH_ALIGN_SETPOINT_TO_ALLIANCE_ZONE.getY(),
           Rotation2d.kCW_90deg);
 
@@ -51,10 +51,10 @@ public class AutoCommands4 {
           Rotation2d.fromDegrees(45));
   public static final Pose2d LEFT_BUMP_ALIGN_SETPOINT_NEGATIVE_45 =
       LEFT_BUMP_ALIGN_SETPOINT_45.rotateBy(Rotation2d.kCW_90deg);
-  public static final int TRENCH_COS_POWER = 250;
-  public static final double BUMP_SPEED = 3.0;
-  public static final int BUMP_COS_POWER = 500;
-  public static final double TRENCH_SPEED = 5.0;
+  public static final int TRENCH_COS_POWER = 100;
+  public static final double BUMP_SPEED = 26.0;
+  public static final int BUMP_COS_POWER = 1000;
+  public static final double TRENCH_SPEED = 9.0;
 
   public static Command LEFT_SINGLE_SWIPE(
       Drive drive,
@@ -299,7 +299,8 @@ public class AutoCommands4 {
             new ParallelCommandGroup(
                 IntakeCommands.extend(extension), IntakeCommands.intake(intake))),
         new ParallelCommandGroup(
-                drive.run(drive::stopWithX),
+                DriveCommands.joystickDriveAtAngle(
+                    drive, () -> 0, () -> 0, () -> Rotation2d.k180deg),
                 SuperstructureCommands.requestScoring(
                     shooter, hood, turret, spindexer, kicker, state),
                 IntakeCommands.agitate(extension, intake))
@@ -747,7 +748,8 @@ public class AutoCommands4 {
             new ParallelCommandGroup(
                 IntakeCommands.extend(extension), IntakeCommands.intake(intake))),
         new ParallelCommandGroup(
-                drive.run(drive::stopWithX),
+                DriveCommands.joystickDriveAtAngle(
+                    drive, () -> 0, () -> 0, () -> Rotation2d.kCCW_90deg),
                 SuperstructureCommands.requestScoring(
                     shooter, hood, turret, spindexer, kicker, state),
                 IntakeCommands.agitate(extension, intake))
@@ -759,12 +761,14 @@ public class AutoCommands4 {
                     TRENCH_SPEED,
                     TRENCH_COS_POWER)
                 .until(
-                    () -> state.getEstimatedPose().getX() > FieldConstants.LinesVertical.hubCenter),
+                    () ->
+                        state.getEstimatedPose().getX()
+                            > FieldConstants.LinesVertical.hubCenter + 0.5),
             IntakeCommands.stop(intake),
             IntakeCommands.retract(extension),
             SuperstructureCommands.idle(shooter, hood, turret, spindexer, kicker, state)),
         new ParallelCommandGroup(
-            followPath("LTR_CHZ2", false, state),
+            followPath("LTR_CHZ2", true, state),
             Commands.runOnce(() -> state.setSendVisionToPrimaryPoseEstimator(false)),
             new SequentialCommandGroup(
                 new ParallelCommandGroup(
@@ -792,7 +796,8 @@ public class AutoCommands4 {
             new ParallelCommandGroup(
                 IntakeCommands.extend(extension), IntakeCommands.intake(intake))),
         new ParallelCommandGroup(
-            drive.run(drive::stopWithX),
+            DriveCommands.joystickDriveAtAngle(
+                drive, () -> 0, () -> 0, () -> Rotation2d.kCCW_90deg),
             SuperstructureCommands.requestScoring(shooter, hood, turret, spindexer, kicker, state),
             IntakeCommands.agitate(extension, intake)));
   }
