@@ -39,9 +39,9 @@ public class TurretIOTalonFX implements TurretIO {
     config.CurrentLimits.StatorCurrentLimit = 20;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-    config.Slot0.kS = 1;
-    config.Slot0.kV = 8;
-    config.Slot0.kA = 0.75;
+    config.Slot0.kS = 0.2692173333;
+    config.Slot0.kV = 0.1055999667;
+    config.Slot0.kA = 0.0005154738;
     config.Slot0.kP = 4;
 
     // applyNewGains();
