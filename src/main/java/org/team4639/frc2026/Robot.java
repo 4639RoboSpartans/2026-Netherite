@@ -16,6 +16,7 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.littletonrobotics.urcl.URCL;
+import org.team4639.frc2026.constants.ports.Netherite;
 import org.team4639.lib.util.FullSubsystem;
 import org.team4639.lib.util.LoggedTracer;
 import org.team4639.lib.util.VirtualSubsystem;
@@ -74,7 +75,7 @@ public class Robot extends LoggedRobot {
     // Start CTRE Logger and URCL if tuning mode on
     if (Constants.tuningMode) {
       SignalLogger.enableAutoLogging(true);
-      URCL.start(DataLogManager.getLog());
+      Logger.registerURCL(URCL.startExternal(Constants.URCLConstants.shooterIDtoName));
     }
 
     // Instantiate our RobotContainer. This will perform all our button bindings,

@@ -6,6 +6,9 @@ import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
+import org.team4639.frc2026.constants.ports.Netherite;
+
+import java.util.Map;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -43,5 +46,12 @@ public final class Constants {
         new Translation3d(-Units.inchesToMeters(1.834), 0, Units.inchesToMeters(16.625));
     public static final Translation3d intakeExtendedTranslation =
         new Translation3d(Units.inchesToMeters(10.396), 0, Units.inchesToMeters(-3.277));
+  }
+
+  public static final class URCLConstants {
+    public static final Map<Integer, String> shooterIDtoName = Map.of(
+            Netherite.portConfiguration.shooterMotorLeftID.getDeviceNumber(), "Shooter Left",
+            Netherite.portConfiguration.shooterMotorRightID.getDeviceNumber(), "Shooter Right"
+    );
   }
 }

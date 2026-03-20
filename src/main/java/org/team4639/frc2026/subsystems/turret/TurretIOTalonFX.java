@@ -107,4 +107,14 @@ public class TurretIOTalonFX implements TurretIO {
   public void setVoltage(double volts) {
     turretMotor.setVoltage(volts);
   }
+
+  public void setSoftwareLimits(double forwardLimitRotorRotations, double reverseLimitRotorRotations) {
+    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+
+    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = forwardLimitRotorRotations;
+    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = reverseLimitRotorRotations;
+
+    PhoenixUtil.tryUntilOk(5, () -> turretMotor.getConfigurator().apply(config));
+  }
 }
