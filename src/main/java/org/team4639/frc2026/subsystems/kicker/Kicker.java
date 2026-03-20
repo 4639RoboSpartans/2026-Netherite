@@ -19,7 +19,7 @@ public class Kicker extends FullSubsystem {
   private final KickerIO io;
   private final KickerIOInputsAutoLogged inputs = new KickerIOInputsAutoLogged();
 
-  private final double KICK_RPM = 500 * 2 * 1.75;
+  private double KICK_RPM = 0;
   private final double IDLE_RPM = 0;
 
   @Getter private final KickerSysID sysID = new KickerSysID.KickerSysIDWPI(this, inputs);
@@ -108,6 +108,7 @@ public class Kicker extends FullSubsystem {
   }
 
   private void handleKick() {
+    KICK_RPM = state.calculateScoringState(this).shooterRPM() * Constants.SHOOTER_DIAMETER_TO_KICKER_DIAMETER * Constants.SCALE_OF_SHOOTER;
     io.setRotorVelocityRPM(KICK_RPM);
   }
 
