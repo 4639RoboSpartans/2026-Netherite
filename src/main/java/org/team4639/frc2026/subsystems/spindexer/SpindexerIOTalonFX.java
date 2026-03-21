@@ -27,9 +27,10 @@ public class SpindexerIOTalonFX implements SpindexerIO {
     config.CurrentLimits.SupplyCurrentLimit = 40;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.StatorCurrentLimit = 80;
+
     config.Slot0.kV = 0.087712 * 9 / 8;
     config.Slot0.kA = 0.23735;
-    // config.Slot0.kP = 1;
+    config.Slot0.kP = 0.25;
 
     PhoenixUtil.tryUntilOk(5, () -> spindexerMotor.getConfigurator().apply(config));
   }

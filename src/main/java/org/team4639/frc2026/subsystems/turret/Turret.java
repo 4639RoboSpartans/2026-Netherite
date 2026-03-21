@@ -328,11 +328,20 @@ public class Turret extends FullSubsystem {
 
         yield SCORING_TURRET_ROTATION = new TurretSetpoint(rotations, rotationsPerSecond);
       }
-      case PASSING -> PASSING_TURRET_ROTATION =
-          new TurretSetpoint(
-              state.calculatePassingState(this).turretRotations()
-                  - state.getSecondaryEstimatedPose().getRotation().getRotations(),
-              Constants.TURRET_FUDGE_SCALAR * -state.getGyroRotationsPerSecond());
+      case PASSING ->
+              {var currentPassingState = state.calculatePassingState(this);
+                var nextPassingState = state.calculateNextPassingState(this);
+
+                double rotations =
+                        currentPassingState.turretRotations()
+                                - state.getSecondaryEstimatedPose().getRotation().getRotations();
+                double rotationsPerSecond =
+                        (nextPassingState.turretRotations()
+                                - state.calculateNextPose(this).getRotation().getRotations())
+                                - rotations;
+                rotationsPerSecond = Constants.TURRET_FUDGE_SCALAR * rotationsPerSecond / 0.02;
+
+                yield PASSING_TURRET_ROTATION = new TurretSetpoint(rotations, rotationsPerSecond);}
       case HUB_TRACK -> HUB_TRACK_TURRET_ROTATION =
           new TurretSetpoint(
               MathUtil.inputModulus(state.getBestHubTrackFieldRelative().getRotations(), 0, 1)

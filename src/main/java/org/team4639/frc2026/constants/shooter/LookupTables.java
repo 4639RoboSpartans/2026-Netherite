@@ -14,7 +14,7 @@ import org.team4639.frc2026.Constants;
 import org.team4639.lib.util.geometry.GeomUtil;
 
 public class LookupTables {
-  private static final double PHASE_DELAY = 0.03;
+  private static final double PHASE_DELAY = 0.2;
 
   public static final InterpolatingDoubleTreeMap scoringDistanceToRPM =
       InterpolatingDoubleTreeMap.ofEntries(
@@ -61,10 +61,51 @@ public class LookupTables {
                   new AbstractMap.SimpleImmutableEntry<>(4.77, 1.42),
                   new AbstractMap.SimpleImmutableEntry<>(5.2, 1.4725));
 
-  public static final InterpolatingDoubleTreeMap passingDistanceToRPM = scoringDistanceToRPM;
+  public static final InterpolatingDoubleTreeMap passingDistanceToRPM = InterpolatingDoubleTreeMap.ofEntries(
+          new AbstractMap.SimpleImmutableEntry<>(1.87, 2320.0),
+          new AbstractMap.SimpleImmutableEntry<>(2.20, 2520.0),
+          new AbstractMap.SimpleImmutableEntry<>(2.44, 2690.0),
+          new AbstractMap.SimpleImmutableEntry<>(2.90, 2825.0),
+          new AbstractMap.SimpleImmutableEntry<>(3.20, 2930.0),
+          new AbstractMap.SimpleImmutableEntry<>(3.50, 3015.0),
+          new AbstractMap.SimpleImmutableEntry<>(3.80, 3100.0),
+          new AbstractMap.SimpleImmutableEntry<>(4.10, 3260.0),
+          new AbstractMap.SimpleImmutableEntry<>(4.41, 3370.0),
+          new AbstractMap.SimpleImmutableEntry<>(4.77, 3465.0),
+          new AbstractMap.SimpleImmutableEntry<>(4.90, 3635.0),
+          new AbstractMap.SimpleImmutableEntry<>(5.20, 3765.0),
+          // New Setpoints
+          new AbstractMap.SimpleImmutableEntry<>(5.5, 4005.3875),
+          new AbstractMap.SimpleImmutableEntry<>(5.8, 4280.9288),
+          new AbstractMap.SimpleImmutableEntry<>(6.1, 4611.5969),
+          new AbstractMap.SimpleImmutableEntry<>(6.5, 5150.8125),
+          new AbstractMap.SimpleImmutableEntry<>(6.8, 5638.3968),
+          new AbstractMap.SimpleImmutableEntry<>(7.1, 6205.3539),
+          new AbstractMap.SimpleImmutableEntry<>(7.4, 6858.9576));
+
   public static final InterpolatingDoubleTreeMap passingDistanceToHoodDegrees =
-      scoringDistanceToHoodDegrees;
-  public static final InterpolatingDoubleTreeMap passingDistanceToTOF = scoringDistanceToTOF;
+          scoringDistanceToHoodDegrees;
+
+  public static final InterpolatingDoubleTreeMap passingDistanceToTOF = InterpolatingDoubleTreeMap.ofEntries(
+          new AbstractMap.SimpleImmutableEntry<>(1.87, 0.8814285714),
+          new AbstractMap.SimpleImmutableEntry<>(2.2, 0.9725),
+          new AbstractMap.SimpleImmutableEntry<>(2.5, 1.0175),
+          new AbstractMap.SimpleImmutableEntry<>(2.9, 1.035),
+          new AbstractMap.SimpleImmutableEntry<>(3.2, 1.061428571),
+          new AbstractMap.SimpleImmutableEntry<>(3.5, 1.176666667),
+          new AbstractMap.SimpleImmutableEntry<>(3.8, 1.192),
+          new AbstractMap.SimpleImmutableEntry<>(4.1, 1.238571429),
+          new AbstractMap.SimpleImmutableEntry<>(4.4, 1.3425),
+          new AbstractMap.SimpleImmutableEntry<>(4.77, 1.42),
+          new AbstractMap.SimpleImmutableEntry<>(5.2, 1.4725),
+          // New Setpoints
+          new AbstractMap.SimpleImmutableEntry<>(5.5, 1.55855625),
+          new AbstractMap.SimpleImmutableEntry<>(5.8, 1.629534),
+          new AbstractMap.SimpleImmutableEntry<>(6.1, 1.70293275),
+          new AbstractMap.SimpleImmutableEntry<>(6.5, 1.80449375),
+          new AbstractMap.SimpleImmutableEntry<>(6.8, 1.883384),
+          new AbstractMap.SimpleImmutableEntry<>(7.1, 1.96456025),
+          new AbstractMap.SimpleImmutableEntry<>(7.4, 2.047982));
 
   public static ScoringState getScoringState(
       Pose2d currentRobotPose, ChassisSpeeds fieldRelativeChassisSpeeds, Translation2d targetPose) {
