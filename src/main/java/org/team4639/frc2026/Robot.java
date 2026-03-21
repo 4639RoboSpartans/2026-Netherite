@@ -3,7 +3,6 @@
 package org.team4639.frc2026;
 
 import com.ctre.phoenix6.SignalLogger;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -16,7 +15,6 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.littletonrobotics.urcl.URCL;
-import org.team4639.frc2026.constants.ports.Netherite;
 import org.team4639.lib.util.FullSubsystem;
 import org.team4639.lib.util.LoggedTracer;
 import org.team4639.lib.util.VirtualSubsystem;

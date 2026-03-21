@@ -39,10 +39,19 @@ public class TurretIOTalonFX implements TurretIO {
     config.CurrentLimits.StatorCurrentLimit = 20;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-    config.Slot0.kS = 0.2692173333;
-    config.Slot0.kV = 0.1055999667;
-    config.Slot0.kA = 0.0005154738;
-    config.Slot0.kP = 4;
+    double kS = 0.2692173333;
+    double kV = 0.1055999667;
+    double kA = 0.0005154738;
+
+    config.Slot0.kS = kS;
+    config.Slot0.kV = kV;
+    config.Slot0.kA = kA;
+    config.Slot0.kP = 0.5;
+
+    config.Slot1.kS = kS;
+    config.Slot1.kV = kV;
+    config.Slot1.kA = kA;
+    config.Slot1.kP = 10;
 
     // applyNewGains();
 
@@ -85,7 +94,11 @@ public class TurretIOTalonFX implements TurretIO {
   }
 
   public void setRotorRotationSetpoint(double rotation, double velocityRPS) {
-    turretMotor.setControl(request.withPosition(rotation).withVelocity(velocityRPS));
+    turretMotor.setControl(request.withPosition(rotation).withVelocity(velocityRPS).withSlot(0));
+  }
+
+  public void setRotorRotationSetpointSlot1(double rotation, double velocityRPS) {
+    turretMotor.setControl(request.withPosition(rotation).withSlot(1));
   }
 
   public void updateGains() {
@@ -108,7 +121,8 @@ public class TurretIOTalonFX implements TurretIO {
     turretMotor.setVoltage(volts);
   }
 
-  public void setSoftwareLimits(double forwardLimitRotorRotations, double reverseLimitRotorRotations) {
+  public void setSoftwareLimits(
+      double forwardLimitRotorRotations, double reverseLimitRotorRotations) {
     config.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
     config.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
 

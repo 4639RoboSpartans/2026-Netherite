@@ -24,10 +24,6 @@ public enum VisionFilters {
       observation -> {
         return observation.pose().getRotation().getMeasureX().abs(Rotations) > 0.02
             || observation.pose().getRotation().getMeasureY().abs(Rotations) > 0.02;
-      }),
-  DISTANCE(
-      observation -> {
-        return observation.averageTagDistance() > 3.5;
       });
 
   /** Returns true if we want to reject the pose and false if we keep it */

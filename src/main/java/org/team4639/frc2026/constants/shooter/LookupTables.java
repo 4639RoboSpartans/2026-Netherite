@@ -11,7 +11,6 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import java.util.AbstractMap;
 import org.team4639.frc2026.Constants;
-import org.team4639.frc2026.FieldConstants;
 import org.team4639.lib.util.geometry.GeomUtil;
 
 public class LookupTables {
@@ -19,19 +18,18 @@ public class LookupTables {
 
   public static final InterpolatingDoubleTreeMap scoringDistanceToRPM =
       InterpolatingDoubleTreeMap.ofEntries(
-          new AbstractMap.SimpleImmutableEntry<>(1.97, 2500.0),
-          new AbstractMap.SimpleImmutableEntry<>(2.15, 2550.0),
-          new AbstractMap.SimpleImmutableEntry<>(2.29, 2575.0),
-          new AbstractMap.SimpleImmutableEntry<>(2.47, 2650.0),
-          new AbstractMap.SimpleImmutableEntry<>(2.75, 2750.0),
-          new AbstractMap.SimpleImmutableEntry<>(2.97, 2800.0),
-          new AbstractMap.SimpleImmutableEntry<>(3.33, 2900.0),
-          new AbstractMap.SimpleImmutableEntry<>(3.66, 3000.0),
-          new AbstractMap.SimpleImmutableEntry<>(4.0, 3000.0),
-          new AbstractMap.SimpleImmutableEntry<>(4.25, 3100.0),
-          new AbstractMap.SimpleImmutableEntry<>(4.43, 3200.0),
-          new AbstractMap.SimpleImmutableEntry<>(4.69, 3300.0),
-          new AbstractMap.SimpleImmutableEntry<>(4.90, 3325.0));
+          new AbstractMap.SimpleImmutableEntry<>(1.87, 2320.0),
+          new AbstractMap.SimpleImmutableEntry<>(2.20, 2520.0),
+          new AbstractMap.SimpleImmutableEntry<>(2.44, 2690.0),
+          new AbstractMap.SimpleImmutableEntry<>(2.90, 2825.0),
+          new AbstractMap.SimpleImmutableEntry<>(3.20, 2930.0),
+          new AbstractMap.SimpleImmutableEntry<>(3.50, 3015.0),
+          new AbstractMap.SimpleImmutableEntry<>(3.80, 3100.0),
+          new AbstractMap.SimpleImmutableEntry<>(4.10, 3260.0),
+          new AbstractMap.SimpleImmutableEntry<>(4.41, 3370.0),
+          new AbstractMap.SimpleImmutableEntry<>(4.77, 3465.0),
+          new AbstractMap.SimpleImmutableEntry<>(4.90, 3635.0),
+          new AbstractMap.SimpleImmutableEntry<>(5.20, 3765.0));
 
   public static final InterpolatingDoubleTreeMap scoringDistanceToHoodDegrees =
       InterpolatingDoubleTreeMap.ofEntries(
@@ -42,12 +40,12 @@ public class LookupTables {
           new AbstractMap.SimpleImmutableEntry<>(2.75, 20.0),
           new AbstractMap.SimpleImmutableEntry<>(2.97, 20.0),
           new AbstractMap.SimpleImmutableEntry<>(3.33, 20.0),
-          new AbstractMap.SimpleImmutableEntry<>(3.66, 22.0),
-          new AbstractMap.SimpleImmutableEntry<>(4.0, 23.0),
-          new AbstractMap.SimpleImmutableEntry<>(4.25, 25.0),
-          new AbstractMap.SimpleImmutableEntry<>(4.43, 25.0),
-          new AbstractMap.SimpleImmutableEntry<>(4.69, 27.0),
-          new AbstractMap.SimpleImmutableEntry<>(4.90, 30.0));
+          new AbstractMap.SimpleImmutableEntry<>(3.66, 20.0),
+          new AbstractMap.SimpleImmutableEntry<>(4.0, 20.0),
+          new AbstractMap.SimpleImmutableEntry<>(4.25, 20.0),
+          new AbstractMap.SimpleImmutableEntry<>(4.43, 20.0),
+          new AbstractMap.SimpleImmutableEntry<>(4.69, 20.0),
+          new AbstractMap.SimpleImmutableEntry<>(4.90, 20.0));
 
   public static final InterpolatingDoubleTreeMap scoringDistanceToTOF =
       InterpolatingDoubleTreeMap.ofEntries(
@@ -61,26 +59,13 @@ public class LookupTables {
           new AbstractMap.SimpleImmutableEntry<>(4.25, 1.169),
           new AbstractMap.SimpleImmutableEntry<>(4.45, 1.171428571),
           new AbstractMap.SimpleImmutableEntry<>(4.7, 1.2146666667),
-          new AbstractMap.SimpleImmutableEntry<>(4.9, 1.147368421));
+          new AbstractMap.SimpleImmutableEntry<>(4.9, 1.147368421),
+          new AbstractMap.SimpleImmutableEntry<>(5.2, 1.237368421));
 
-  public static final InterpolatingDoubleTreeMap passingDistanceToRPM =
-      InterpolatingDoubleTreeMap.ofEntries(
-          new AbstractMap.SimpleImmutableEntry<>(
-              FieldConstants.LinesVertical.allianceZone / 2, 1000.0),
-          new AbstractMap.SimpleImmutableEntry<>(
-              FieldConstants.LinesVertical.oppAllianceZone, 7000.0));
+  public static final InterpolatingDoubleTreeMap passingDistanceToRPM = scoringDistanceToRPM;
   public static final InterpolatingDoubleTreeMap passingDistanceToHoodDegrees =
-      InterpolatingDoubleTreeMap.ofEntries(
-          new AbstractMap.SimpleImmutableEntry<>(
-              FieldConstants.LinesVertical.allianceZone / 2, 50.0),
-          new AbstractMap.SimpleImmutableEntry<>(
-              FieldConstants.LinesVertical.oppAllianceZone, 30.0));
-  public static final InterpolatingDoubleTreeMap passingDistanceToTOF =
-      InterpolatingDoubleTreeMap.ofEntries(
-          new AbstractMap.SimpleImmutableEntry<>(
-              FieldConstants.LinesVertical.allianceZone / 2, 1.0),
-          new AbstractMap.SimpleImmutableEntry<>(
-              FieldConstants.LinesVertical.oppAllianceZone, 2.0));
+      scoringDistanceToHoodDegrees;
+  public static final InterpolatingDoubleTreeMap passingDistanceToTOF = scoringDistanceToTOF;
 
   public static ScoringState getScoringState(
       Pose2d currentRobotPose, ChassisSpeeds fieldRelativeChassisSpeeds, Translation2d targetPose) {

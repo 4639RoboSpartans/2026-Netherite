@@ -19,7 +19,7 @@ public class Spindexer extends FullSubsystem {
   private final SpindexerIO io;
   private final SpindexerIOInputsAutoLogged inputs = new SpindexerIOInputsAutoLogged();
 
-  private final double SPIN_RPM = -50;
+  private final double SPIN_RPM = -900;
   private final double IDLE_RPM = 0;
 
   private double unjamStartTime = Double.NaN;

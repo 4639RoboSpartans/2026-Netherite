@@ -261,9 +261,19 @@ public class Turret extends FullSubsystem {
                 Constants.TURRET_MAX_ROTATIONS));
     double rotationsPerSecondAdjusted = turretSetpoint.rotationsPerSecond;
 
-    turretIO.setRotorRotationSetpoint(
-        getRotorRotationsFromAbsoluteTurretRotation(nearestTurretRotation),
-        getRotorVelocityFromTurretVelocity(rotationsPerSecondAdjusted));
+    if (Math.signum(nearestTurretRotation - getTurretRotationFromRotorRotation())
+            != rotationsPerSecondAdjusted
+        && turretIO instanceof TurretIOTalonFX) {
+      ((TurretIOTalonFX) turretIO)
+          .setRotorRotationSetpointSlot1(
+              getRotorRotationsFromAbsoluteTurretRotation(nearestTurretRotation),
+              getRotorVelocityFromTurretVelocity(rotationsPerSecondAdjusted));
+    } else {
+
+      turretIO.setRotorRotationSetpoint(
+          getRotorRotationsFromAbsoluteTurretRotation(nearestTurretRotation),
+          getRotorVelocityFromTurretVelocity(rotationsPerSecondAdjusted));
+    }
   }
 
   private void handlePassing() {
@@ -277,8 +287,8 @@ public class Turret extends FullSubsystem {
     double rotationsPerSecondAdjusted = turretSetpoint.rotationsPerSecond;
 
     turretIO.setRotorRotationSetpoint(
-            getRotorRotationsFromAbsoluteTurretRotation(nearestTurretRotation),
-            getRotorVelocityFromTurretVelocity(rotationsPerSecondAdjusted));
+        getRotorRotationsFromAbsoluteTurretRotation(nearestTurretRotation),
+        getRotorVelocityFromTurretVelocity(rotationsPerSecondAdjusted));
   }
 
   private void handleHubTrack() {
@@ -292,8 +302,8 @@ public class Turret extends FullSubsystem {
     double rotationsPerSecondAdjusted = turretSetpoint.rotationsPerSecond;
 
     turretIO.setRotorRotationSetpoint(
-            getRotorRotationsFromAbsoluteTurretRotation(nearestTurretRotation),
-            getRotorVelocityFromTurretVelocity(rotationsPerSecondAdjusted));
+        getRotorRotationsFromAbsoluteTurretRotation(nearestTurretRotation),
+        getRotorVelocityFromTurretVelocity(rotationsPerSecondAdjusted));
   }
 
   public void setWantedState(WantedState wantedState) {
@@ -314,7 +324,7 @@ public class Turret extends FullSubsystem {
             (nextScoringState.turretRotations()
                     - state.calculateNextPose(this).getRotation().getRotations())
                 - rotations;
-        rotationsPerSecond = rotationsPerSecond / 0.02;
+        rotationsPerSecond = Constants.TURRET_FUDGE_SCALAR * rotationsPerSecond / 0.02;
 
         yield SCORING_TURRET_ROTATION = new TurretSetpoint(rotations, rotationsPerSecond);
       }
@@ -322,12 +332,12 @@ public class Turret extends FullSubsystem {
           new TurretSetpoint(
               state.calculatePassingState(this).turretRotations()
                   - state.getSecondaryEstimatedPose().getRotation().getRotations(),
-              -state.getGyroRotationsPerSecond());
+              Constants.TURRET_FUDGE_SCALAR * -state.getGyroRotationsPerSecond());
       case HUB_TRACK -> HUB_TRACK_TURRET_ROTATION =
           new TurretSetpoint(
               MathUtil.inputModulus(state.getBestHubTrackFieldRelative().getRotations(), 0, 1)
                   - state.getSecondaryEstimatedPose().getRotation().getRotations(),
-              0);
+              Constants.TURRET_FUDGE_SCALAR * -state.getGyroRotationsPerSecond());
     };
   }
 
@@ -380,7 +390,10 @@ public class Turret extends FullSubsystem {
 
     if (turretIO instanceof TurretIOTalonFX) {
       // TODO: if the turret ever goes above 360 degrees of rotation
-      ((TurretIOTalonFX) turretIO).setSoftwareLimits(getRotorRotationsFromAbsoluteTurretRotation(Constants.TURRET_MAX_ROTATIONS), getRotorRotationsFromAbsoluteTurretRotation(Constants.TURRET_MIN_ROTATIONS));
+      ((TurretIOTalonFX) turretIO)
+          .setSoftwareLimits(
+              getRotorRotationsFromAbsoluteTurretRotation(Constants.TURRET_MAX_ROTATIONS),
+              getRotorRotationsFromAbsoluteTurretRotation(Constants.TURRET_MIN_ROTATIONS));
     }
   }
 }

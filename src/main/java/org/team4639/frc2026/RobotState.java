@@ -42,6 +42,7 @@ import org.team4639.frc2026.subsystems.vision.TurretCamera;
 import org.team4639.frc2026.subsystems.vision.Vision.VisionConsumer;
 import org.team4639.frc2026.util.ValueCacher;
 import org.team4639.lib.led.pattern.LEDPattern;
+import org.team4639.lib.util.LoggedTunableNumber;
 import org.team4639.lib.util.PoseEstimator;
 import org.team4639.lib.util.VirtualSubsystem;
 import org.team4639.lib.util.geometry.AllianceFlipUtil;
@@ -202,6 +203,11 @@ public class RobotState extends VirtualSubsystem
 
   private final Field2d robotFieldInternal = new Field2d();
   private final Field2d robotFieldTrue = new Field2d();
+
+  private final LoggedTunableNumber desiredShooterRPM =
+      new LoggedTunableNumber("Desired Shooter RPM").initDefault(0);
+  private final LoggedTunableNumber desiredHoodDegrees =
+      new LoggedTunableNumber("Desired Hood Degrees").initDefault(20);
 
   // =========================================================================
   // Lifecycle Methods
@@ -420,7 +426,7 @@ public class RobotState extends VirtualSubsystem
     return LookupTables.getPassingState(
         getEstimatedPose(),
         getChassisSpeeds(),
-        new Translation2d(FieldConstants.LinesVertical.allianceZone, getEstimatedPose().getY()));
+        new Translation2d(FieldConstants.LinesVertical.allianceZone/2, getEstimatedPose().getY()));
   }
 
   public boolean passingWillHitHub() {
@@ -516,7 +522,5 @@ public class RobotState extends VirtualSubsystem
     };
   }
 
-  public static class FuelEstimator {
-    
-  }
+  public static class FuelEstimator {}
 }

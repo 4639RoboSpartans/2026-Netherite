@@ -108,7 +108,10 @@ public class Kicker extends FullSubsystem {
   }
 
   private void handleKick() {
-    KICK_RPM = state.calculateScoringState(this).shooterRPM() * Constants.SHOOTER_DIAMETER_TO_KICKER_DIAMETER * Constants.SCALE_OF_SHOOTER;
+    KICK_RPM =
+        state.calculateScoringState(this).shooterRPM()
+            * Constants.SHOOTER_DIAMETER_TO_KICKER_DIAMETER
+            * Constants.SCALE_OF_SHOOTER;
     io.setRotorVelocityRPM(KICK_RPM);
   }
 

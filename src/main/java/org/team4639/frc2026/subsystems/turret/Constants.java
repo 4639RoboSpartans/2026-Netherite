@@ -2,6 +2,8 @@
 
 package org.team4639.frc2026.subsystems.turret;
 
+import edu.wpi.first.math.util.Units;
+
 public class Constants {
   public static final double MOTOR_TO_TURRET_GEAR_RATIO = 12.0 / 28 * 18 / 40 * 12 / 92;
   public static final double SHARED_GEAR_TO_TURRET_GEAR_RATIO = 92.0 / 12;
@@ -11,17 +13,19 @@ public class Constants {
   public static final double LEFT_ENCODER_GEAR_TEETH = 41;
   public static final double RIGHT_ENCODER_GEAR_TEETH = 40;
 
-  public static final double LEFT_ENCODER_OFFSET = -0.214111;
-  public static final double RIGHT_ENCODER_OFFSET = -0.241455;
+  public static final double LEFT_ENCODER_OFFSET = -0.282959;
+  public static final double RIGHT_ENCODER_OFFSET = -0.236328;
 
   public static final boolean LEFT_ENCODER_INVERTED = true;
   public static final boolean RIGHT_ENCODER_INVERTED = true;
 
-  public static final double TURRET_MIN_ROTATIONS = 0;
-  public static final double TURRET_MAX_ROTATIONS = 0.75;
+  public static final double TURRET_MIN_ROTATIONS = Units.degreesToRotations(-40);
+  public static final double TURRET_MAX_ROTATIONS = Units.degreesToRotations(270);
 
   public static final double TURRET_EXTENDED_MIN_ROTATIONS = -0.05;
   public static final double TURRET_EXTENDED_MAX_ROTATIONS = 0.8;
 
   public static final double ROTOR_ROTATION_TOLERANCE = 2;
+
+  public static final double TURRET_FUDGE_SCALAR = 1;
 }

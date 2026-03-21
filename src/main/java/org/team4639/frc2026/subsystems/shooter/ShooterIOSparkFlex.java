@@ -46,6 +46,7 @@ public class ShooterIOSparkFlex implements ShooterIO {
         .busVoltagePeriodMs(5)
         .outputCurrentPeriodMs(5);
     shooterConfig.encoder.velocityConversionFactor(1.0 / 60.0);
+    shooterConfig.encoder.quadratureMeasurementPeriod(25).quadratureAverageDepth(10);
 
     leftShooter =
         new SparkFlex(
@@ -60,7 +61,7 @@ public class ShooterIOSparkFlex implements ShooterIO {
     leaderConfig.closedLoop.feedForward.sva(0.074548, 0.10976, 0.044959);
     leaderConfig
         .closedLoop
-        .p(0.0090597)
+        .p(9.0597E-1)
         .outputRange(-1, 1)
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder);
 
@@ -79,7 +80,11 @@ public class ShooterIOSparkFlex implements ShooterIO {
   public void updateInputs(ShooterIOInputs inputs) {
     inputs.rightConnected = !leftShooter.getFaults().can;
     inputs.leftConnected = !rightShooter.getFaults().can;
-    inputs.leftVolts = leftShooter.getAppliedOutput() * leftShooter.getBusVoltage(); // revs api sucks but for future reference this is how you get the voltage
+    inputs.leftVolts =
+        leftShooter.getAppliedOutput()
+            * leftShooter
+                .getBusVoltage(); // revs api sucks but for future reference this is how you get the
+    // voltage
     inputs.rightVolts = rightShooter.getAppliedOutput() * rightShooter.getBusVoltage();
     inputs.leftAmps = leftShooter.getOutputCurrent();
     inputs.rightAmps = rightShooter.getOutputCurrent();

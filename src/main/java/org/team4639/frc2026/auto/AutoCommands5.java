@@ -1,7 +1,5 @@
+/* Copyright (c) 2025-2026 FRC 4639. */
+
 package org.team4639.frc2026.auto;
 
-import edu.wpi.first.wpilibj2.command.Command;
-
-public class AutoCommands5 {
-
-}
+public class AutoCommands5 {}
