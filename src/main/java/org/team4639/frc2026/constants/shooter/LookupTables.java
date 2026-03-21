@@ -48,19 +48,18 @@ public class LookupTables {
           new AbstractMap.SimpleImmutableEntry<>(4.90, 20.0));
 
   public static final InterpolatingDoubleTreeMap scoringDistanceToTOF =
-      InterpolatingDoubleTreeMap.ofEntries(
-          new AbstractMap.SimpleImmutableEntry<>(2.47, 0.9527272727),
-          new AbstractMap.SimpleImmutableEntry<>(2.47, 0.9927272727),
-          new AbstractMap.SimpleImmutableEntry<>(2.7, 1.016),
-          new AbstractMap.SimpleImmutableEntry<>(2.97, 1.089411765),
-          new AbstractMap.SimpleImmutableEntry<>(3.3, 1.1336666667),
-          new AbstractMap.SimpleImmutableEntry<>(3.66, 1.271052632),
-          new AbstractMap.SimpleImmutableEntry<>(4.0, 1.351052632),
-          new AbstractMap.SimpleImmutableEntry<>(4.25, 1.169),
-          new AbstractMap.SimpleImmutableEntry<>(4.45, 1.171428571),
-          new AbstractMap.SimpleImmutableEntry<>(4.7, 1.2146666667),
-          new AbstractMap.SimpleImmutableEntry<>(4.9, 1.147368421),
-          new AbstractMap.SimpleImmutableEntry<>(5.2, 1.237368421));
+          InterpolatingDoubleTreeMap.ofEntries(
+                  new AbstractMap.SimpleImmutableEntry<>(1.87, 0.8814285714),
+                  new AbstractMap.SimpleImmutableEntry<>(2.2, 0.9725),
+                  new AbstractMap.SimpleImmutableEntry<>(2.5, 1.0175),
+                  new AbstractMap.SimpleImmutableEntry<>(2.9, 1.035),
+                  new AbstractMap.SimpleImmutableEntry<>(3.2, 1.061428571),
+                  new AbstractMap.SimpleImmutableEntry<>(3.5, 1.176666667),
+                  new AbstractMap.SimpleImmutableEntry<>(3.8, 1.192),
+                  new AbstractMap.SimpleImmutableEntry<>(4.1, 1.238571429),
+                  new AbstractMap.SimpleImmutableEntry<>(4.4, 1.3425),
+                  new AbstractMap.SimpleImmutableEntry<>(4.77, 1.42),
+                  new AbstractMap.SimpleImmutableEntry<>(5.2, 1.4725));
 
   public static final InterpolatingDoubleTreeMap passingDistanceToRPM = scoringDistanceToRPM;
   public static final InterpolatingDoubleTreeMap passingDistanceToHoodDegrees =
