@@ -82,26 +82,20 @@ public class AutoCommands4 {
                 new ParallelCommandGroup(
                     IntakeCommands.extend(extension), IntakeCommands.intake(intake)))),
         new ParallelDeadlineGroup(
-            new CosineAlignToY(
-                drive, LEFT_TRENCH_ALIGN_SETPOINT_TO_ALLIANCE_ZONE, TRENCH_SPEED, TRENCH_COS_POWER),
-            SuperstructureCommands.idle(shooter, hood, turret, spindexer, kicker, state),
+            followPath("CYCF_LSH", false, state),
             Commands.runOnce(
                 () -> {
-                  state.setSendVisionToPrimaryPoseEstimator(true);
                   state.resetPose(state.getSecondaryEstimatedPose());
+                  state.setSendVisionToPrimaryPoseEstimator(true);
                 }),
-            new ParallelCommandGroup(
-                IntakeCommands.extend(extension), IntakeCommands.intake(intake))),
-        new ParallelDeadlineGroup(
-            drive.defer(() -> DriveCommands.PIDToPose(drive, state, LEFT_SHOOT_SETPOINT, 0.25)),
             SuperstructureCommands.autoSpinupToShoot(
                 shooter, hood, turret, spindexer, kicker, state),
-            new ParallelCommandGroup(
-                IntakeCommands.extend(extension), IntakeCommands.intake(intake))),
+            IntakeCommands.extend(extension),
+            IntakeCommands.intake(intake)),
         new ParallelCommandGroup(
             drive.run(drive::stopWithX),
-            SuperstructureCommands.requestScoring(shooter, hood, turret, spindexer, kicker, state),
-            IntakeCommands.agitate(extension, intake)));
+            SuperstructureCommands.requestScoring(
+                shooter, hood, turret, spindexer, kicker, state)));
   }
 
   public static Command RIGHT_SINGLE_SWIPE(
@@ -130,22 +124,12 @@ public class AutoCommands4 {
                 new ParallelCommandGroup(
                     IntakeCommands.extend(extension), IntakeCommands.intake(intake)))),
         new ParallelDeadlineGroup(
-            new CosineAlignToY(
-                drive,
-                mirror(LEFT_TRENCH_ALIGN_SETPOINT_TO_ALLIANCE_ZONE),
-                TRENCH_SPEED,
-                TRENCH_COS_POWER),
-            SuperstructureCommands.idle(shooter, hood, turret, spindexer, kicker, state),
+            followPathMirrored("CYCF_LSH", false, state),
             Commands.runOnce(
                 () -> {
-                  state.setSendVisionToPrimaryPoseEstimator(true);
                   state.resetPose(state.getSecondaryEstimatedPose());
+                  state.setSendVisionToPrimaryPoseEstimator(true);
                 }),
-            new ParallelCommandGroup(
-                IntakeCommands.extend(extension), IntakeCommands.intake(intake))),
-        new ParallelDeadlineGroup(
-            drive.defer(
-                () -> DriveCommands.PIDToPose(drive, state, mirror(LEFT_SHOOT_SETPOINT), 0.25)),
             SuperstructureCommands.autoSpinupToShoot(
                 shooter, hood, turret, spindexer, kicker, state),
             new ParallelCommandGroup(

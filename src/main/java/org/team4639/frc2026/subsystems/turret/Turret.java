@@ -328,20 +328,21 @@ public class Turret extends FullSubsystem {
 
         yield SCORING_TURRET_ROTATION = new TurretSetpoint(rotations, rotationsPerSecond);
       }
-      case PASSING ->
-              {var currentPassingState = state.calculatePassingState(this);
-                var nextPassingState = state.calculateNextPassingState(this);
+      case PASSING -> {
+        var currentPassingState = state.calculatePassingState(this);
+        var nextPassingState = state.calculateNextPassingState(this);
 
-                double rotations =
-                        currentPassingState.turretRotations()
-                                - state.getSecondaryEstimatedPose().getRotation().getRotations();
-                double rotationsPerSecond =
-                        (nextPassingState.turretRotations()
-                                - state.calculateNextPose(this).getRotation().getRotations())
-                                - rotations;
-                rotationsPerSecond = Constants.TURRET_FUDGE_SCALAR * rotationsPerSecond / 0.02;
+        double rotations =
+            currentPassingState.turretRotations()
+                - state.getSecondaryEstimatedPose().getRotation().getRotations();
+        double rotationsPerSecond =
+            (nextPassingState.turretRotations()
+                    - state.calculateNextPose(this).getRotation().getRotations())
+                - rotations;
+        rotationsPerSecond = Constants.TURRET_FUDGE_SCALAR * rotationsPerSecond / 0.02;
 
-                yield PASSING_TURRET_ROTATION = new TurretSetpoint(rotations, rotationsPerSecond);}
+        yield PASSING_TURRET_ROTATION = new TurretSetpoint(rotations, rotationsPerSecond);
+      }
       case HUB_TRACK -> HUB_TRACK_TURRET_ROTATION =
           new TurretSetpoint(
               MathUtil.inputModulus(state.getBestHubTrackFieldRelative().getRotations(), 0, 1)
@@ -362,16 +363,18 @@ public class Turret extends FullSubsystem {
 
   @AutoLogOutput(key = "Turret At Setpoint")
   public boolean atSetpoint() {
-    return MathUtil.isNear(
-            getRotorSetpoint(), turretInputs.rotations, Constants.ROTOR_ROTATION_TOLERANCE)
-        || MathUtil.isNear(
-            getRotorSetpoint() + 1.0 / Constants.MOTOR_TO_TURRET_GEAR_RATIO,
-            turretInputs.rotations,
-            Constants.ROTOR_ROTATION_TOLERANCE)
-        || MathUtil.isNear(
-            getRotorSetpoint() - 1.0 / Constants.MOTOR_TO_TURRET_GEAR_RATIO,
-            turretInputs.rotations,
-            Constants.ROTOR_ROTATION_TOLERANCE);
+    return (MathUtil.isNear(
+                getRotorSetpoint(), turretInputs.rotations, Constants.ROTOR_ROTATION_TOLERANCE)
+            || MathUtil.isNear(
+                getRotorSetpoint() + 1.0 / Constants.MOTOR_TO_TURRET_GEAR_RATIO,
+                turretInputs.rotations,
+                Constants.ROTOR_ROTATION_TOLERANCE)
+            || MathUtil.isNear(
+                getRotorSetpoint() - 1.0 / Constants.MOTOR_TO_TURRET_GEAR_RATIO,
+                turretInputs.rotations,
+                Constants.ROTOR_ROTATION_TOLERANCE))
+        && getTurretSetpoint().rotation < Constants.TURRET_MAX_ROTATIONS
+        && getTurretSetpoint().rotation > Constants.TURRET_MIN_ROTATIONS;
   }
 
   protected void setVoltage(Voltage volts) {

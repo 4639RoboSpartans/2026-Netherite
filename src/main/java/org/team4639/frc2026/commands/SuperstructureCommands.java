@@ -81,7 +81,7 @@ public class SuperstructureCommands {
                 turret.dummy,
                 spindexer.dummy,
                 kicker.dummy)
-            .until(() -> shooter.getSetpointRPM() != 0 && shooter.atSetpoint()),
+            .until(() -> shooter.getSetpointRPM() != 0 && shooter.aboveSetpoint()),
         Commands.run(
             () -> {
               shooter.setWantedState(Shooter.WantedState.SCORING);
@@ -133,7 +133,7 @@ public class SuperstructureCommands {
                 turret.dummy,
                 spindexer.dummy,
                 kicker.dummy)
-            .until(() -> shooter.getSetpointRPM() != 0 && shooter.atSetpoint()),
+            .until(() -> shooter.getSetpointRPM() != 0 && shooter.aboveSetpoint()),
         Commands.run(
             () -> {
               shooter.setWantedState(Shooter.WantedState.PASSING);
@@ -193,9 +193,9 @@ public class SuperstructureCommands {
     Pose2d nextRobotPose =
         currentRobotPose.plus(
             new Transform2d(
-                speeds.vxMetersPerSecond * 0.3,
-                speeds.vyMetersPerSecond * 0.3,
-                Rotation2d.fromRadians(speeds.omegaRadiansPerSecond * 0.3)));
+                speeds.vxMetersPerSecond * 0.8,
+                speeds.vyMetersPerSecond * 0.8,
+                Rotation2d.fromRadians(speeds.omegaRadiansPerSecond * 0.8)));
 
     if (Math.signum(nextRobotPose.getX() - FieldConstants.LinesVertical.hubCenter)
             != Math.signum(currentRobotPose.getX() - FieldConstants.LinesVertical.hubCenter)

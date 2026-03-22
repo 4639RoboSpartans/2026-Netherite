@@ -58,12 +58,14 @@ public class ShooterIOSparkFlex implements ShooterIO {
     leaderConfig.apply(shooterConfig);
 
     leaderConfig.idleMode(SparkBaseConfig.IdleMode.kCoast).smartCurrentLimit(50, 50);
-    leaderConfig.closedLoop.feedForward.sva(0.074548, 0.10976, 0.044959);
+    leaderConfig.closedLoop.feedForward.sva(0.074548, 0.10976, 0.044959, ClosedLoopSlot.kSlot0);
+    leaderConfig.closedLoop.feedForward.sva(0.074548, 0.10976, 0.044959, ClosedLoopSlot.kSlot1);
     leaderConfig
         .closedLoop
-        .p(9.0597E-1)
+        .p(2 * 9.0597E-1)
         .outputRange(-1, 1)
-        .feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+        .p(0, ClosedLoopSlot.kSlot1);
 
     followerConfig.apply(shooterConfig);
     followerConfig.follow(leftShooter.getDeviceId(), true);

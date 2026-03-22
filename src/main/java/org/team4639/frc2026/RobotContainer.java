@@ -17,7 +17,6 @@ import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
 import org.team4639.frc2026.subsystems.extension.Extension;
 import org.team4639.frc2026.subsystems.extension.IntakeExtensionIO;
 import org.team4639.frc2026.subsystems.extension.IntakeExtensionIOSim;
-import org.team4639.frc2026.subsystems.extension.IntakeExtensionIOTalonFX;
 import org.team4639.frc2026.subsystems.hood.Hood;
 import org.team4639.frc2026.subsystems.hood.HoodIO;
 import org.team4639.frc2026.subsystems.hood.HoodIOSim;
@@ -90,9 +89,7 @@ public class RobotContainer {
                 /*new IntakeRollerIO() {}*/
                 new IntakeRollerIOTalonFX(portConfiguration), RobotState.getInstance());
 
-        extension =
-            new Extension(
-                new IntakeExtensionIOTalonFX(portConfiguration), RobotState.getInstance());
+        extension = new Extension(new IntakeExtensionIO() {}, RobotState.getInstance());
 
         spindexer =
             new Spindexer(new SpindexerIOTalonFX(portConfiguration), RobotState.getInstance());
@@ -413,6 +410,8 @@ public class RobotContainer {
     driver.b().onTrue(IntakeCommands.stop(intake));
 
     driver.back().whileTrue(drive.run(drive::autoConfiguration));
+
+    driver.povDown().whileTrue(IntakeCommands.outtake(intake));
   }
 
   private void configureSimButtonBindings() {

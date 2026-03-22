@@ -173,6 +173,10 @@ public class Shooter extends FullSubsystem {
     return MathUtil.isNear(getSetpointRPM(), -inputs.leftRPM, SHOOTING_RPM_TOLERANCE);
   }
 
+  public boolean aboveSetpoint() {
+    return Math.abs(getSetpointRPM()) < Math.abs(inputs.leftRPM);
+  }
+
   private void runStateMachine() {
     SystemState newState = handleStateTransitions();
     if (newState != systemState) {

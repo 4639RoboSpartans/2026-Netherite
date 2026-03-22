@@ -37,6 +37,9 @@ public class DriveCommands {
   private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
   private static final double ALIGN_FF = 1.0;
 
+  private static final SlewRateLimiter xLimiter = new SlewRateLimiter(1);
+  private static final SlewRateLimiter yLimiter = new SlewRateLimiter(1);
+
   private DriveCommands() {}
 
   private static Translation2d getLinearVelocityFromJoysticks(double x, double y) {
@@ -108,11 +111,21 @@ public class DriveCommands {
           omega = Math.copySign(omega * omega, omega);
 
           // Convert to field relative speeds & send command
-          ChassisSpeeds speeds =
-              new ChassisSpeeds(
-                  linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
-                  linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
-                  omega * drive.getMaxAngularSpeedRadPerSec());
+          ChassisSpeeds speeds;
+          if (SuperstructureCommands.currentState
+              == SuperstructureCommands.SuperstructureState.SCORE) {
+            speeds =
+                new ChassisSpeeds(
+                    (linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec()),
+                    (linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec()),
+                    omega * 2);
+          } else {
+            speeds =
+                new ChassisSpeeds(
+                    (linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec()),
+                    (linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec()),
+                    omega * drive.getMaxAngularSpeedRadPerSec());
+          }
 
           if (MathUtil.isNear(0, speeds.vxMetersPerSecond, 1e-9)
               && MathUtil.isNear(0, speeds.vyMetersPerSecond, 1e-9)

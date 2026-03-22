@@ -14,7 +14,8 @@ import org.team4639.frc2026.Constants;
 import org.team4639.lib.util.geometry.GeomUtil;
 
 public class LookupTables {
-  private static final double PHASE_DELAY = 0.2;
+  private static final double PHASE_DELAY = 0.0;
+  private static final double TOF_FUDGE = 1.00;
 
   public static final InterpolatingDoubleTreeMap scoringDistanceToRPM =
       InterpolatingDoubleTreeMap.ofEntries(
@@ -48,20 +49,21 @@ public class LookupTables {
           new AbstractMap.SimpleImmutableEntry<>(4.90, 20.0));
 
   public static final InterpolatingDoubleTreeMap scoringDistanceToTOF =
-          InterpolatingDoubleTreeMap.ofEntries(
-                  new AbstractMap.SimpleImmutableEntry<>(1.87, 0.8814285714),
-                  new AbstractMap.SimpleImmutableEntry<>(2.2, 0.9725),
-                  new AbstractMap.SimpleImmutableEntry<>(2.5, 1.0175),
-                  new AbstractMap.SimpleImmutableEntry<>(2.9, 1.035),
-                  new AbstractMap.SimpleImmutableEntry<>(3.2, 1.061428571),
-                  new AbstractMap.SimpleImmutableEntry<>(3.5, 1.176666667),
-                  new AbstractMap.SimpleImmutableEntry<>(3.8, 1.192),
-                  new AbstractMap.SimpleImmutableEntry<>(4.1, 1.238571429),
-                  new AbstractMap.SimpleImmutableEntry<>(4.4, 1.3425),
-                  new AbstractMap.SimpleImmutableEntry<>(4.77, 1.42),
-                  new AbstractMap.SimpleImmutableEntry<>(5.2, 1.4725));
+      InterpolatingDoubleTreeMap.ofEntries(
+          new AbstractMap.SimpleImmutableEntry<>(1.87, 0.8814285714 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(2.2, 0.9725 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(2.5, 1.0175 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(2.9, 1.035 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(3.2, 1.061428571 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(3.5, 1.176666667 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(3.8, 1.192 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(4.1, 1.238571429 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(4.4, 1.3425 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(4.77, 1.42 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(5.2, 1.4725 * TOF_FUDGE));
 
-  public static final InterpolatingDoubleTreeMap passingDistanceToRPM = InterpolatingDoubleTreeMap.ofEntries(
+  public static final InterpolatingDoubleTreeMap passingDistanceToRPM =
+      InterpolatingDoubleTreeMap.ofEntries(
           new AbstractMap.SimpleImmutableEntry<>(1.87, 2320.0),
           new AbstractMap.SimpleImmutableEntry<>(2.20, 2520.0),
           new AbstractMap.SimpleImmutableEntry<>(2.44, 2690.0),
@@ -84,27 +86,32 @@ public class LookupTables {
           new AbstractMap.SimpleImmutableEntry<>(7.4, 6858.9576));
 
   public static final InterpolatingDoubleTreeMap passingDistanceToHoodDegrees =
-          scoringDistanceToHoodDegrees;
+      InterpolatingDoubleTreeMap.ofEntries(
+          new AbstractMap.SimpleImmutableEntry<>(0.0, 20.0),
+          new AbstractMap.SimpleImmutableEntry<>(6.0, 20.0),
+          new AbstractMap.SimpleImmutableEntry<>(6.00001, 35.0),
+          new AbstractMap.SimpleImmutableEntry<>(20.0, 35.0));
 
-  public static final InterpolatingDoubleTreeMap passingDistanceToTOF = InterpolatingDoubleTreeMap.ofEntries(
-          new AbstractMap.SimpleImmutableEntry<>(1.87, 0.8814285714),
-          new AbstractMap.SimpleImmutableEntry<>(2.2, 0.9725),
-          new AbstractMap.SimpleImmutableEntry<>(2.5, 1.0175),
-          new AbstractMap.SimpleImmutableEntry<>(2.9, 1.035),
-          new AbstractMap.SimpleImmutableEntry<>(3.2, 1.061428571),
-          new AbstractMap.SimpleImmutableEntry<>(3.5, 1.176666667),
-          new AbstractMap.SimpleImmutableEntry<>(3.8, 1.192),
-          new AbstractMap.SimpleImmutableEntry<>(4.1, 1.238571429),
-          new AbstractMap.SimpleImmutableEntry<>(4.4, 1.3425),
-          new AbstractMap.SimpleImmutableEntry<>(4.77, 1.42),
-          new AbstractMap.SimpleImmutableEntry<>(5.2, 1.4725),
+  public static final InterpolatingDoubleTreeMap passingDistanceToTOF =
+      InterpolatingDoubleTreeMap.ofEntries(
+          new AbstractMap.SimpleImmutableEntry<>(1.87, 0.8814285714 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(2.2, 0.9725 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(2.5, 1.0175 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(2.9, 1.035 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(3.2, 1.061428571 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(3.5, 1.176666667 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(3.8, 1.192 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(4.1, 1.238571429 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(4.4, 1.3425 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(4.77, 1.42 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(5.2, 1.4725 * TOF_FUDGE),
           // New Setpoints
-          new AbstractMap.SimpleImmutableEntry<>(5.5, 1.55855625),
-          new AbstractMap.SimpleImmutableEntry<>(5.8, 1.629534),
-          new AbstractMap.SimpleImmutableEntry<>(6.1, 1.70293275),
-          new AbstractMap.SimpleImmutableEntry<>(6.5, 1.80449375),
-          new AbstractMap.SimpleImmutableEntry<>(6.8, 1.883384),
-          new AbstractMap.SimpleImmutableEntry<>(7.1, 1.96456025),
+          new AbstractMap.SimpleImmutableEntry<>(5.5, 1.55855625 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(5.8, 1.629534 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(6.1, 1.70293275 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(6.5, 1.80449375 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(6.8, 1.883384 * TOF_FUDGE),
+          new AbstractMap.SimpleImmutableEntry<>(7.1, 1.96456025 * TOF_FUDGE),
           new AbstractMap.SimpleImmutableEntry<>(7.4, 2.047982));
 
   public static ScoringState getScoringState(

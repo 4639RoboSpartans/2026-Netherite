@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -161,8 +160,7 @@ public class RobotState extends VirtualSubsystem
       new ValueCacher<>(this::_calculatePassingState);
 
   private final ValueCacher<Object, ScoringState> nextPassingStates =
-          new ValueCacher<>(() -> this._calculateNextPassingState(0.02));
-
+      new ValueCacher<>(() -> this._calculateNextPassingState(0.02));
 
   private final ValueCacher<Object, Pose2d> getNextPose =
       new ValueCacher<>(() -> calculateNextPose(0.02));
@@ -206,17 +204,18 @@ public class RobotState extends VirtualSubsystem
 
   public static final Trigger disabled = RobotModeTriggers.disabled();
 
-  private TimeInterpolatableBuffer<Double> shooterAmps = TimeInterpolatableBuffer.createDoubleBuffer(0.3);
+  private TimeInterpolatableBuffer<Double> shooterAmps =
+      TimeInterpolatableBuffer.createDoubleBuffer(0.3);
   public double ballsShot = 0;
   public double bps = 0;
 
   public double hopperSizeEstimate = 0.0;
 
-  public InterpolatingDoubleTreeMap currentToIntakeBPS = InterpolatingDoubleTreeMap.ofEntries(
+  public InterpolatingDoubleTreeMap currentToIntakeBPS =
+      InterpolatingDoubleTreeMap.ofEntries(
           new AbstractMap.SimpleImmutableEntry<>(30., 0.),
           new AbstractMap.SimpleImmutableEntry<>(42., 3.0 / 0.4),
-          new AbstractMap.SimpleImmutableEntry<>(55., 2.0 / 0.2)
-  );
+          new AbstractMap.SimpleImmutableEntry<>(55., 2.0 / 0.2));
 
   // -------------------------------------------------------------------------
   // SmartDashboard / Field Display Objects
@@ -447,7 +446,12 @@ public class RobotState extends VirtualSubsystem
     return LookupTables.getPassingState(
         getEstimatedPose(),
         getChassisSpeeds(),
-        getSecondaryEstimatedPose().nearest(Stream.of(PassingTargets.LEFT, PassingTargets.RIGHT).map(t -> new Pose2d(t, Rotation2d.kZero)).collect(Collectors.toSet())).getTranslation());
+        getSecondaryEstimatedPose()
+            .nearest(
+                Stream.of(PassingTargets.LEFT, PassingTargets.RIGHT)
+                    .map(t -> new Pose2d(t, Rotation2d.kZero))
+                    .collect(Collectors.toSet()))
+            .getTranslation());
   }
 
   public ScoringState calculateNextPassingState(Object caller) {
@@ -456,13 +460,18 @@ public class RobotState extends VirtualSubsystem
 
   private ScoringState _calculateNextPassingState(double dtSeconds) {
     return LookupTables.getPassingState(
-            getSecondaryEstimatedPose()
-                    .exp(
-                            ChassisSpeeds.fromFieldRelativeSpeeds(
-                                            getChassisSpeeds(), getEstimatedPose().getRotation())
-                                    .toTwist2d(dtSeconds)),
-            getChassisSpeeds(),
-            getSecondaryEstimatedPose().nearest(Stream.of(PassingTargets.LEFT, PassingTargets.RIGHT).map(t -> new Pose2d(t, Rotation2d.kZero)).collect(Collectors.toSet())).getTranslation());
+        getSecondaryEstimatedPose()
+            .exp(
+                ChassisSpeeds.fromFieldRelativeSpeeds(
+                        getChassisSpeeds(), getEstimatedPose().getRotation())
+                    .toTwist2d(dtSeconds)),
+        getChassisSpeeds(),
+        getSecondaryEstimatedPose()
+            .nearest(
+                Stream.of(PassingTargets.LEFT, PassingTargets.RIGHT)
+                    .map(t -> new Pose2d(t, Rotation2d.kZero))
+                    .collect(Collectors.toSet()))
+            .getTranslation());
   }
 
   public boolean passingWillHitHub() {
