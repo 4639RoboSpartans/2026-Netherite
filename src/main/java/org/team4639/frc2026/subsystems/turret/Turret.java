@@ -255,10 +255,11 @@ public class Turret extends FullSubsystem {
     TurretSetpoint turretSetpoint = getTurretSetpoint();
     double nearestTurretRotation =
         getNearestTurretRotation(
-            MathUtil.clamp(
+            MathUtil.inputModulus(
                 turretSetpoint.rotation,
                 Constants.TURRET_MIN_ROTATIONS,
                 Constants.TURRET_MAX_ROTATIONS));
+    SmartDashboard.putNumber("turret target", nearestTurretRotation);
     double rotationsPerSecondAdjusted = turretSetpoint.rotationsPerSecond;
 
     if (Math.signum(nearestTurretRotation - getTurretRotationFromRotorRotation())
@@ -280,7 +281,7 @@ public class Turret extends FullSubsystem {
     TurretSetpoint turretSetpoint = getTurretSetpoint();
     double nearestTurretRotation =
         getNearestTurretRotation(
-            MathUtil.clamp(
+            MathUtil.inputModulus(
                 turretSetpoint.rotation,
                 Constants.TURRET_MIN_ROTATIONS,
                 Constants.TURRET_MAX_ROTATIONS));
@@ -295,7 +296,7 @@ public class Turret extends FullSubsystem {
     TurretSetpoint turretSetpoint = getTurretSetpoint();
     double nearestTurretRotation =
         getNearestTurretRotation(
-            MathUtil.clamp(
+            MathUtil.inputModulus(
                 turretSetpoint.rotation,
                 Constants.TURRET_MIN_ROTATIONS,
                 Constants.TURRET_MAX_ROTATIONS));
@@ -325,6 +326,7 @@ public class Turret extends FullSubsystem {
                     - state.calculateNextPose(this).getRotation().getRotations())
                 - rotations;
         rotationsPerSecond = Constants.TURRET_FUDGE_SCALAR * rotationsPerSecond / 0.02;
+        SmartDashboard.putNumber("turret target", rotationsPerSecond);
 
         yield SCORING_TURRET_ROTATION = new TurretSetpoint(rotations, rotationsPerSecond);
       }
@@ -345,7 +347,10 @@ public class Turret extends FullSubsystem {
       }
       case HUB_TRACK -> HUB_TRACK_TURRET_ROTATION =
           new TurretSetpoint(
-              MathUtil.inputModulus(state.getBestHubTrackFieldRelative().getRotations(), 0, 1)
+              MathUtil.inputModulus(
+                      state.getBestHubTrackFieldRelative().getRotations(),
+                      Constants.TURRET_MIN_ROTATIONS,
+                      Constants.TURRET_MAX_ROTATIONS)
                   - state.getSecondaryEstimatedPose().getRotation().getRotations(),
               Constants.TURRET_FUDGE_SCALAR * -state.getGyroRotationsPerSecond());
     };
@@ -354,7 +359,11 @@ public class Turret extends FullSubsystem {
   public TurretSetpoint getTurretSetpoint() {
     TurretSetpoint turretSetpoint = _getTurretSetpoint();
     return new TurretSetpoint(
-        MathUtil.inputModulus(turretSetpoint.rotation, 0, 1), turretSetpoint.rotationsPerSecond);
+        MathUtil.inputModulus(
+            turretSetpoint.rotation,
+            Constants.TURRET_MIN_ROTATIONS,
+            Constants.TURRET_MAX_ROTATIONS),
+        turretSetpoint.rotationsPerSecond);
   }
 
   public double getRotorSetpoint() {

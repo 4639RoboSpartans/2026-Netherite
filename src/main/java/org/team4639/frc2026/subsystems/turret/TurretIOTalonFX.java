@@ -48,10 +48,7 @@ public class TurretIOTalonFX implements TurretIO {
     config.Slot0.kA = kA;
     config.Slot0.kP = 0.5;
 
-    config.Slot1.kS = kS;
-    config.Slot1.kV = kV;
-    config.Slot1.kA = kA;
-    config.Slot1.kP = 10;
+    config.Slot1.kP = 15;
 
     // applyNewGains();
 

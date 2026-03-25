@@ -32,7 +32,7 @@ public class ShooterIOSparkFlex implements ShooterIO {
 
   public ShooterIOSparkFlex(PortConfiguration ports) {
     shooterConfig.idleMode(SparkBaseConfig.IdleMode.kCoast);
-    shooterConfig.smartCurrentLimit(90, 90);
+    shooterConfig.smartCurrentLimit(90, 120);
 
     // updateGains();
 
@@ -46,7 +46,7 @@ public class ShooterIOSparkFlex implements ShooterIO {
         .busVoltagePeriodMs(5)
         .outputCurrentPeriodMs(5);
     shooterConfig.encoder.velocityConversionFactor(1.0 / 60.0);
-    shooterConfig.encoder.quadratureMeasurementPeriod(25).quadratureAverageDepth(10);
+    shooterConfig.encoder.quadratureMeasurementPeriod(25).quadratureAverageDepth(32);
 
     leftShooter =
         new SparkFlex(
@@ -62,7 +62,7 @@ public class ShooterIOSparkFlex implements ShooterIO {
     leaderConfig.closedLoop.feedForward.sva(0.074548, 0.10976, 0.044959, ClosedLoopSlot.kSlot1);
     leaderConfig
         .closedLoop
-        .p(2 * 9.0597E-1)
+        .p(3 * 9.0597E-1)
         .outputRange(-1, 1)
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         .p(0, ClosedLoopSlot.kSlot1);

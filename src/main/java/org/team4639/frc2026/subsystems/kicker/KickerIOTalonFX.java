@@ -24,12 +24,16 @@ public class KickerIOTalonFX implements KickerIO {
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.CurrentLimits.SupplyCurrentLimit = 40;
+    config.CurrentLimits.SupplyCurrentLimit = 25;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.CurrentLimits.StatorCurrentLimit = 80;
     config.Slot0.kV = 0.10888;
     config.Slot0.kS = 0.095981;
     config.Slot0.kA = 0.0015124;
+
+    config.Slot0.kP = 9999;
+    config.MotorOutput.PeakForwardDutyCycle = 1;
+    config.MotorOutput.PeakReverseDutyCycle = 0;
 
     PhoenixUtil.tryUntilOk(5, () -> kickerMotor.getConfigurator().apply(config));
   }

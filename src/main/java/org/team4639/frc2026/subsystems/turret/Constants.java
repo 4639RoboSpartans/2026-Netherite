@@ -19,11 +19,11 @@ public class Constants {
   public static final boolean LEFT_ENCODER_INVERTED = true;
   public static final boolean RIGHT_ENCODER_INVERTED = true;
 
-  public static final double TURRET_MIN_ROTATIONS = Units.degreesToRotations(-40);
-  public static final double TURRET_MAX_ROTATIONS = Units.degreesToRotations(270);
+  public static final double TURRET_MIN_ROTATIONS = -0.125;
+  public static final double TURRET_MAX_ROTATIONS = 0.875;
 
-  public static final double TURRET_EXTENDED_MIN_ROTATIONS = -0.05;
-  public static final double TURRET_EXTENDED_MAX_ROTATIONS = 0.8;
+  public static final double TURRET_EXTENDED_MIN_ROTATIONS = -Units.degreesToRotations(44.999999);
+  public static final double TURRET_EXTENDED_MAX_ROTATIONS = Units.degreesToRotations(315);
 
   public static final double ROTOR_ROTATION_TOLERANCE = 2;
 
