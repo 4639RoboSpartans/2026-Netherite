@@ -80,8 +80,8 @@ public class ShooterIOSparkFlex implements ShooterIO {
 
   @Override
   public void updateInputs(ShooterIOInputs inputs) {
-    inputs.rightConnected = !leftShooter.getFaults().can;
-    inputs.leftConnected = !rightShooter.getFaults().can;
+    inputs.rightConnected = rightShooter.getFaults().rawBits == 0;
+    inputs.leftConnected = leftShooter.getFaults().rawBits == 0;
     inputs.leftVolts =
         leftShooter.getAppliedOutput()
             * leftShooter
