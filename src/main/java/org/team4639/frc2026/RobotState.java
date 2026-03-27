@@ -530,6 +530,11 @@ public class RobotState extends VirtualSubsystem
     this.useIntakeProtection = !this.useIntakeProtection;
   }
 
+  public boolean withinShooterRange() {
+    var rpm = calculateScoringState("Within Shooter Range").shooterRPM();
+    return LookupTables.MIN_RPM < rpm && rpm < LookupTables.MAX_RPM;
+  }
+
   // =========================================================================
   // LED Methods
   // =========================================================================

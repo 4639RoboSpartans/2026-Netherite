@@ -88,7 +88,7 @@ public class SuperstructureCommands {
               hood.setWantedState(avoidTrench(Hood.WantedState.SCORING, state));
               turret.setWantedState(Turret.WantedState.SCORING);
 
-              if (turret.atSetpoint()) {
+              if (turret.atSetpoint() && state.withinShooterRange()) {
                 spindexer.setWantedState(Spindexer.WantedState.SPIN);
                 kicker.setWantedState(Kicker.WantedState.KICK);
                 currentState = SuperstructureState.SCORE;

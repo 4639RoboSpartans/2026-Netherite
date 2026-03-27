@@ -62,7 +62,7 @@ public class ShooterIOSparkFlex implements ShooterIO {
     leaderConfig.closedLoop.feedForward.sva(0.074548, 0.10976, 0.044959, ClosedLoopSlot.kSlot1);
     leaderConfig
         .closedLoop
-        .p(3 * 9.0597E-1)
+        .p(99, ClosedLoopSlot.kSlot0)
         .outputRange(-1, 1)
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         .p(0, ClosedLoopSlot.kSlot1);
@@ -109,7 +109,11 @@ public class ShooterIOSparkFlex implements ShooterIO {
     double applied = -targetRPM * SHOOTER_GEAR_RATIO / 60.0;
     var err =
         closedLoopController.setSetpoint(
-            applied, SparkBase.ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+            applied,
+            SparkBase.ControlType.kVelocity,
+            leftShooter.getEncoder().getVelocity() < applied
+                ? ClosedLoopSlot.kSlot1
+                : ClosedLoopSlot.kSlot0);
     Logger.recordOutput("Shooter Setpoint RPS", closedLoopController.getSetpoint());
     Logger.recordOutput("Shooter RevLib Error", err.toString());
   }

@@ -17,9 +17,12 @@ public class LookupTables {
   private static final double PHASE_DELAY = 0.0;
   private static final double TOF_FUDGE = 1.00;
 
+  public static final double MIN_RPM = 2320.0;
+  public static final double MAX_RPM = 3765.0;
+
   public static final InterpolatingDoubleTreeMap scoringDistanceToRPM =
       InterpolatingDoubleTreeMap.ofEntries(
-          new AbstractMap.SimpleImmutableEntry<>(1.87, 2320.0),
+          new AbstractMap.SimpleImmutableEntry<>(1.87, MIN_RPM),
           new AbstractMap.SimpleImmutableEntry<>(2.20, 2520.0),
           new AbstractMap.SimpleImmutableEntry<>(2.44, 2690.0),
           new AbstractMap.SimpleImmutableEntry<>(2.90, 2825.0),
@@ -30,7 +33,7 @@ public class LookupTables {
           new AbstractMap.SimpleImmutableEntry<>(4.41, 3370.0),
           new AbstractMap.SimpleImmutableEntry<>(4.77, 3465.0),
           new AbstractMap.SimpleImmutableEntry<>(4.90, 3635.0),
-          new AbstractMap.SimpleImmutableEntry<>(5.20, 3765.0));
+          new AbstractMap.SimpleImmutableEntry<>(5.20, MAX_RPM));
 
   public static final InterpolatingDoubleTreeMap scoringDistanceToHoodDegrees =
       InterpolatingDoubleTreeMap.ofEntries(

@@ -23,7 +23,7 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
   public IntakeRollerIOTalonFX(PortConfiguration ports) {
     rollerMotor = Phoenix6Factory.createDefaultTalon(ports.IntakeRollersMotorID, false);
 
-    config.CurrentLimits.SupplyCurrentLimit = 40;
+    config.CurrentLimits.SupplyCurrentLimit = 20;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.StatorCurrentLimit = 80;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -32,6 +32,14 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
     config.Slot0.kS = 0.25526;
     config.Slot0.kV = 0.094566;
     config.Slot0.kA = 0.002791;
+
+    config.Slot0.kP = 10;
+    config.MotorOutput.PeakForwardDutyCycle = 0;
+    config.MotorOutput.PeakReverseDutyCycle = -1;
+
+    config.Slot1.kS = 0.25526;
+    config.Slot1.kV = 0.094566;
+    config.Slot1.kA = 0.002791;
 
     PhoenixUtil.tryUntilOk(5, () -> rollerMotor.getConfigurator().apply(config));
   }
@@ -62,7 +70,12 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
         targetRollerVelocityRadiansPerSecond / Constants.ROTOR_TO_ROLLER_REDUCTION;
     double targetRotorVelocityRotationsPerSecond =
         RadiansPerSecond.of(targetRotorVelocityRadiansPerSecond).in(RotationsPerSecond);
-    rollerMotor.setControl(request.withVelocity(-targetRotorVelocityRotationsPerSecond));
+    if (targetRotorVelocityRotationsPerSecond != 0) {
+      rollerMotor.setControl(
+          request.withVelocity(-targetRotorVelocityRotationsPerSecond).withSlot(0));
+    } else {
+      rollerMotor.setControl(request.withVelocity(0).withSlot(1));
+    }
   }
 
   @Override

@@ -66,7 +66,14 @@ public class TunerConstants {
 
   // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
   // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
-  private static final TalonFXConfiguration driveInitialConfigs = new TalonFXConfiguration();
+  private static final TalonFXConfiguration driveInitialConfigs =
+      new TalonFXConfiguration()
+          .withCurrentLimits(
+              new CurrentLimitsConfigs()
+                  .withSupplyCurrentLimitEnable(true)
+                  .withSupplyCurrentLimit(70)
+                  .withSupplyCurrentLowerTime(1)
+                  .withSupplyCurrentLowerLimit(30));
   private static final TalonFXConfiguration steerInitialConfigs =
       new TalonFXConfiguration()
           .withCurrentLimits(
@@ -74,8 +81,12 @@ public class TunerConstants {
                   // Swerve azimuth does not require much torque output, so we can set a relatively
                   // low
                   // stator current limit to help avoid brownouts without impacting performance.
-                  .withStatorCurrentLimit(Amps.of(20))
-                  .withStatorCurrentLimitEnable(true));
+                  .withStatorCurrentLimit(Amps.of(40))
+                  .withStatorCurrentLimitEnable(true)
+                  .withSupplyCurrentLimit(40)
+                  .withSupplyCurrentLowerLimit(10)
+                  .withSupplyCurrentLowerTime(0.5)
+                  .withSupplyCurrentLimitEnable(true));
   private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();
   // Configs for the Pigeon 2; leave this null to skip applying Pigeon 2 configs
   private static final Pigeon2Configuration pigeonConfigs =

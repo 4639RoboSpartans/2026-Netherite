@@ -25,7 +25,7 @@ public class Constants {
   public static final double TURRET_EXTENDED_MIN_ROTATIONS = -Units.degreesToRotations(44.999999);
   public static final double TURRET_EXTENDED_MAX_ROTATIONS = Units.degreesToRotations(315);
 
-  public static final double ROTOR_ROTATION_TOLERANCE = 2;
+  public static final double ROTOR_ROTATION_TOLERANCE = 4;
 
   public static final double TURRET_FUDGE_SCALAR = 1;
 }
