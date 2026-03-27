@@ -8,6 +8,7 @@ import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -46,6 +47,10 @@ public class Turret extends FullSubsystem {
   private final Debouncer turretRezeroDebouncer = new Debouncer(0.5);
   private final Queue<Double> CRTMeasurements = new LinkedList<>();
 
+  private boolean turretConnectionActivated = false;
+  private boolean turretConnectionBeenLost = false;
+  private final Debouncer turretStopped = new Debouncer(0.5, DebounceType.kRising);
+
   public enum WantedState {
     IDLE,
     SCORING,
@@ -57,7 +62,8 @@ public class Turret extends FullSubsystem {
     IDLE,
     SCORING,
     PASSING,
-    HUB_TRACK
+    HUB_TRACK,
+    REZERO
   }
 
   private WantedState wantedState = WantedState.IDLE;
@@ -149,6 +155,9 @@ public class Turret extends FullSubsystem {
       case HUB_TRACK:
         handleHubTrack();
         break;
+      case REZERO:
+        handleRezero();
+        break;
     }
   }
 
@@ -158,15 +167,82 @@ public class Turret extends FullSubsystem {
 
     state.acceptCANMeasurement(turretInputs.connected);
     state.acceptTemperatureMeasurement(turretInputs.celsius);
+
+    if (turretInputs.connected) {
+      turretConnectionActivated = true;
+    }
+    if (turretConnectionActivated && !turretInputs.connected) {
+      turretConnectionBeenLost = true;
+    }
   }
 
   private SystemState handleStateTransitions() {
     return switch (wantedState) {
-      case IDLE -> SystemState.IDLE;
-      case SCORING -> SystemState.SCORING;
-      case PASSING -> SystemState.PASSING;
-      case HUB_TRACK -> SystemState.HUB_TRACK;
-    };
+  case IDLE -> {
+    if (systemState == SystemState.IDLE && turretConnectionActivated && turretConnectionBeenLost && turretInputs.connected) {
+      yield SystemState.REZERO;
+    } else if (systemState == SystemState.REZERO) {
+      if (turretStopped.calculate(MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5))) {
+        rezeroTurret();
+        turretConnectionActivated = true;
+        turretConnectionBeenLost = false;
+        yield SystemState.IDLE;
+      } else {
+        yield SystemState.REZERO;
+      }
+    } else {
+      yield SystemState.IDLE;
+    }
+  }
+  case SCORING -> {
+    if (systemState == SystemState.SCORING && turretConnectionActivated && turretConnectionBeenLost && turretInputs.connected) {
+      yield SystemState.REZERO;
+    } else if (systemState == SystemState.REZERO) {
+      if (turretStopped.calculate(MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5))) {
+        rezeroTurret();
+        turretConnectionActivated = true;
+        turretConnectionBeenLost = false;
+        yield SystemState.SCORING;
+      } else {
+        yield SystemState.REZERO;
+      }
+    } else {
+      yield SystemState.SCORING;
+    }
+  }
+  case PASSING -> {
+    if (systemState == SystemState.PASSING && turretConnectionActivated && turretConnectionBeenLost && turretInputs.connected) {
+      yield SystemState.REZERO;
+    } else if (systemState == SystemState.REZERO) {
+      if (turretStopped.calculate(MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5))) {
+        rezeroTurret();
+        turretConnectionActivated = true;
+        turretConnectionBeenLost = false;
+        yield SystemState.PASSING;
+      } else {
+        yield SystemState.REZERO;
+      }
+    } else {
+      yield SystemState.PASSING;
+    }
+  }
+  case HUB_TRACK -> {
+    if (systemState == SystemState.HUB_TRACK && turretConnectionActivated && turretConnectionBeenLost && turretInputs.connected) {
+      yield SystemState.REZERO;
+    } else if (systemState == SystemState.REZERO) {
+      if (turretStopped.calculate(MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5))) {
+        rezeroTurret();
+        turretConnectionActivated = true;
+        turretConnectionBeenLost = false;
+        yield SystemState.HUB_TRACK;
+      } else {
+        yield SystemState.REZERO;
+      }
+    } else {
+      yield SystemState.HUB_TRACK;
+    }
+  }
+};
   }
 
   // CRT, should only be used on startup to seed position and not while turret is moving
@@ -307,13 +383,17 @@ public class Turret extends FullSubsystem {
         getRotorVelocityFromTurretVelocity(rotationsPerSecondAdjusted));
   }
 
+  private void handleRezero() {
+    turretIO.setVoltage(0);
+  }
+
   public void setWantedState(WantedState wantedState) {
     this.wantedState = wantedState;
   }
 
   private TurretSetpoint _getTurretSetpoint() {
     return switch (systemState) {
-      case IDLE -> IDLE_TURRET_ROTATION;
+      case IDLE, REZERO -> IDLE_TURRET_ROTATION;
       case SCORING -> {
         var currentScoringState = state.calculateScoringState(this);
         var nextScoringState = state.calculateNextScoringState(this);

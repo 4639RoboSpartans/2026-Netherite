@@ -13,6 +13,9 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj2.command.Commands;
+
+import org.team4639.frc2026.RobotState;
 import org.team4639.frc2026.util.PortConfiguration;
 import org.team4639.lib.util.Phoenix6Factory;
 import org.team4639.lib.util.PhoenixUtil;
@@ -66,6 +69,9 @@ public class TurretIOTalonFX implements TurretIO {
             motorVoltage,
             motorCurrent
     );*/
+
+    RobotState.disabled.onTrue(Commands.runOnce(() -> PhoenixUtil.tryUntilOk(5, () -> turretMotor.setNeutralMode(NeutralModeValue.Coast))).ignoringDisable(true));
+    RobotState.disabled.onFalse(Commands.runOnce(() -> PhoenixUtil.tryUntilOk(5, () -> turretMotor.setNeutralMode(NeutralModeValue.Brake))).ignoringDisable(true));
   }
 
   @Override
