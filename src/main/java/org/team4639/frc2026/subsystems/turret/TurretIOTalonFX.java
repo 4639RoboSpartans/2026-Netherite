@@ -48,9 +48,11 @@ public class TurretIOTalonFX implements TurretIO {
     config.Slot0.kS = kS;
     config.Slot0.kV = kV;
     config.Slot0.kA = kA;
-    config.Slot0.kP = 0.5;
+    config.Slot0.kP = 0.5; // mild kP, most of control here is done through velocity
 
-    config.Slot1.kP = 15;
+    config.Slot1.kP = 15; // most aggressive for turret wraparound
+
+    config.Slot2.kP = 4; // want to reach zero setpoint with accuracy, don't care about speed but don't want steady state error
 
     // applyNewGains();
 
@@ -111,6 +113,10 @@ public class TurretIOTalonFX implements TurretIO {
 
   public void setRotorRotationSetpointSlot1(double rotation, double velocityRPS) {
     turretMotor.setControl(request.withPosition(rotation).withSlot(1));
+  }
+
+  public void setRotorRotationSetpointSlot2(double rotation) {
+    turretMotor.setControl(request.withPosition(rotation).withSlot(2).withVelocity(0));
   }
 
   public void updateGains() {
