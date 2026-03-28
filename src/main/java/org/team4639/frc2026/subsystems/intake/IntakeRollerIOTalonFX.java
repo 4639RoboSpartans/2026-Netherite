@@ -30,7 +30,7 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
     config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
     config.Slot0.kS = 0.25526;
-    config.Slot0.kV = 0.094566;
+    config.Slot0.kV = 0.1194121;
     config.Slot0.kA = 0.002791;
 
     config.Slot0.kP = 999999;
@@ -38,7 +38,7 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
     config.MotorOutput.PeakReverseDutyCycle = -1;
 
     config.Slot1.kS = 0.25526;
-    config.Slot1.kV = 0.094566;
+    config.Slot1.kV = 0.1194121;
     config.Slot1.kA = 0.002791;
 
     PhoenixUtil.tryUntilOk(5, () -> rollerMotor.getConfigurator().apply(config));
