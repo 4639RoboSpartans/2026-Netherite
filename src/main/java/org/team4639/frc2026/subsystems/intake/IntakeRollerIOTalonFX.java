@@ -33,7 +33,7 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
     config.Slot0.kV = 0.094566;
     config.Slot0.kA = 0.002791;
 
-    config.Slot0.kP = 10;
+    config.Slot0.kP = 999999;
     config.MotorOutput.PeakForwardDutyCycle = 0;
     config.MotorOutput.PeakReverseDutyCycle = -1;
 

@@ -22,13 +22,15 @@ public class Extension extends FullSubsystem {
 
   private final double ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND = 5;
   private final double ENDSTOP_CURRENT_THRESHOLD_OUT = 7;
-  private final double ENDSTOP_CURRENT_THRESHOLD_IN = 12;
+  private final double ENDSTOP_CURRENT_THRESHOLD_IN = 19;
   private final double ZERO_VELOCITY_TIME_PERIOD = 0.02;
   private final double ZERO_VOLTAGE_OUT = 4;
   private final double REZERO_VOLTAGE_OUT = 2;
   private final double ZERO_VOLTAGE_IN = 3;
   private final double ROTOR_SETPOINT_TOLERANCE = 5;
   private final double EXTENDED_VOLTAGE = 0;
+
+  private final double ZERO_TIMEOUT = 1.5;
 
   private boolean rezero = false;
   private boolean runExtendedVoltage = true;
@@ -140,7 +142,8 @@ public class Extension extends FullSubsystem {
           // if intake satisfies zero requirements
           if (Math.abs(inputs.rotationsPerSecond)
                   < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND
-              || Math.abs(inputs.amps) >= ENDSTOP_CURRENT_THRESHOLD_OUT) {
+              || Math.abs(inputs.amps) >= ENDSTOP_CURRENT_THRESHOLD_OUT
+              || (Timer.getFPGATimestamp() - zeroTimeStamp) > ZERO_TIMEOUT) {
             if (systemState == SystemState.EXTENDED) {
               if (!MathUtil.isNear(
                   inputs.rotations, extendedRotorPosition, ROTOR_SETPOINT_TOLERANCE)) {
@@ -178,7 +181,8 @@ public class Extension extends FullSubsystem {
         if (!DriverStation.isDisabled()) {
           if (Math.abs(inputs.rotationsPerSecond)
                   < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND
-              || Math.abs(inputs.amps) >= ENDSTOP_CURRENT_THRESHOLD_IN) {
+              || Math.abs(inputs.amps) >= ENDSTOP_CURRENT_THRESHOLD_IN
+              || (Timer.getFPGATimestamp() - zeroTimeStamp) > ZERO_TIMEOUT) {
             if (systemState == SystemState.IDLE) {
               return SystemState.IDLE;
             } else if (!Double.isFinite(zeroTimeStamp)) {

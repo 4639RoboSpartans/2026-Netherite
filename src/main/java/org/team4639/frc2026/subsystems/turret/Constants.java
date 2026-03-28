@@ -13,8 +13,8 @@ public class Constants {
   public static final double LEFT_ENCODER_GEAR_TEETH = 41;
   public static final double RIGHT_ENCODER_GEAR_TEETH = 40;
 
-  public static final double LEFT_ENCODER_OFFSET = -0.311279;
-  public static final double RIGHT_ENCODER_OFFSET = -0.212158;
+  public static final double LEFT_ENCODER_OFFSET = -0.285156;
+  public static final double RIGHT_ENCODER_OFFSET = -0.193604;
 
   public static final boolean LEFT_ENCODER_INVERTED = true;
   public static final boolean RIGHT_ENCODER_INVERTED = true;
@@ -23,7 +23,7 @@ public class Constants {
   public static final double TURRET_MAX_ROTATIONS = 0.875;
 
   public static final double TURRET_EXTENDED_MIN_ROTATIONS = -Units.degreesToRotations(44.999999);
-  public static final double TURRET_EXTENDED_MAX_ROTATIONS = Units.degreesToRotations(315);
+  public static final double TURRET_EXTENDED_MAX_ROTATIONS = Units.degreesToRotations(300);
 
   public static final double ROTOR_ROTATION_TOLERANCE = 4;
 

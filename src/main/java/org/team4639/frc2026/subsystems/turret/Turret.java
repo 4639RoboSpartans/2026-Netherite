@@ -178,71 +178,83 @@ public class Turret extends FullSubsystem {
 
   private SystemState handleStateTransitions() {
     return switch (wantedState) {
-  case IDLE -> {
-    if (systemState == SystemState.IDLE && turretConnectionActivated && turretConnectionBeenLost && turretInputs.connected) {
-      yield SystemState.REZERO;
-    } else if (systemState == SystemState.REZERO) {
-      if (turretStopped.calculate(MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5))) {
-        rezeroTurret();
-        turretConnectionActivated = true;
-        turretConnectionBeenLost = false;
-        yield SystemState.IDLE;
-      } else {
-        yield SystemState.REZERO;
+      case IDLE -> {
+        if (systemState == SystemState.IDLE
+            && turretConnectionActivated
+            && turretConnectionBeenLost
+            && turretInputs.connected) {
+          yield SystemState.REZERO;
+        } else if (systemState == SystemState.REZERO) {
+          if (turretStopped.calculate(MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5))) {
+            rezeroTurret();
+            turretConnectionActivated = true;
+            turretConnectionBeenLost = false;
+            yield SystemState.IDLE;
+          } else {
+            yield SystemState.REZERO;
+          }
+        } else {
+          yield SystemState.IDLE;
+        }
       }
-    } else {
-      yield SystemState.IDLE;
-    }
-  }
-  case SCORING -> {
-    if (systemState == SystemState.SCORING && turretConnectionActivated && turretConnectionBeenLost && turretInputs.connected) {
-      yield SystemState.REZERO;
-    } else if (systemState == SystemState.REZERO) {
-      if (turretStopped.calculate(MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5))) {
-        rezeroTurret();
-        turretConnectionActivated = true;
-        turretConnectionBeenLost = false;
-        yield SystemState.SCORING;
-      } else {
-        yield SystemState.REZERO;
+      case SCORING -> {
+        if (systemState == SystemState.SCORING
+            && turretConnectionActivated
+            && turretConnectionBeenLost
+            && turretInputs.connected) {
+          yield SystemState.REZERO;
+        } else if (systemState == SystemState.REZERO) {
+          if (turretStopped.calculate(MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5))) {
+            rezeroTurret();
+            turretConnectionActivated = true;
+            turretConnectionBeenLost = false;
+            yield SystemState.SCORING;
+          } else {
+            yield SystemState.REZERO;
+          }
+        } else {
+          yield SystemState.SCORING;
+        }
       }
-    } else {
-      yield SystemState.SCORING;
-    }
-  }
-  case PASSING -> {
-    if (systemState == SystemState.PASSING && turretConnectionActivated && turretConnectionBeenLost && turretInputs.connected) {
-      yield SystemState.REZERO;
-    } else if (systemState == SystemState.REZERO) {
-      if (turretStopped.calculate(MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5))) {
-        rezeroTurret();
-        turretConnectionActivated = true;
-        turretConnectionBeenLost = false;
-        yield SystemState.PASSING;
-      } else {
-        yield SystemState.REZERO;
+      case PASSING -> {
+        if (systemState == SystemState.PASSING
+            && turretConnectionActivated
+            && turretConnectionBeenLost
+            && turretInputs.connected) {
+          yield SystemState.REZERO;
+        } else if (systemState == SystemState.REZERO) {
+          if (turretStopped.calculate(MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5))) {
+            rezeroTurret();
+            turretConnectionActivated = true;
+            turretConnectionBeenLost = false;
+            yield SystemState.PASSING;
+          } else {
+            yield SystemState.REZERO;
+          }
+        } else {
+          yield SystemState.PASSING;
+        }
       }
-    } else {
-      yield SystemState.PASSING;
-    }
-  }
-  case HUB_TRACK -> {
-    if (systemState == SystemState.HUB_TRACK && turretConnectionActivated && turretConnectionBeenLost && turretInputs.connected) {
-      yield SystemState.REZERO;
-    } else if (systemState == SystemState.REZERO) {
-      if (turretStopped.calculate(MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5))) {
-        rezeroTurret();
-        turretConnectionActivated = true;
-        turretConnectionBeenLost = false;
-        yield SystemState.HUB_TRACK;
-      } else {
-        yield SystemState.REZERO;
+      case HUB_TRACK -> {
+        if (systemState == SystemState.HUB_TRACK
+            && turretConnectionActivated
+            && turretConnectionBeenLost
+            && turretInputs.connected) {
+          yield SystemState.REZERO;
+        } else if (systemState == SystemState.REZERO) {
+          if (turretStopped.calculate(MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5))) {
+            rezeroTurret();
+            turretConnectionActivated = true;
+            turretConnectionBeenLost = false;
+            yield SystemState.HUB_TRACK;
+          } else {
+            yield SystemState.REZERO;
+          }
+        } else {
+          yield SystemState.HUB_TRACK;
+        }
       }
-    } else {
-      yield SystemState.HUB_TRACK;
-    }
-  }
-};
+    };
   }
 
   // CRT, should only be used on startup to seed position and not while turret is moving

@@ -11,6 +11,7 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import java.util.AbstractMap;
 import org.team4639.frc2026.Constants;
+import org.team4639.lib.util.LoggedTunableNumber;
 import org.team4639.lib.util.geometry.GeomUtil;
 
 public class LookupTables {
@@ -19,6 +20,9 @@ public class LookupTables {
 
   public static final double MIN_RPM = 2320.0;
   public static final double MAX_RPM = 3765.0;
+
+  public static final LoggedTunableNumber fudge =
+      new LoggedTunableNumber("RPM Fudge").initDefault(0.85);
 
   public static final InterpolatingDoubleTreeMap scoringDistanceToRPM =
       InterpolatingDoubleTreeMap.ofEntries(
@@ -156,7 +160,8 @@ public class LookupTables {
     double turretRotations =
         MathUtil.inputModulus(
             targetPose.minus(lookaheadPose.getTranslation()).getAngle().getRotations(), 0, 1);
-    double shooterRPM = scoringDistanceToRPM.get(lookaheadTurretToTargetDistance);
+    double shooterRPM =
+        scoringDistanceToRPM.get(lookaheadTurretToTargetDistance) * Math.pow(1.01, fudge.get());
     double hoodDegrees = scoringDistanceToHoodDegrees.get(lookaheadTurretToTargetDistance);
 
     return new ScoringState(shooterRPM, hoodDegrees, turretRotations);
@@ -201,7 +206,8 @@ public class LookupTables {
     double turretRotations =
         MathUtil.inputModulus(
             targetPose.minus(lookaheadPose.getTranslation()).getAngle().getRotations(), 0, 1);
-    double shooterRPM = passingDistanceToRPM.get(lookaheadTurretToTargetDistance);
+    double shooterRPM =
+        passingDistanceToRPM.get(lookaheadTurretToTargetDistance) * Math.pow(1.01, fudge.get());
     double hoodDegrees = passingDistanceToHoodDegrees.get(lookaheadTurretToTargetDistance);
 
     return new ScoringState(shooterRPM, hoodDegrees, turretRotations);
