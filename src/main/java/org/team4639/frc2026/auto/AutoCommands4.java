@@ -56,6 +56,157 @@ public class AutoCommands4 {
   public static final int BUMP_COS_POWER = 1000;
   public static final double TRENCH_SPEED = 9.0;
 
+  public static Command OP_LEFT(
+      Drive drive,
+      Shooter shooter,
+      Hood hood,
+      Turret turret,
+      Spindexer spindexer,
+      Kicker kicker,
+      Extension extension,
+      Intake intake,
+      RobotState state) {
+    return new SequentialCommandGroup(
+        new ParallelDeadlineGroup(
+            followPath("OPL-0", true, state),
+            Commands.runOnce(() -> state.setSendVisionToPrimaryPoseEstimator(false)),
+            new SequentialCommandGroup(
+                new ParallelCommandGroup(
+                        IntakeCommands.stop(intake), IntakeCommands.retract(extension))
+                    .until(
+                        () ->
+                            state.getEstimatedPose().getX()
+                                > FieldConstants.LinesVertical.neutralZoneNear + 0.5),
+                new ParallelCommandGroup(
+                    IntakeCommands.autoForceExtension(extension), IntakeCommands.intake(intake))),
+            SuperstructureCommands.idle(shooter, hood, turret, spindexer, kicker, state)),
+        new ParallelDeadlineGroup(
+            followPath("OPL-1", false),
+            Commands.runOnce(
+                () -> {
+                  state.resetPose(state.getSecondaryEstimatedPose());
+                  state.setSendVisionToPrimaryPoseEstimator(true);
+                }),
+            new SequentialCommandGroup(
+                SuperstructureCommands.autoSpinupToShoot(
+                        shooter, hood, turret, spindexer, kicker, state)
+                    .alongWith(IntakeCommands.autoDrawInExtension(extension))
+                    .until(
+                        () ->
+                            state.getEstimatedPose().getX()
+                                    < FieldConstants.LinesVertical.allianceZone
+                                && state.getTurretToGoal() > 1.87),
+                SuperstructureCommands.requestScoring(
+                        shooter, hood, turret, spindexer, kicker, state)
+                    .alongWith(IntakeCommands.autoForceExtension(extension)))),
+        IntakeCommands.intake(intake),
+        new ParallelDeadlineGroup(
+            followPath("OPL-2", false),
+            Commands.runOnce(() -> state.setSendVisionToPrimaryPoseEstimator(false)),
+            SuperstructureCommands.idle(shooter, hood, turret, spindexer, kicker, state),
+            new SequentialCommandGroup(
+                new ParallelCommandGroup(
+                        IntakeCommands.stop(intake), IntakeCommands.retract(extension))
+                    .until(
+                        () ->
+                            state.getEstimatedPose().getX()
+                                > FieldConstants.LinesVertical.neutralZoneNear + 0.5),
+                new ParallelCommandGroup(
+                    IntakeCommands.autoForceExtension(extension), IntakeCommands.intake(intake)))),
+        new ParallelDeadlineGroup(
+            followPath("OPL-3", false),
+            Commands.runOnce(
+                () -> {
+                  state.resetPose(state.getSecondaryEstimatedPose());
+                  state.setSendVisionToPrimaryPoseEstimator(true);
+                }),
+            SuperstructureCommands.autoSpinupToShoot(
+                shooter, hood, turret, spindexer, kicker, state),
+            IntakeCommands.intake(intake),
+            IntakeCommands.autoDrawInExtension(extension)),
+        new ParallelCommandGroup(
+            drive.run(drive::stopWithX),
+            IntakeCommands.intake(intake),
+            IntakeCommands.autoForceExtension(extension),
+            SuperstructureCommands.requestScoring(
+                shooter, hood, turret, spindexer, kicker, state)));
+  }
+
+  public static Command OP_RIGHT(
+      Drive drive,
+      Shooter shooter,
+      Hood hood,
+      Turret turret,
+      Spindexer spindexer,
+      Kicker kicker,
+      Extension extension,
+      Intake intake,
+      RobotState state) {
+    return new SequentialCommandGroup(
+        new ParallelDeadlineGroup(
+            followPathMirrored("OPL-0", true, state),
+            Commands.runOnce(() -> state.setSendVisionToPrimaryPoseEstimator(false)),
+            new SequentialCommandGroup(
+                new ParallelCommandGroup(
+                        IntakeCommands.stop(intake), IntakeCommands.retract(extension))
+                    .until(
+                        () ->
+                            state.getEstimatedPose().getX()
+                                > FieldConstants.LinesVertical.neutralZoneNear + 0.5),
+                new ParallelCommandGroup(
+                    IntakeCommands.autoForceExtension(extension), IntakeCommands.intake(intake))),
+            SuperstructureCommands.idle(shooter, hood, turret, spindexer, kicker, state)),
+        new ParallelDeadlineGroup(
+            followPathMirrored("OPL-1", false),
+            Commands.runOnce(
+                () -> {
+                  state.resetPose(state.getSecondaryEstimatedPose());
+                  state.setSendVisionToPrimaryPoseEstimator(true);
+                }),
+            new SequentialCommandGroup(
+                SuperstructureCommands.autoSpinupToShoot(
+                        shooter, hood, turret, spindexer, kicker, state)
+                    .until(
+                        () ->
+                            state.getEstimatedPose().getX()
+                                    < FieldConstants.LinesVertical.allianceZone - 0.25
+                                && state.getTurretToGoal() > 2.25),
+                SuperstructureCommands.requestScoring(
+                    shooter, hood, turret, spindexer, kicker, state)),
+            IntakeCommands.intakeAgitate(intake),
+            IntakeCommands.autoDrawInExtension(extension)),
+        new ParallelDeadlineGroup(
+            followPathMirrored("OPL-2", false),
+            Commands.runOnce(() -> state.setSendVisionToPrimaryPoseEstimator(false)),
+            SuperstructureCommands.idle(shooter, hood, turret, spindexer, kicker, state),
+            new SequentialCommandGroup(
+                new ParallelCommandGroup(
+                        IntakeCommands.stop(intake), IntakeCommands.retract(extension))
+                    .until(
+                        () ->
+                            state.getEstimatedPose().getX()
+                                > FieldConstants.LinesVertical.neutralZoneNear + 0.5),
+                new ParallelCommandGroup(
+                    IntakeCommands.autoForceExtension(extension), IntakeCommands.intake(intake)))),
+        new ParallelDeadlineGroup(
+            followPathMirrored("OPL-3", false),
+            Commands.runOnce(
+                () -> {
+                  state.resetPose(state.getSecondaryEstimatedPose());
+                  state.setSendVisionToPrimaryPoseEstimator(true);
+                }),
+            SuperstructureCommands.autoSpinupToShoot(
+                shooter, hood, turret, spindexer, kicker, state),
+            IntakeCommands.stop(intake),
+            IntakeCommands.autoDrawInExtension(extension)),
+        new ParallelCommandGroup(
+            drive.run(drive::stopWithX),
+            IntakeCommands.intakeAgitate(intake),
+            IntakeCommands.autoDrawInExtension(extension),
+            SuperstructureCommands.requestScoring(
+                shooter, hood, turret, spindexer, kicker, state)));
+  }
+
   public static Command LEFT_SINGLE_SWIPE(
       Drive drive,
       Shooter shooter,

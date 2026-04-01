@@ -21,7 +21,7 @@ public class Extension extends FullSubsystem {
   private final IntakeExtensionIOInputsAutoLogged inputs;
 
   private final double ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND = 5;
-  private final double ENDSTOP_CURRENT_THRESHOLD_OUT = 7;
+  private final double ENDSTOP_CURRENT_THRESHOLD_OUT = 19;
   private final double ENDSTOP_CURRENT_THRESHOLD_IN = 19;
   private final double ZERO_VELOCITY_TIME_PERIOD = 0.02;
   private final double ZERO_VOLTAGE_OUT = 4;
@@ -32,6 +32,8 @@ public class Extension extends FullSubsystem {
 
   private final double ZERO_TIMEOUT = 1.5;
 
+  @Setter private double MANUAL_VOLTAGE = 0;
+
   private boolean rezero = false;
   private boolean runExtendedVoltage = true;
 
@@ -40,13 +42,15 @@ public class Extension extends FullSubsystem {
   public enum WantedState {
     IDLE,
     EXTENDED,
+    MANUAL_VOLTAGE
   }
 
   public enum SystemState {
     IDLE,
     EXTENDING,
     RETRACTING,
-    EXTENDED
+    EXTENDED,
+    MANUAL_VOLTAGE
   }
 
   @Setter private WantedState wantedState = WantedState.IDLE;
@@ -112,6 +116,7 @@ public class Extension extends FullSubsystem {
       case EXTENDING -> handleExtending();
       case RETRACTING -> handleRetracting();
       case EXTENDED -> handleExtended();
+      case MANUAL_VOLTAGE -> handleManualVoltage();
     }
   }
 
@@ -133,6 +138,10 @@ public class Extension extends FullSubsystem {
   public void handleExtended() {
     io.setVoltage(runExtendedVoltage ? EXTENDED_VOLTAGE : 0);
     io.setBrakeMode(false);
+  }
+
+  public void handleManualVoltage() {
+    io.setVoltage(MANUAL_VOLTAGE);
   }
 
   public SystemState handleStateTransitions() {
@@ -203,6 +212,8 @@ public class Extension extends FullSubsystem {
         } else {
           return SystemState.RETRACTING;
         }
+      case MANUAL_VOLTAGE:
+        return SystemState.MANUAL_VOLTAGE;
       default:
         return SystemState.IDLE;
     }

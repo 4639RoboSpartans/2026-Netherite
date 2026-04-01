@@ -81,7 +81,7 @@ public class SuperstructureCommands {
                 turret.dummy,
                 spindexer.dummy,
                 kicker.dummy)
-            .until(() -> shooter.getSetpointRPM() != 0 && shooter.aboveSetpoint()),
+            .until(() -> shooter.getSetpointRPM() != 0 && shooter.atSetpoint()),
         Commands.run(
             () -> {
               shooter.setWantedState(Shooter.WantedState.SCORING);

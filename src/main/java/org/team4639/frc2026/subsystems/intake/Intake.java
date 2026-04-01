@@ -16,22 +16,26 @@ public class Intake extends FullSubsystem {
   private final IntakeRollerIO rollerIO;
   private final IntakeRollerIOInputsAutoLogged rollerInputs = new IntakeRollerIOInputsAutoLogged();
 
-  private final double INTAKE_SURFACE_VELOCITY_FEET_PER_SECOND = 28 * 2;
+  private final double INTAKE_SURFACE_VELOCITY_FEET_PER_SECOND = 28 * 3;
 
   @Getter
   private final IntakeRollerSysID rollerSysID =
       new IntakeRollerSysID.IntakeRollerSysIDWPI(this, rollerInputs);
 
+  @Setter private double MANUAL_VOLTS;
+
   public enum WantedState {
     IDLE,
     INTAKE,
-    OUTTAKE
+    OUTTAKE,
+    MANUAL
   }
 
   public enum SystemState {
     IDLE,
     INTAKE,
-    OUTTAKE
+    OUTTAKE,
+    MANUAL
   }
 
   @Setter private WantedState wantedState = WantedState.IDLE;
@@ -93,6 +97,7 @@ public class Intake extends FullSubsystem {
           yield SystemState.OUTTAKE;
         }
       }
+      case MANUAL -> SystemState.MANUAL;
     };
   }
 
@@ -106,6 +111,10 @@ public class Intake extends FullSubsystem {
 
   public void handleOuttaking() {
     rollerIO.setSurfaceVelocityFeetPerSecond(-INTAKE_SURFACE_VELOCITY_FEET_PER_SECOND);
+  }
+
+  public void handleManual() {
+    rollerIO.setVoltage(MANUAL_VOLTS);
   }
 
   public void setRollerVoltage(double volts) {

@@ -42,7 +42,7 @@ public class TurretIOTalonFX implements TurretIO {
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
     double kS = 0.1813163;
-    double kV = 0.09786307;
+    double kV = 0.01055999667;
     double kA = 0.0007793003;
 
     config.Slot0.kS = kS;
@@ -52,7 +52,9 @@ public class TurretIOTalonFX implements TurretIO {
 
     config.Slot1.kP = 15; // most aggressive for turret wraparound
 
-    config.Slot2.kP = 4; // want to reach zero setpoint with accuracy, don't care about speed but don't want steady state error
+    config.Slot2.kP =
+        4; // want to reach zero setpoint with accuracy, don't care about speed but don't want
+    // steady state error
 
     // applyNewGains();
 

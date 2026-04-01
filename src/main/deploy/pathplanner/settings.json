@@ -3,7 +3,8 @@
   "robotLength": 0.8636,
   "holonomicMode": true,
   "pathFolders": [
-    "Branching"
+    "Branching",
+    "New Folder"
   ],
   "autoFolders": [],
   "defaultMaxVel": 3.0,

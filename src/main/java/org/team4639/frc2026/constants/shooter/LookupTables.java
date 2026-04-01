@@ -94,10 +94,10 @@ public class LookupTables {
 
   public static final InterpolatingDoubleTreeMap passingDistanceToHoodDegrees =
       InterpolatingDoubleTreeMap.ofEntries(
-          new AbstractMap.SimpleImmutableEntry<>(0.0, 20.0),
-          new AbstractMap.SimpleImmutableEntry<>(6.0, 20.0),
-          new AbstractMap.SimpleImmutableEntry<>(6.00001, 35.0),
-          new AbstractMap.SimpleImmutableEntry<>(20.0, 35.0));
+          new AbstractMap.SimpleImmutableEntry<>(0.0, 35.0),
+          new AbstractMap.SimpleImmutableEntry<>(6.0, 35.0),
+          new AbstractMap.SimpleImmutableEntry<>(6.00001, 50.0),
+          new AbstractMap.SimpleImmutableEntry<>(20.0, 50.0));
 
   public static final InterpolatingDoubleTreeMap passingDistanceToTOF =
       InterpolatingDoubleTreeMap.ofEntries(

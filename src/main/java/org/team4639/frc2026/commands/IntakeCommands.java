@@ -11,7 +11,7 @@ import org.team4639.frc2026.subsystems.extension.Extension;
 import org.team4639.frc2026.subsystems.intake.Intake;
 
 public class IntakeCommands {
-  private static final double AGITATE_PERIOD = 1.0;
+  private static final double AGITATE_PERIOD = 2;
 
   public static Command extend(Extension extension) {
     return extension.dummy.runOnce(() -> extension.setWantedState(Extension.WantedState.EXTENDED));
@@ -44,18 +44,48 @@ public class IntakeCommands {
   private static Command agitateInOut(Extension extension, Intake intake) {
     return new ParallelCommandGroup(
         new SequentialCommandGroup(
-                retract(extension).andThen(Commands.idle()).withTimeout(AGITATE_PERIOD / 2),
-                extend(extension).andThen(Commands.idle()).withTimeout(AGITATE_PERIOD / 2))
+                autoDrawInExtension(extension)
+                    .andThen(Commands.idle())
+                    .withTimeout(AGITATE_PERIOD / 2),
+                autoForceExtension(extension)
+                    .andThen(Commands.idle())
+                    .withTimeout(AGITATE_PERIOD / 2))
             .repeatedly(),
-        intake(intake));
+        intakeAgitate(intake));
   }
 
   private static Command agitateOutIn(Extension extension, Intake intake) {
     return new ParallelCommandGroup(
         new SequentialCommandGroup(
-                extend(extension).andThen(Commands.idle()).withTimeout(AGITATE_PERIOD / 2),
-                retract(extension).andThen(Commands.idle()).withTimeout(AGITATE_PERIOD / 2))
+                autoForceExtension(extension)
+                    .andThen(Commands.idle())
+                    .withTimeout(AGITATE_PERIOD / 2),
+                autoDrawInExtension(extension)
+                    .andThen(Commands.idle())
+                    .withTimeout(AGITATE_PERIOD / 2))
             .repeatedly(),
-        intake(intake));
+        intakeAgitate(intake));
+  }
+
+  public static Command autoForceExtension(Extension extension) {
+    return (Commands.runOnce(() -> extension.setWantedState(Extension.WantedState.MANUAL_VOLTAGE))
+        .andThen(
+            Commands.run(() -> extension.setMANUAL_VOLTAGE(12))
+                .withTimeout(0.6)
+                .andThen(Commands.runOnce(() -> extension.setMANUAL_VOLTAGE(0))))
+        .andThen(extend(extension)));
+  }
+
+  public static Command autoDrawInExtension(Extension extension) {
+    return Commands.runOnce(
+            () -> extension.setWantedState(Extension.WantedState.MANUAL_VOLTAGE), extension.dummy)
+        .andThen(Commands.run(() -> extension.setMANUAL_VOLTAGE(-5), extension.dummy))
+        .finallyDo(() -> extension.setMANUAL_VOLTAGE(0));
+  }
+
+  public static Command intakeAgitate(Intake intake) {
+    return Commands.runOnce(() -> intake.setWantedState(Intake.WantedState.MANUAL), intake.dummy)
+        .andThen(Commands.run(() -> intake.setMANUAL_VOLTS(-12), intake.dummy))
+        .finallyDo(() -> intake.setMANUAL_VOLTS(0));
   }
 }

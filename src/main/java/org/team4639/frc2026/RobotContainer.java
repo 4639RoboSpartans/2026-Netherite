@@ -267,6 +267,36 @@ public class RobotContainer {
     autoChooser = new LoggedLazyAutoChooser("Auto Choices");
 
     autoChooser.addOption(
+        "OP_LEFT",
+        () ->
+            AutoCommands4.OP_LEFT(
+                    drive,
+                    shooter,
+                    hood,
+                    turret,
+                    spindexer,
+                    kicker,
+                    extension,
+                    intake,
+                    RobotState.getInstance())
+                .withTimeout(20));
+
+    autoChooser.addOption(
+        "OP_RIGHT",
+        () ->
+            AutoCommands4.OP_RIGHT(
+                    drive,
+                    shooter,
+                    hood,
+                    turret,
+                    spindexer,
+                    kicker,
+                    extension,
+                    intake,
+                    RobotState.getInstance())
+                .withTimeout(20));
+
+    autoChooser.addOption(
         "LEFT_CITRUS_DOUBLE_SWIPE",
         () ->
             AutoCommands4.LEFT_CITRUS_DOUBLE_SWIPE(

@@ -229,6 +229,8 @@ public class RobotState extends VirtualSubsystem
   private final LoggedTunableNumber desiredHoodDegrees =
       new LoggedTunableNumber("Desired Hood Degrees").initDefault(20);
 
+  @Getter private double turretToGoal = Double.POSITIVE_INFINITY;
+
   // =========================================================================
   // Lifecycle Methods
   // =========================================================================
@@ -241,11 +243,12 @@ public class RobotState extends VirtualSubsystem
     robotFieldTrue.setRobotPose(getTrueOnFieldPose());
     SmartDashboard.putData(ROBOT_FIELD_TRUE_KEY, robotFieldTrue);
 
-    SmartDashboard.putNumber(
-        "Turret to Goal",
+    this.turretToGoal =
         getTurretPose()
             .getTranslation()
-            .getDistance(FieldConstants.Hub.innerCenterPoint.toTranslation2d()));
+            .getDistance(FieldConstants.Hub.innerCenterPoint.toTranslation2d());
+
+    SmartDashboard.putNumber("Turret to Goal", turretToGoal);
     SmartDashboard.putNumber(
         "Turret to Passing Line",
         getTurretPose().getX() - FieldConstants.LinesVertical.allianceZone / 2);

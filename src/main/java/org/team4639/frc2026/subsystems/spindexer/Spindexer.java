@@ -5,6 +5,7 @@ package org.team4639.frc2026.subsystems.spindexer;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -23,7 +24,10 @@ public class Spindexer extends FullSubsystem {
   private final double IDLE_RPM = 0;
 
   private double unjamStartTime = Double.NaN;
-  private final double unjamTimePeriod = 0.2;
+  private final double unjamTimePeriod = 1.0;
+
+  private final Debouncer movingNothingDebouncer =
+      new Debouncer(0.8, Debouncer.DebounceType.kRising);
 
   @Getter private final SpindexerSysID sysID = new SpindexerSysID.SpindexerSysIDWPI(this, inputs);
 
@@ -101,6 +105,9 @@ public class Spindexer extends FullSubsystem {
           }
           case SPIN -> {
             if (Math.abs(inputs.amps) > 70) {
+              unjamStartTime = Timer.getTimestamp();
+              yield SystemState.UNJAM;
+            } else if (false && movingNothingDebouncer.calculate(Math.abs(inputs.amps) < 30)) {
               unjamStartTime = Timer.getTimestamp();
               yield SystemState.UNJAM;
             } else {
