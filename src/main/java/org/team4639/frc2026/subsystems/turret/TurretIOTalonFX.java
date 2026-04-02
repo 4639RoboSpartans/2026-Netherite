@@ -5,6 +5,7 @@ package org.team4639.frc2026.subsystems.turret;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -16,6 +17,7 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.team4639.frc2026.RobotState;
 import org.team4639.frc2026.util.PortConfiguration;
+import org.team4639.lib.util.LoggedTunableNumber;
 import org.team4639.lib.util.Phoenix6Factory;
 import org.team4639.lib.util.PhoenixUtil;
 
@@ -25,11 +27,17 @@ public class TurretIOTalonFX implements TurretIO {
   private final TalonFXConfiguration config = new TalonFXConfiguration();
 
   private final PositionVoltage request = new PositionVoltage(0);
+  private final MotionMagicVoltage motionMagic = new MotionMagicVoltage(0);
 
   private final StatusSignal<Angle> motorPosition;
   private final StatusSignal<AngularVelocity> motorVelocity;
   private final StatusSignal<Voltage> motorVoltage;
   private final StatusSignal<Current> motorCurrent;
+
+  private double lastVelocity = 0;
+
+  private final LoggedTunableNumber KA =
+      new LoggedTunableNumber("turret KA").initDefault(0.0007793003);
 
   public TurretIOTalonFX(PortConfiguration ports) {
     turretMotor = Phoenix6Factory.createDefaultTalon(ports.TurretMotorID);
@@ -55,6 +63,9 @@ public class TurretIOTalonFX implements TurretIO {
     config.Slot2.kP =
         4; // want to reach zero setpoint with accuracy, don't care about speed but don't want
     // steady state error
+
+    config.MotionMagic.MotionMagicCruiseVelocity = 2.0 / Constants.MOTOR_TO_TURRET_GEAR_RATIO;
+    config.MotionMagic.MotionMagicAcceleration = 8.0 / Constants.MOTOR_TO_TURRET_GEAR_RATIO;
 
     // applyNewGains();
 

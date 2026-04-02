@@ -250,8 +250,16 @@ public class RobotState extends VirtualSubsystem
 
     SmartDashboard.putNumber("Turret to Goal", turretToGoal);
     SmartDashboard.putNumber(
-        "Turret to Passing Line",
-        getTurretPose().getX() - FieldConstants.LinesVertical.allianceZone / 2);
+        "Turret to Passing",
+        getSecondaryEstimatedPose()
+            .getTranslation()
+            .getDistance(
+                getSecondaryEstimatedPose()
+                    .nearest(
+                        Stream.of(PassingTargets.LEFT, PassingTargets.RIGHT)
+                            .map(t -> new Pose2d(t, Rotation2d.kZero))
+                            .collect(Collectors.toSet()))
+                    .getTranslation()));
 
     SmartDashboard.putBoolean(
         "CAN Measurements", canIsConnected.stream().allMatch(measurement -> measurement));

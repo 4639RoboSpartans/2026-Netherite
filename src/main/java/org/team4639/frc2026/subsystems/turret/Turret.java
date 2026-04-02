@@ -515,17 +515,17 @@ public class Turret extends FullSubsystem {
         var currentScoringState = state.calculateScoringState(this);
         var nextScoringState = state.calculateNextScoringState(this);
 
-        double rotations =
-            currentScoringState.turretRotations()
-                - state.getSecondaryEstimatedPose().getRotation().getRotations();
-        double rotationsPerSecond =
-            (nextScoringState.turretRotations()
-                    - state.calculateNextPose(this).getRotation().getRotations())
-                - rotations;
-        rotationsPerSecond = Constants.TURRET_FUDGE_SCALAR * rotationsPerSecond / 0.02;
+        double rotations = currentScoringState.turretRotations();
+        double rotationsPerSecond = (nextScoringState.turretRotations()) - rotations;
+        rotationsPerSecond =
+            Constants.TURRET_FUDGE_SCALAR * rotationsPerSecond / 0.02
+                - state.getGyroRotationsPerSecond();
         SmartDashboard.putNumber("turret target", rotationsPerSecond);
 
-        yield SCORING_TURRET_ROTATION = new TurretSetpoint(rotations, rotationsPerSecond);
+        yield SCORING_TURRET_ROTATION =
+            new TurretSetpoint(
+                rotations - state.getSecondaryEstimatedPose().getRotation().getRotations(),
+                rotationsPerSecond);
       }
       case PASSING -> {
         var currentPassingState = state.calculatePassingState(this);

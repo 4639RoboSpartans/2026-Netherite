@@ -71,55 +71,30 @@ public class LookupTables {
 
   public static final InterpolatingDoubleTreeMap passingDistanceToRPM =
       InterpolatingDoubleTreeMap.ofEntries(
-          new AbstractMap.SimpleImmutableEntry<>(1.87, 2320.0),
-          new AbstractMap.SimpleImmutableEntry<>(2.20, 2520.0),
-          new AbstractMap.SimpleImmutableEntry<>(2.44, 2690.0),
-          new AbstractMap.SimpleImmutableEntry<>(2.90, 2825.0),
-          new AbstractMap.SimpleImmutableEntry<>(3.20, 2930.0),
-          new AbstractMap.SimpleImmutableEntry<>(3.50, 3015.0),
-          new AbstractMap.SimpleImmutableEntry<>(3.80, 3100.0),
-          new AbstractMap.SimpleImmutableEntry<>(4.10, 3260.0),
-          new AbstractMap.SimpleImmutableEntry<>(4.41, 3370.0),
-          new AbstractMap.SimpleImmutableEntry<>(4.77, 3465.0),
-          new AbstractMap.SimpleImmutableEntry<>(4.90, 3635.0),
-          new AbstractMap.SimpleImmutableEntry<>(5.20, 3765.0),
-          // New Setpoints
-          new AbstractMap.SimpleImmutableEntry<>(5.5, 4005.3875),
-          new AbstractMap.SimpleImmutableEntry<>(5.8, 4280.9288),
-          new AbstractMap.SimpleImmutableEntry<>(6.1, 4611.5969),
-          new AbstractMap.SimpleImmutableEntry<>(6.5, 5150.8125),
-          new AbstractMap.SimpleImmutableEntry<>(6.8, 5638.3968),
-          new AbstractMap.SimpleImmutableEntry<>(7.1, 6205.3539),
-          new AbstractMap.SimpleImmutableEntry<>(7.4, 6858.9576));
+          new AbstractMap.SimpleImmutableEntry<>(4.33, 600.),
+          new AbstractMap.SimpleImmutableEntry<>(5.20, 600.),
+          new AbstractMap.SimpleImmutableEntry<>(6.47, 1000.),
+          new AbstractMap.SimpleImmutableEntry<>(7.36, 1300.),
+          new AbstractMap.SimpleImmutableEntry<>(8.9, 1600.),
+          new AbstractMap.SimpleImmutableEntry<>(11.5, 2800.));
 
   public static final InterpolatingDoubleTreeMap passingDistanceToHoodDegrees =
       InterpolatingDoubleTreeMap.ofEntries(
-          new AbstractMap.SimpleImmutableEntry<>(0.0, 35.0),
-          new AbstractMap.SimpleImmutableEntry<>(6.0, 35.0),
-          new AbstractMap.SimpleImmutableEntry<>(6.00001, 50.0),
-          new AbstractMap.SimpleImmutableEntry<>(20.0, 50.0));
+          new AbstractMap.SimpleImmutableEntry<>(4.33, 20.),
+          new AbstractMap.SimpleImmutableEntry<>(5.20, 27.),
+          new AbstractMap.SimpleImmutableEntry<>(6.47, 34.),
+          new AbstractMap.SimpleImmutableEntry<>(7.36, 37.),
+          new AbstractMap.SimpleImmutableEntry<>(8.9, 40.),
+          new AbstractMap.SimpleImmutableEntry<>(11.5, 45.));
 
   public static final InterpolatingDoubleTreeMap passingDistanceToTOF =
       InterpolatingDoubleTreeMap.ofEntries(
-          new AbstractMap.SimpleImmutableEntry<>(1.87, 0.8814285714 * TOF_FUDGE),
-          new AbstractMap.SimpleImmutableEntry<>(2.2, 0.9725 * TOF_FUDGE),
-          new AbstractMap.SimpleImmutableEntry<>(2.5, 1.0175 * TOF_FUDGE),
-          new AbstractMap.SimpleImmutableEntry<>(2.9, 1.035 * TOF_FUDGE),
-          new AbstractMap.SimpleImmutableEntry<>(3.2, 1.061428571 * TOF_FUDGE),
-          new AbstractMap.SimpleImmutableEntry<>(3.5, 1.176666667 * TOF_FUDGE),
-          new AbstractMap.SimpleImmutableEntry<>(3.8, 1.192 * TOF_FUDGE),
-          new AbstractMap.SimpleImmutableEntry<>(4.1, 1.238571429 * TOF_FUDGE),
-          new AbstractMap.SimpleImmutableEntry<>(4.4, 1.3425 * TOF_FUDGE),
-          new AbstractMap.SimpleImmutableEntry<>(4.77, 1.42 * TOF_FUDGE),
-          new AbstractMap.SimpleImmutableEntry<>(5.2, 1.4725 * TOF_FUDGE),
-          // New Setpoints
-          new AbstractMap.SimpleImmutableEntry<>(5.5, 1.55855625 * TOF_FUDGE),
-          new AbstractMap.SimpleImmutableEntry<>(5.8, 1.629534 * TOF_FUDGE),
-          new AbstractMap.SimpleImmutableEntry<>(6.1, 1.70293275 * TOF_FUDGE),
-          new AbstractMap.SimpleImmutableEntry<>(6.5, 1.80449375 * TOF_FUDGE),
-          new AbstractMap.SimpleImmutableEntry<>(6.8, 1.883384 * TOF_FUDGE),
-          new AbstractMap.SimpleImmutableEntry<>(7.1, 1.96456025 * TOF_FUDGE),
-          new AbstractMap.SimpleImmutableEntry<>(7.4, 2.047982));
+          new AbstractMap.SimpleImmutableEntry<>(4.33, 0.5),
+          new AbstractMap.SimpleImmutableEntry<>(5.20, 0.6),
+          new AbstractMap.SimpleImmutableEntry<>(6.47, 0.7),
+          new AbstractMap.SimpleImmutableEntry<>(7.36, 0.9),
+          new AbstractMap.SimpleImmutableEntry<>(8.9, 1.2),
+          new AbstractMap.SimpleImmutableEntry<>(11.5, 1.5));
 
   public static ScoringState getScoringState(
       Pose2d currentRobotPose, ChassisSpeeds fieldRelativeChassisSpeeds, Translation2d targetPose) {
@@ -161,7 +136,8 @@ public class LookupTables {
         MathUtil.inputModulus(
             targetPose.minus(lookaheadPose.getTranslation()).getAngle().getRotations(), 0, 1);
     double shooterRPM =
-        scoringDistanceToRPM.get(lookaheadTurretToTargetDistance) * Math.pow(1.01, fudge.get());
+        scoringDistanceToRPM.get(lookaheadTurretToTargetDistance);
+    shooterRPM *= shooterRPM > 3400 ? Math.pow(1.01, fudge.get()-0.1) : Math.pow(1.01, fudge.get());
     double hoodDegrees = scoringDistanceToHoodDegrees.get(lookaheadTurretToTargetDistance);
 
     return new ScoringState(shooterRPM, hoodDegrees, turretRotations);

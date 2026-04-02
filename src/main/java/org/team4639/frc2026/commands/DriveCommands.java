@@ -112,13 +112,10 @@ public class DriveCommands {
 
           // Convert to field relative speeds & send command
           ChassisSpeeds speeds;
-          if (SuperstructureCommands.currentState
-              == SuperstructureCommands.SuperstructureState.SCORE) {
+          if (SuperstructureCommands.tryingToShoot) {
             speeds =
                 new ChassisSpeeds(
-                    (linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec()),
-                    (linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec()),
-                    omega * 2);
+                    (linearVelocity.getX() * 2), (linearVelocity.getY() * 2), omega * 2);
           } else {
             speeds =
                 new ChassisSpeeds(

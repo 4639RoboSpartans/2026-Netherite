@@ -297,9 +297,9 @@ public class RobotContainer {
                 .withTimeout(20));
 
     autoChooser.addOption(
-        "LEFT_CITRUS_DOUBLE_SWIPE",
+        "OP_NEAR_LEFT",
         () ->
-            AutoCommands4.LEFT_CITRUS_DOUBLE_SWIPE(
+            AutoCommands4.OP_NEAR_LEFT(
                     drive,
                     shooter,
                     hood,
@@ -312,81 +312,9 @@ public class RobotContainer {
                 .withTimeout(20));
 
     autoChooser.addOption(
-        "RIGHT_CITRUS_DOUBLE_SWIPE",
+        "OP_NEAR_RIGHT",
         () ->
-            AutoCommands4.RIGHT_CITRUS_DOUBLE_SWIPE(
-                    drive,
-                    shooter,
-                    hood,
-                    turret,
-                    spindexer,
-                    kicker,
-                    extension,
-                    intake,
-                    RobotState.getInstance())
-                .withTimeout(20));
-
-    autoChooser.addOption(
-        "LEFT_DOUBLE_SWIPE",
-        () ->
-            AutoCommands4.LEFT_DOUBLE_SWIPE(
-                    drive,
-                    shooter,
-                    hood,
-                    turret,
-                    spindexer,
-                    kicker,
-                    extension,
-                    intake,
-                    RobotState.getInstance())
-                .withTimeout(20));
-
-    autoChooser.addOption(
-        "LEFT_SINGLE_SWIPE",
-        () ->
-            AutoCommands4.LEFT_SINGLE_SWIPE(
-                    drive,
-                    shooter,
-                    hood,
-                    turret,
-                    spindexer,
-                    kicker,
-                    extension,
-                    intake,
-                    RobotState.getInstance())
-                .withTimeout(20));
-    autoChooser.addOption(
-        "RIGHT_SINGLE_SWIPE",
-        () ->
-            AutoCommands4.RIGHT_SINGLE_SWIPE(
-                    drive,
-                    shooter,
-                    hood,
-                    turret,
-                    spindexer,
-                    kicker,
-                    extension,
-                    intake,
-                    RobotState.getInstance())
-                .withTimeout(20));
-    autoChooser.addOption(
-        "LEFT_FAR_SWIPE",
-        () ->
-            AutoCommands4.LEFT_FAR_SWIPE(
-                    drive,
-                    shooter,
-                    hood,
-                    turret,
-                    spindexer,
-                    kicker,
-                    extension,
-                    intake,
-                    RobotState.getInstance())
-                .withTimeout(20));
-    autoChooser.addOption(
-        "RIGHT_FAR_SWIPE",
-        () ->
-            AutoCommands4.RIGHT_FAR_SWIPE(
+            AutoCommands4.OP_NEAR_RIGHT(
                     drive,
                     shooter,
                     hood,

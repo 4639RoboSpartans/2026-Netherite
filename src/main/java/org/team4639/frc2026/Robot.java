@@ -3,6 +3,7 @@
 package org.team4639.frc2026;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.pathplanner.lib.commands.PathfindingCommand;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -81,6 +82,8 @@ public class Robot extends LoggedRobot {
     robotContainer = new RobotContainer();
 
     bootupTimestamp = Timer.getTimestamp();
+
+    CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand());
   }
 
   /** This function is called periodically during all modes. */

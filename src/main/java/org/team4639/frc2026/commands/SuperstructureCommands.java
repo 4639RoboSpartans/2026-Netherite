@@ -21,6 +21,7 @@ public class SuperstructureCommands {
   public static SuperstructureState currentState = SuperstructureState.IDLE;
 
   private static boolean runSpindexerWhileWaiting = false;
+  public static boolean tryingToShoot = false;
 
   public enum SuperstructureState {
     IDLE,
@@ -46,6 +47,7 @@ public class SuperstructureCommands {
           turret.setWantedState(Turret.WantedState.HUB_TRACK);
 
           currentState = SuperstructureState.IDLE;
+          tryingToShoot = false;
         },
         shooter.dummy,
         hood.dummy,
@@ -75,13 +77,14 @@ public class SuperstructureCommands {
                   kicker.setWantedState(Kicker.WantedState.IDLE);
 
                   currentState = SuperstructureState.WAIT;
+                  tryingToShoot = true;
                 },
                 shooter.dummy,
                 hood.dummy,
                 turret.dummy,
                 spindexer.dummy,
                 kicker.dummy)
-            .until(() -> shooter.getSetpointRPM() != 0 && shooter.atSetpoint()),
+            .until(() -> shooter.getSetpointRPM() != 0 && shooter.aboveSetpoint()),
         Commands.run(
             () -> {
               shooter.setWantedState(Shooter.WantedState.SCORING);
@@ -100,6 +103,7 @@ public class SuperstructureCommands {
                 kicker.setWantedState(Kicker.WantedState.IDLE);
                 currentState = SuperstructureState.WAIT;
               }
+              tryingToShoot = true;
             },
             shooter.dummy,
             hood.dummy,
@@ -127,6 +131,8 @@ public class SuperstructureCommands {
                           ? Spindexer.WantedState.SPIN
                           : Spindexer.WantedState.IDLE);
                   kicker.setWantedState(Kicker.WantedState.IDLE);
+                  currentState = SuperstructureState.WAIT;
+                  tryingToShoot = false;
                 },
                 shooter.dummy,
                 hood.dummy,
@@ -152,6 +158,7 @@ public class SuperstructureCommands {
                 kicker.setWantedState(Kicker.WantedState.IDLE);
                 currentState = SuperstructureState.WAIT;
               }
+              tryingToShoot = false;
             },
             shooter.dummy,
             hood.dummy,
@@ -179,6 +186,7 @@ public class SuperstructureCommands {
           kicker.setWantedState(Kicker.WantedState.IDLE);
 
           currentState = SuperstructureState.WAIT;
+          tryingToShoot = false;
         },
         shooter.dummy,
         hood.dummy,

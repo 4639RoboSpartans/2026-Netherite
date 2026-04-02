@@ -51,7 +51,7 @@ public class IntakeCommands {
                     .andThen(Commands.idle())
                     .withTimeout(AGITATE_PERIOD / 2))
             .repeatedly(),
-        intakeAgitate(intake));
+        intake(intake));
   }
 
   private static Command agitateOutIn(Extension extension, Intake intake) {
@@ -64,7 +64,7 @@ public class IntakeCommands {
                     .andThen(Commands.idle())
                     .withTimeout(AGITATE_PERIOD / 2))
             .repeatedly(),
-        intakeAgitate(intake));
+        intake(intake));
   }
 
   public static Command autoForceExtension(Extension extension) {

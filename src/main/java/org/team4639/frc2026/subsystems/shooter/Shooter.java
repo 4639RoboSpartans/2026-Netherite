@@ -174,6 +174,7 @@ public class Shooter extends FullSubsystem {
     return MathUtil.isNear(getSetpointRPM(), -inputs.leftRPM, SHOOTING_RPM_TOLERANCE);
   }
 
+  @AutoLogOutput(key = "ShooterAboveSetpoint")
   public boolean aboveSetpoint() {
     return Math.abs(getSetpointRPM()) < Math.abs(inputs.leftRPM) + SHOOTING_RPM_TOLERANCE;
   }

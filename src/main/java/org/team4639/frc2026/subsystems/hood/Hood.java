@@ -205,8 +205,24 @@ public class Hood extends FullSubsystem {
 
   public double getSetpointAngle() {
     return switch (systemState) {
-      case SCORING -> SCORING_HOOD_ANGLE = state.calculateScoringState(this).hoodDegrees();
-      case PASSING -> PASSING_HOOD_ANGLE = state.calculatePassingState(this).hoodDegrees();
+      case SCORING -> {
+        var setpointState = state.calculateScoringState(this);
+        yield SCORING_HOOD_ANGLE =
+            MathUtil.clamp(setpointState.hoodDegrees()
+                + MathUtil.clamp(
+                    (setpointState.shooterRPM() + state.getScoringState().shooterRPM()) / 75.0,
+                    0,
+                    10), 20, 50);
+      }
+      case PASSING -> {
+          var setpointState = state.calculatePassingState(this);
+          yield PASSING_HOOD_ANGLE =
+                  MathUtil.clamp(setpointState.hoodDegrees()
+                          + MathUtil.clamp(
+                          (setpointState.shooterRPM() + state.getScoringState().shooterRPM()) / 75.0,
+                          -10,
+                          10), 20, 50);
+      }
       case MANUAL -> MANUAL_HOOD_ANGLE;
       default -> Constants.HOOD_MIN_ANGLE_DEGREES;
     };
