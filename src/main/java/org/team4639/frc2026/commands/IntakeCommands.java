@@ -30,7 +30,7 @@ public class IntakeCommands {
   }
 
   public static Command outtake(Intake intake) {
-    return intake.dummy.runOnce(() -> intake.setWantedState(Intake.WantedState.OUTTAKE));
+    return intake.dummy.runOnce(() -> intake.setWantedState(Intake.WantedState.OUTTAKE)).andThen(Commands.idle(intake.dummy)).finallyDo(() -> intake.setWantedState(Intake.WantedState.INTAKE));
   }
 
   public static Command agitate(Extension extension, Intake intake) {

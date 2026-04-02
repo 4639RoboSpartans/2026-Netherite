@@ -14,9 +14,12 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import java.util.*;
@@ -44,6 +47,7 @@ import org.team4639.frc2026.subsystems.spindexer.Spindexer;
 import org.team4639.frc2026.subsystems.turret.Turret;
 import org.team4639.frc2026.subsystems.vision.TurretCamera;
 import org.team4639.frc2026.subsystems.vision.Vision.VisionConsumer;
+import org.team4639.frc2026.util.FMSUtil;
 import org.team4639.frc2026.util.ValueCacher;
 import org.team4639.lib.led.pattern.LEDPattern;
 import org.team4639.lib.util.LoggedTunableNumber;
@@ -121,6 +125,11 @@ public class RobotState extends VirtualSubsystem
         new SwerveModulePosition(),
         new SwerveModulePosition()
       };
+
+  @Setter @Getter
+  private boolean disableTurretCamera = false;
+  @Setter @Getter
+  private boolean disableBottomCameras = false;
 
   /** Assume gyro starts at zero. */
   private Rotation2d gyroOffset = Rotation2d.kZero;
@@ -265,6 +274,10 @@ public class RobotState extends VirtualSubsystem
         "CAN Measurements", canIsConnected.stream().allMatch(measurement -> measurement));
     SmartDashboard.putBoolean(
         "Motor Temperatures", temperaturesAreFine.stream().allMatch(measurement -> measurement));
+    SmartDashboard.putString("LED Color", getLEDColor().toHexString());
+    SmartDashboard.putString("Won Auto", getSmartDashboardColorFromAutoAlliance().toHexString());
+    SmartDashboard.putBoolean("Turret Cam Disabled", disableTurretCamera);
+    SmartDashboard.putBoolean("Bottom Cams Disabled", disableBottomCameras);
 
     canIsConnected.clear();
     temperaturesAreFine.clear();
@@ -375,17 +388,21 @@ public class RobotState extends VirtualSubsystem
       Pose2d visionRobotPoseMeters,
       double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs) {
-    secondaryPoseEstimator.addVisionObservation(
-        cameraIndex,
-        AllianceFlipUtil.apply(visionRobotPoseMeters),
-        timestampSeconds,
-        visionMeasurementStdDevs.times(visionStandardDeviationMultiplier));
-    if (sendVisionToPrimaryPoseEstimator)
-      primaryPoseEstimator.addVisionObservation(
-          cameraIndex,
-          AllianceFlipUtil.apply(visionRobotPoseMeters),
-          timestampSeconds,
-          visionMeasurementStdDevs.times(visionStandardDeviationMultiplier));
+    if ((disableTurretCamera && cameraIndex == 999) || (disableBottomCameras && cameraIndex != 999)) {
+
+    } else {
+      secondaryPoseEstimator.addVisionObservation(
+              cameraIndex,
+              AllianceFlipUtil.apply(visionRobotPoseMeters),
+              timestampSeconds,
+              visionMeasurementStdDevs.times(visionStandardDeviationMultiplier));
+      if (sendVisionToPrimaryPoseEstimator)
+        primaryPoseEstimator.addVisionObservation(
+                cameraIndex,
+                AllianceFlipUtil.apply(visionRobotPoseMeters),
+                timestampSeconds,
+                visionMeasurementStdDevs.times(visionStandardDeviationMultiplier));
+    }
   }
 
   @Override
@@ -551,6 +568,7 @@ public class RobotState extends VirtualSubsystem
   // =========================================================================
 
   public LEDPattern getDesiredLEDPattern() {
+    if (SuperstructureCommands.turretDisabled) return Patterns.DEFAULT;
     return switch (SuperstructureCommands.currentState) {
       case IDLE -> {
         if (intakeStates.getSecond() == Intake.SystemState.INTAKE) {
@@ -580,6 +598,33 @@ public class RobotState extends VirtualSubsystem
           yield Patterns.SHOOTER_REQUESTED;
         }
       }
+    };
+  }
+
+  private Color getLEDColor() {
+      if (SuperstructureCommands.turretDisabled) return Color.kViolet;
+      return switch (SuperstructureCommands.currentState) {
+        case IDLE -> {
+          yield Color.kOrange;
+        }
+        case PASS -> {
+          yield Color.kWhite;
+        }
+        case SCORE -> {
+          yield Color.kGreen;
+        }
+        case WAIT -> {
+          yield Color.kBlue;
+        }
+      };
+  }
+
+  private Color getSmartDashboardColorFromAutoAlliance() {
+    FMSUtil.FMSGameData data = FMSUtil.getAutoWinningAlliance();
+    return switch(data.status()) {
+        case OK -> data.wonAuto() == DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) ? Color.kGreen : Color.kRed;
+        case NO_DS_ALLIANCE -> Color.kBlack;
+        case NO_GAME_DATA -> Color.kGray;
     };
   }
 }

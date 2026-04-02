@@ -10,6 +10,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import java.util.AbstractMap;
+
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.team4639.frc2026.Constants;
 import org.team4639.lib.util.LoggedTunableNumber;
 import org.team4639.lib.util.geometry.GeomUtil;
@@ -21,8 +23,11 @@ public class LookupTables {
   public static final double MIN_RPM = 2320.0;
   public static final double MAX_RPM = 3765.0;
 
-  public static final LoggedTunableNumber fudge =
-      new LoggedTunableNumber("RPM Fudge").initDefault(0.85);
+  @AutoLogOutput(key = "RPM Fudge Factor")
+  public static double fudge = 0.85;
+
+  public static boolean overrideToDistance = false;
+  public static double overrideDistance = 0;
 
   public static final InterpolatingDoubleTreeMap scoringDistanceToRPM =
       InterpolatingDoubleTreeMap.ofEntries(
@@ -98,6 +103,11 @@ public class LookupTables {
 
   public static ScoringState getScoringState(
       Pose2d currentRobotPose, ChassisSpeeds fieldRelativeChassisSpeeds, Translation2d targetPose) {
+
+    if (overrideToDistance) {
+      return new ScoringState(scoringDistanceToRPM.get(overrideDistance), scoringDistanceToHoodDegrees.get(overrideDistance), 0.5);
+    }
+
     Pose2d nextEstimatedPose =
         currentRobotPose.exp(
             ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -137,7 +147,7 @@ public class LookupTables {
             targetPose.minus(lookaheadPose.getTranslation()).getAngle().getRotations(), 0, 1);
     double shooterRPM =
         scoringDistanceToRPM.get(lookaheadTurretToTargetDistance);
-    shooterRPM *= shooterRPM > 3400 ? Math.pow(1.01, fudge.get()-0.1) : Math.pow(1.01, fudge.get());
+    shooterRPM *= shooterRPM > 3400 ? Math.pow(1.01, fudge -0.1) : Math.pow(1.01, fudge);
     double hoodDegrees = scoringDistanceToHoodDegrees.get(lookaheadTurretToTargetDistance);
 
     return new ScoringState(shooterRPM, hoodDegrees, turretRotations);
@@ -183,7 +193,7 @@ public class LookupTables {
         MathUtil.inputModulus(
             targetPose.minus(lookaheadPose.getTranslation()).getAngle().getRotations(), 0, 1);
     double shooterRPM =
-        passingDistanceToRPM.get(lookaheadTurretToTargetDistance) * Math.pow(1.01, fudge.get());
+        passingDistanceToRPM.get(lookaheadTurretToTargetDistance) * Math.pow(1.01, fudge);
     double hoodDegrees = passingDistanceToHoodDegrees.get(lookaheadTurretToTargetDistance);
 
     return new ScoringState(shooterRPM, hoodDegrees, turretRotations);

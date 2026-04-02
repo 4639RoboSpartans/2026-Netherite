@@ -12,6 +12,7 @@ import org.team4639.frc2026.commands.IntakeCommands;
 import org.team4639.frc2026.commands.LEDCommands;
 import org.team4639.frc2026.commands.SuperstructureCommands;
 import org.team4639.frc2026.constants.ports.Netherite;
+import org.team4639.frc2026.constants.shooter.LookupTables;
 import org.team4639.frc2026.subsystems.drive.*;
 import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
 import org.team4639.frc2026.subsystems.extension.Extension;
@@ -41,6 +42,7 @@ import org.team4639.frc2026.subsystems.turret.*;
 import org.team4639.frc2026.subsystems.vision.*;
 import org.team4639.frc2026.util.PortConfiguration;
 import org.team4639.lib.oi.DeadbandXboxController;
+import org.team4639.lib.util.Commands2;
 import org.team4639.lib.util.LoggedLazyAutoChooser;
 
 /**
@@ -373,6 +375,20 @@ public class RobotContainer {
     driver.back().whileTrue(drive.run(drive::autoConfiguration));
 
     driver.povDown().whileTrue(IntakeCommands.outtake(intake));
+
+    operator.povUp().onTrue(Commands2.action(() -> LookupTables.fudge = LookupTables.fudge + 0.1));
+    operator.povDown().onTrue(Commands2.action(() -> LookupTables.fudge = LookupTables.fudge - 0.1));
+
+    operator.x().onTrue(Commands2.action(() -> turret.rezeroTurret()));
+    operator.y().onTrue(Commands2.action(() -> SuperstructureCommands.turretDisabled = !SuperstructureCommands.turretDisabled));
+
+    operator.a().onTrue(Commands2.action(() -> RobotState.getInstance().setDisableTurretCamera(!RobotState.getInstance().isDisableTurretCamera())));
+    operator.b().onTrue(Commands2.action(() -> RobotState.getInstance().setDisableBottomCameras(!RobotState.getInstance().isDisableBottomCameras())));
+
+    operator.leftTrigger().whileTrue(SuperstructureCommands.setClosestOverride(shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
+    operator.leftBumper().whileTrue(SuperstructureCommands.setCloseOverride(shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
+    operator.rightBumper().whileTrue(SuperstructureCommands.setFarOverride(shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
+    operator.rightTrigger().whileTrue(SuperstructureCommands.setFarthestOverride(shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
   }
 
   private void configureSimButtonBindings() {

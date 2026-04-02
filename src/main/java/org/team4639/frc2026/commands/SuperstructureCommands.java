@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import org.team4639.frc2026.FieldConstants;
 import org.team4639.frc2026.RobotState;
+import org.team4639.frc2026.constants.shooter.LookupTables;
 import org.team4639.frc2026.subsystems.hood.Hood;
 import org.team4639.frc2026.subsystems.kicker.Kicker;
 import org.team4639.frc2026.subsystems.shooter.Shooter;
@@ -22,6 +23,8 @@ public class SuperstructureCommands {
 
   private static boolean runSpindexerWhileWaiting = false;
   public static boolean tryingToShoot = false;
+
+  public static boolean turretDisabled = false;
 
   public enum SuperstructureState {
     IDLE,
@@ -44,7 +47,7 @@ public class SuperstructureCommands {
           spindexer.setWantedState(Spindexer.WantedState.IDLE);
           kicker.setWantedState(Kicker.WantedState.IDLE);
 
-          turret.setWantedState(Turret.WantedState.HUB_TRACK);
+          turret.setWantedState(turretDisabled ? Turret.WantedState.IDLE : Turret.WantedState.HUB_TRACK);
 
           currentState = SuperstructureState.IDLE;
           tryingToShoot = false;
@@ -214,4 +217,72 @@ public class SuperstructureCommands {
 
     return desiredState;
   }
+
+  public static Command setClosestOverride(Shooter shooter,
+                                    Hood hood,
+                                    Turret turret,
+                                    Spindexer spindexer,
+                                    Kicker kicker,
+                                    RobotState state) {
+      return Commands.runOnce(() -> {
+          LookupTables.overrideToDistance = true;
+          LookupTables.overrideDistance = 1.87 + (5.2 - 1.87) / 4.0;
+      }).andThen(requestScoring(shooter, hood, turret, spindexer, kicker, state)).finallyDo(
+              () -> {
+                  LookupTables.overrideToDistance = false;
+                  LookupTables.overrideDistance = 0;
+              }
+      );
+  }
+
+    public static Command setCloseOverride(Shooter shooter,
+                                      Hood hood,
+                                      Turret turret,
+                                      Spindexer spindexer,
+                                      Kicker kicker,
+                                      RobotState state) {
+        return Commands.runOnce(() -> {
+            LookupTables.overrideToDistance = true;
+            LookupTables.overrideDistance = 1.87 + 2 * (5.2 - 1.87) / 4.0;
+        }).andThen(requestScoring(shooter, hood, turret, spindexer, kicker, state)).finallyDo(
+                () -> {
+                    LookupTables.overrideToDistance = false;
+                    LookupTables.overrideDistance = 0;
+                }
+        );
+    }
+
+    public static Command setFarOverride(Shooter shooter,
+                                      Hood hood,
+                                      Turret turret,
+                                      Spindexer spindexer,
+                                      Kicker kicker,
+                                      RobotState state) {
+        return Commands.runOnce(() -> {
+            LookupTables.overrideToDistance = true;
+            LookupTables.overrideDistance = 1.87 + 3 * (5.2 - 1.87) / 4.0;
+        }).andThen(requestScoring(shooter, hood, turret, spindexer, kicker, state)).finallyDo(
+                () -> {
+                    LookupTables.overrideToDistance = false;
+                    LookupTables.overrideDistance = 0;
+                }
+        );
+    }
+
+    public static Command setFarthestOverride(Shooter shooter,
+                                      Hood hood,
+                                      Turret turret,
+                                      Spindexer spindexer,
+                                      Kicker kicker,
+                                      RobotState state) {
+        return Commands.runOnce(() -> {
+            LookupTables.overrideToDistance = true;
+            LookupTables.overrideDistance = 1.87 + 4 * (5.2 - 1.87) / 4.0;
+        }).andThen(requestScoring(shooter, hood, turret, spindexer, kicker, state)).finallyDo(
+                () -> {
+                    LookupTables.overrideToDistance = false;
+                    LookupTables.overrideDistance = 0;
+                }
+        );
+    }
 }
