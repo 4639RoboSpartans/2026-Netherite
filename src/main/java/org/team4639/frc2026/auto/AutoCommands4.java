@@ -129,7 +129,7 @@ public class AutoCommands4 {
             IntakeCommands.autoDrawInExtension(extension)),
         new ParallelCommandGroup(
             drive.run(drive::stopWithX),
-                IntakeCommands.agitate(extension, intake),
+            IntakeCommands.agitate(extension, intake),
             SuperstructureCommands.requestScoring(
                 shooter, hood, turret, spindexer, kicker, state)));
   }
@@ -204,7 +204,7 @@ public class AutoCommands4 {
             IntakeCommands.autoDrawInExtension(extension)),
         new ParallelCommandGroup(
             drive.run(drive::stopWithX),
-                IntakeCommands.agitate(extension, intake),
+            IntakeCommands.agitate(extension, intake),
             SuperstructureCommands.requestScoring(
                 shooter, hood, turret, spindexer, kicker, state)));
   }
@@ -279,7 +279,7 @@ public class AutoCommands4 {
             IntakeCommands.autoDrawInExtension(extension)),
         new ParallelCommandGroup(
             drive.run(drive::stopWithX),
-                IntakeCommands.agitate(extension, intake),
+            IntakeCommands.agitate(extension, intake),
             SuperstructureCommands.requestScoring(
                 shooter, hood, turret, spindexer, kicker, state)));
   }
@@ -354,7 +354,7 @@ public class AutoCommands4 {
             IntakeCommands.autoDrawInExtension(extension)),
         new ParallelCommandGroup(
             drive.run(drive::stopWithX),
-                IntakeCommands.agitate(extension, intake),
+            IntakeCommands.agitate(extension, intake),
             SuperstructureCommands.requestScoring(
                 shooter, hood, turret, spindexer, kicker, state)));
   }

@@ -374,21 +374,59 @@ public class RobotContainer {
 
     driver.back().whileTrue(drive.run(drive::autoConfiguration));
 
-    driver.povDown().whileTrue(IntakeCommands.outtake(intake));
+    driver.povDown().onTrue(IntakeCommands.outtake(intake));
 
     operator.povUp().onTrue(Commands2.action(() -> LookupTables.fudge = LookupTables.fudge + 0.1));
-    operator.povDown().onTrue(Commands2.action(() -> LookupTables.fudge = LookupTables.fudge - 0.1));
+    operator
+        .povDown()
+        .onTrue(Commands2.action(() -> LookupTables.fudge = LookupTables.fudge - 0.1));
 
     operator.x().onTrue(Commands2.action(() -> turret.rezeroTurret()));
-    operator.y().onTrue(Commands2.action(() -> SuperstructureCommands.turretDisabled = !SuperstructureCommands.turretDisabled));
+    operator
+        .y()
+        .onTrue(
+            Commands2.action(
+                () ->
+                    SuperstructureCommands.turretDisabled =
+                        !SuperstructureCommands.turretDisabled));
 
-    operator.a().onTrue(Commands2.action(() -> RobotState.getInstance().setDisableTurretCamera(!RobotState.getInstance().isDisableTurretCamera())));
-    operator.b().onTrue(Commands2.action(() -> RobotState.getInstance().setDisableBottomCameras(!RobotState.getInstance().isDisableBottomCameras())));
+    operator
+        .a()
+        .onTrue(
+            Commands2.action(
+                () ->
+                    RobotState.getInstance()
+                        .setDisableTurretCamera(
+                            !RobotState.getInstance().isDisableTurretCamera())));
+    operator
+        .b()
+        .onTrue(
+            Commands2.action(
+                () ->
+                    RobotState.getInstance()
+                        .setDisableBottomCameras(
+                            !RobotState.getInstance().isDisableBottomCameras())));
 
-    operator.leftTrigger().whileTrue(SuperstructureCommands.setClosestOverride(shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
-    operator.leftBumper().whileTrue(SuperstructureCommands.setCloseOverride(shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
-    operator.rightBumper().whileTrue(SuperstructureCommands.setFarOverride(shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
-    operator.rightTrigger().whileTrue(SuperstructureCommands.setFarthestOverride(shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
+    operator
+        .leftTrigger()
+        .whileTrue(
+            SuperstructureCommands.setClosestOverride(
+                shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
+    operator
+        .leftBumper()
+        .whileTrue(
+            SuperstructureCommands.setCloseOverride(
+                shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
+    operator
+        .rightBumper()
+        .whileTrue(
+            SuperstructureCommands.setFarOverride(
+                shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
+    operator
+        .rightTrigger()
+        .whileTrue(
+            SuperstructureCommands.setFarthestOverride(
+                shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
   }
 
   private void configureSimButtonBindings() {
