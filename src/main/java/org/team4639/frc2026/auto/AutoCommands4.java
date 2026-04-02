@@ -101,7 +101,7 @@ public class AutoCommands4 {
                                 && state.getTurretToGoal() > 1.87),
                 SuperstructureCommands.requestScoring(
                         shooter, hood, turret, spindexer, kicker, state)
-                    .alongWith(IntakeCommands.autoForceExtension(extension)))),
+                    .alongWith(IntakeCommands.agitate(extension, intake)))),
         IntakeCommands.intake(intake),
         new ParallelDeadlineGroup(
             followPath("OPL-2", false, state),
@@ -129,8 +129,7 @@ public class AutoCommands4 {
             IntakeCommands.autoDrawInExtension(extension)),
         new ParallelCommandGroup(
             drive.run(drive::stopWithX),
-            IntakeCommands.intake(intake),
-            IntakeCommands.autoForceExtension(extension),
+                IntakeCommands.agitate(extension, intake),
             SuperstructureCommands.requestScoring(
                 shooter, hood, turret, spindexer, kicker, state)));
   }
@@ -177,7 +176,7 @@ public class AutoCommands4 {
                                 && state.getTurretToGoal() > 1.87),
                 SuperstructureCommands.requestScoring(
                         shooter, hood, turret, spindexer, kicker, state)
-                    .alongWith(IntakeCommands.autoForceExtension(extension)))),
+                    .alongWith(IntakeCommands.agitate(extension, intake)))),
         IntakeCommands.intake(intake),
         new ParallelDeadlineGroup(
             followPathMirrored("OPL-2", false, state),
@@ -205,8 +204,7 @@ public class AutoCommands4 {
             IntakeCommands.autoDrawInExtension(extension)),
         new ParallelCommandGroup(
             drive.run(drive::stopWithX),
-            IntakeCommands.intake(intake),
-            IntakeCommands.autoForceExtension(extension),
+                IntakeCommands.agitate(extension, intake),
             SuperstructureCommands.requestScoring(
                 shooter, hood, turret, spindexer, kicker, state)));
   }
@@ -253,7 +251,7 @@ public class AutoCommands4 {
                                 && state.getTurretToGoal() > 1.87),
                 SuperstructureCommands.requestScoring(
                         shooter, hood, turret, spindexer, kicker, state)
-                    .alongWith(IntakeCommands.autoForceExtension(extension)))),
+                    .alongWith(IntakeCommands.agitate(extension, intake)))),
         IntakeCommands.intake(intake),
         new ParallelDeadlineGroup(
             followPath("OPL-2", false, state),
@@ -281,8 +279,7 @@ public class AutoCommands4 {
             IntakeCommands.autoDrawInExtension(extension)),
         new ParallelCommandGroup(
             drive.run(drive::stopWithX),
-            IntakeCommands.intake(intake),
-            IntakeCommands.autoForceExtension(extension),
+                IntakeCommands.agitate(extension, intake),
             SuperstructureCommands.requestScoring(
                 shooter, hood, turret, spindexer, kicker, state)));
   }
@@ -329,7 +326,7 @@ public class AutoCommands4 {
                                 && state.getTurretToGoal() > 1.87),
                 SuperstructureCommands.requestScoring(
                         shooter, hood, turret, spindexer, kicker, state)
-                    .alongWith(IntakeCommands.autoForceExtension(extension)))),
+                    .alongWith(IntakeCommands.agitate(extension, intake)))),
         IntakeCommands.intake(intake),
         new ParallelDeadlineGroup(
             followPathMirrored("OPL-2", false, state),
@@ -357,8 +354,7 @@ public class AutoCommands4 {
             IntakeCommands.autoDrawInExtension(extension)),
         new ParallelCommandGroup(
             drive.run(drive::stopWithX),
-            IntakeCommands.intake(intake),
-            IntakeCommands.autoForceExtension(extension),
+                IntakeCommands.agitate(extension, intake),
             SuperstructureCommands.requestScoring(
                 shooter, hood, turret, spindexer, kicker, state)));
   }
