@@ -55,6 +55,8 @@ public class Turret extends FullSubsystem {
   private final Debouncer turretStopped = new Debouncer(0.5, DebounceType.kRising);
   private final Debouncer turretStopped2 = new Debouncer(0.2, DebounceType.kRising);
 
+  private final boolean periodicRezeroWithEncoders = false;
+
   public enum WantedState {
     IDLE,
     SCORING,
@@ -171,6 +173,8 @@ public class Turret extends FullSubsystem {
     if (turretConnectionActivated && !turretInputs.connected) {
       turretConnectionBeenLost = true;
     }
+
+    SmartDashboard.putNumberArray("Turret Motor and Encoders", compareMotorAndEncoderRelativeRotations());
   }
 
   private SystemState handleStateTransitions() {
@@ -613,5 +617,16 @@ public class Turret extends FullSubsystem {
               getRotorRotationsFromAbsoluteTurretRotation(Constants.TURRET_MAX_ROTATIONS),
               getRotorRotationsFromAbsoluteTurretRotation(Constants.TURRET_MIN_ROTATIONS));
     }
+  }
+
+  private double[] compareMotorAndEncoderRelativeRotations() {
+    var leftEncoderToMotorRotations = leftEncoderInputs.relativeRotations * Constants.MOTOR_ROTATIONS_TO_LEFT_ENCODER_ROTATIONS;
+    var rightEncoderToMotorRotations = rightEncoderInputs.relativeRotations * Constants.MOTOR_ROTATIONS_TO_RIGHT_ENCODER_ROTATIONS;
+
+    return new double[] {
+            leftEncoderToMotorRotations,
+            rightEncoderToMotorRotations,
+            turretInputs.rotations,
+    };
   }
 }

@@ -11,5 +11,6 @@ public interface EncoderIO {
   class EncoderIOInputs {
     public double positionRotations = 0.0;
     public double positionWithoutOffset = 0.0;
+    public double relativeRotations = 0.0;
   }
 }

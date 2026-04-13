@@ -30,5 +30,6 @@ public class EncoderIOCANCoder implements EncoderIO {
   public void updateInputs(EncoderIOInputs inputs) {
     inputs.positionRotations = encoder.getAbsolutePosition().getValueAsDouble() + offsetRotations;
     inputs.positionWithoutOffset = encoder.getAbsolutePosition().getValueAsDouble();
+    inputs.relativeRotations = encoder.getPositionSinceBoot().getValueAsDouble();
   }
 }
