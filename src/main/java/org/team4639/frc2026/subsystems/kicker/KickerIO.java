@@ -6,21 +6,21 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface KickerIO {
 
-  default void setVoltage(double appliedVolts) {}
+    default void setVoltage(double appliedVolts) {}
 
-  default void setRotorVelocityRPM(double targetVelocity) {}
+    default void setRotorVelocityRPM(double targetVelocity) {}
 
-  default void updateInputs(KickerIOInputs inputs) {}
+    default void updateInputs(KickerIOInputs inputs) {}
 
-  default void applyNewGains(double[] newGains) {}
+    default void applyNewGains(double[] newGains) {}
 
-  @AutoLog
-  class KickerIOInputs {
-    public boolean connected = true;
-    public double volts;
-    public double amps;
-    public double rotationsPerSecond;
-    public double celsius;
-    public double rotations;
-  }
+    @AutoLog
+    class KickerIOInputs {
+        public boolean connected = true;
+        public double volts;
+        public double amps;
+        public double rotationsPerSecond;
+        public double celsius;
+        public double rotations;
+    }
 }

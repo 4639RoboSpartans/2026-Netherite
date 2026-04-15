@@ -11,22 +11,22 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public abstract sealed class TurretSysID {
-  private final Turret turret;
-  private final TurretIO.TurretIOInputs inputs;
+    private final Turret turret;
+    private final TurretIO.TurretIOInputs inputs;
 
-  @Getter private SysIdRoutine routine;
+    @Getter
+    private SysIdRoutine routine;
 
-  public static final class TurretSysIDWPI extends TurretSysID {
-    public TurretSysIDWPI(Turret turret, TurretIO.TurretIOInputs inputs) {
-      super(turret, inputs);
-      super.routine =
-          new SysIdRoutine(
-              new SysIdRoutine.Config(
-                  Volts.per(Second).of(0.5),
-                  Volts.of(6),
-                  Seconds.of(16),
-                  (state) -> SignalLogger.writeString("Turret SysID State", state.toString())),
-              new SysIdRoutine.Mechanism(turret::setVoltage, log -> {}, turret));
+    public static final class TurretSysIDWPI extends TurretSysID {
+        public TurretSysIDWPI(Turret turret, TurretIO.TurretIOInputs inputs) {
+            super(turret, inputs);
+            super.routine = new SysIdRoutine(
+                    new SysIdRoutine.Config(
+                            Volts.per(Second).of(0.5),
+                            Volts.of(6),
+                            Seconds.of(16),
+                            (state) -> SignalLogger.writeString("Turret SysID State", state.toString())),
+                    new SysIdRoutine.Mechanism(turret::setVoltage, log -> {}, turret));
+        }
     }
-  }
 }

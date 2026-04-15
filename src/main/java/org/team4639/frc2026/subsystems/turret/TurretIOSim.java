@@ -13,50 +13,47 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import org.team4639.frc2026.Robot;
 
 public class TurretIOSim implements TurretIO {
-  private final DCMotorSim turretSim =
-      new DCMotorSim(
-          LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44(1), 0.0000001, 1),
-          DCMotor.getKrakenX44(1));
-  private final ProfiledPIDController turretPIDController =
-      new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(120, 200));
-  private double appliedVolts = 0.0;
-  private double goalRotation = 0.0;
+    private final DCMotorSim turretSim = new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44(1), 0.0000001, 1), DCMotor.getKrakenX44(1));
+    private final ProfiledPIDController turretPIDController =
+            new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(120, 200));
+    private double appliedVolts = 0.0;
+    private double goalRotation = 0.0;
 
-  public TurretIOSim() {
-    applyNewGains();
-  }
+    public TurretIOSim() {
+        applyNewGains();
+    }
 
-  @Override
-  public void updateInputs(TurretIO.TurretIOInputs inputs) {
-    setRotorRotationSetpoint(goalRotation);
-    turretSim.update(Robot.defaultPeriodSecs);
+    @Override
+    public void updateInputs(TurretIO.TurretIOInputs inputs) {
+        setRotorRotationSetpoint(goalRotation);
+        turretSim.update(Robot.defaultPeriodSecs);
 
-    inputs.volts = appliedVolts;
-    inputs.rotations = turretSim.getAngularPositionRotations();
-    inputs.rotationsPerSecond = turretSim.getAngularVelocity().in(RotationsPerSecond);
-  }
+        inputs.volts = appliedVolts;
+        inputs.rotations = turretSim.getAngularPositionRotations();
+        inputs.rotationsPerSecond = turretSim.getAngularVelocity().in(RotationsPerSecond);
+    }
 
-  @Override
-  public void setRotorRotationSetpoint(double rotation) {
-    goalRotation = rotation;
-    turretPIDController.setGoal(rotation);
-    appliedVolts = turretPIDController.calculate(turretSim.getAngularPositionRotations());
-    appliedVolts = MathUtil.clamp(appliedVolts, -12, 12);
-    turretSim.setInputVoltage(appliedVolts);
-  }
+    @Override
+    public void setRotorRotationSetpoint(double rotation) {
+        goalRotation = rotation;
+        turretPIDController.setGoal(rotation);
+        appliedVolts = turretPIDController.calculate(turretSim.getAngularPositionRotations());
+        appliedVolts = MathUtil.clamp(appliedVolts, -12, 12);
+        turretSim.setInputVoltage(appliedVolts);
+    }
 
-  @Override
-  public void setRotorRotationSetpoint(double rotation, double velocityrps) {
-    setRotorRotationSetpoint(rotation);
-  }
+    @Override
+    public void setRotorRotationSetpoint(double rotation, double velocityrps) {
+        setRotorRotationSetpoint(rotation);
+    }
 
-  public void updateGains() {
-    turretPIDController.setPID(
-        PIDs.turretKpSim.get(), PIDs.turretKiSim.get(), PIDs.turretKdSim.get());
-  }
+    public void updateGains() {
+        turretPIDController.setPID(PIDs.turretKpSim.get(), PIDs.turretKiSim.get(), PIDs.turretKdSim.get());
+    }
 
-  @Override
-  public void applyNewGains() {
-    updateGains();
-  }
+    @Override
+    public void applyNewGains() {
+        updateGains();
+    }
 }

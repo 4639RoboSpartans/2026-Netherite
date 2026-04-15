@@ -8,5 +8,5 @@ import static edu.wpi.first.units.Units.Rotations;
 import edu.wpi.first.units.AngularVelocityUnit;
 
 public class Units2 {
-  public static final AngularVelocityUnit RPM = Rotations.per(Minute);
+    public static final AngularVelocityUnit RPM = Rotations.per(Minute);
 }

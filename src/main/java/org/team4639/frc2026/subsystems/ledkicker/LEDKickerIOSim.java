@@ -7,19 +7,19 @@ import org.team4639.lib.led.subsystem.DummyLEDStrip;
 import org.team4639.lib.led.subsystem.LEDStrip;
 
 public class LEDKickerIOSim extends LEDKickerIO {
-  private final LEDStrip ledStrip;
-  private LEDPattern ledPattern;
+    private final LEDStrip ledStrip;
+    private LEDPattern ledPattern;
 
-  public LEDKickerIOSim() {
-    this.ledStrip = new DummyLEDStrip();
-  }
+    public LEDKickerIOSim() {
+        this.ledStrip = new DummyLEDStrip();
+    }
 
-  @Override
-  public void setPattern(LEDPattern pattern) {
-    ledStrip.setPattern(pattern);
-    this.ledPattern = pattern;
-  }
+    @Override
+    public void setPattern(LEDPattern pattern) {
+        ledStrip.setPattern(pattern);
+        this.ledPattern = pattern;
+    }
 
-  @Override
-  public void updateInputs(LEDKickerIOInputs inputs) {}
+    @Override
+    public void updateInputs(LEDKickerIOInputs inputs) {}
 }

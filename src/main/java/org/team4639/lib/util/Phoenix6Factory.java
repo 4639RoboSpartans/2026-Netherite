@@ -15,69 +15,69 @@ import org.team4639.frc2026.util.CanDeviceId;
  */
 public class Phoenix6Factory {
 
-  public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
-  public static final InvertedValue INVERT_VALUE = InvertedValue.CounterClockwise_Positive;
-  public static final double NEUTRAL_DEADBAND = 0.04;
+    public static final NeutralModeValue NEUTRAL_MODE = NeutralModeValue.Coast;
+    public static final InvertedValue INVERT_VALUE = InvertedValue.CounterClockwise_Positive;
+    public static final double NEUTRAL_DEADBAND = 0.04;
 
-  // create a TalonFX with the default (out of the box) configuration
-  public static TalonFX createDefaultTalon(CanDeviceId id) {
-    return createDefaultTalon(id, true);
-  }
-
-  public static TalonFX createDefaultTalon(CanDeviceId id, boolean triggerConfig) {
-    var talon = createTalon(id);
-    if (triggerConfig) {
-      PhoenixUtil.tryUntilOk(5, () -> talon.getConfigurator().apply(getTalonFXDefaultConfig()));
+    // create a TalonFX with the default (out of the box) configuration
+    public static TalonFX createDefaultTalon(CanDeviceId id) {
+        return createDefaultTalon(id, true);
     }
-    return talon;
-  }
 
-  public static TalonFXConfiguration getTalonFXDefaultConfig() {
-    TalonFXConfiguration config = new TalonFXConfiguration();
+    public static TalonFX createDefaultTalon(CanDeviceId id, boolean triggerConfig) {
+        var talon = createTalon(id);
+        if (triggerConfig) {
+            PhoenixUtil.tryUntilOk(5, () -> talon.getConfigurator().apply(getTalonFXDefaultConfig()));
+        }
+        return talon;
+    }
 
-    config.MotorOutput.NeutralMode = NEUTRAL_MODE;
-    config.MotorOutput.Inverted = INVERT_VALUE;
-    config.MotorOutput.DutyCycleNeutralDeadband = NEUTRAL_DEADBAND;
-    config.MotorOutput.PeakForwardDutyCycle = 1.0;
-    config.MotorOutput.PeakReverseDutyCycle = -1.0;
+    public static TalonFXConfiguration getTalonFXDefaultConfig() {
+        TalonFXConfiguration config = new TalonFXConfiguration();
 
-    config.CurrentLimits.SupplyCurrentLimitEnable = false;
-    config.CurrentLimits.StatorCurrentLimitEnable = false;
+        config.MotorOutput.NeutralMode = NEUTRAL_MODE;
+        config.MotorOutput.Inverted = INVERT_VALUE;
+        config.MotorOutput.DutyCycleNeutralDeadband = NEUTRAL_DEADBAND;
+        config.MotorOutput.PeakForwardDutyCycle = 1.0;
+        config.MotorOutput.PeakReverseDutyCycle = -1.0;
 
-    config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
-    config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0;
-    config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
-    config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
+        config.CurrentLimits.SupplyCurrentLimitEnable = false;
+        config.CurrentLimits.StatorCurrentLimitEnable = false;
 
-    config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-    config.Feedback.FeedbackRotorOffset = 0;
-    config.Feedback.SensorToMechanismRatio = 1;
+        config.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
+        config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0;
+        config.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
+        config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
 
-    config.HardwareLimitSwitch.ForwardLimitEnable = false;
-    config.HardwareLimitSwitch.ForwardLimitAutosetPositionEnable = false;
-    config.HardwareLimitSwitch.ForwardLimitSource = ForwardLimitSourceValue.LimitSwitchPin;
-    config.HardwareLimitSwitch.ForwardLimitType = ForwardLimitTypeValue.NormallyOpen;
-    config.HardwareLimitSwitch.ReverseLimitEnable = false;
-    config.HardwareLimitSwitch.ReverseLimitAutosetPositionEnable = false;
-    config.HardwareLimitSwitch.ReverseLimitSource = ReverseLimitSourceValue.LimitSwitchPin;
-    config.HardwareLimitSwitch.ReverseLimitType = ReverseLimitTypeValue.NormallyOpen;
+        config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+        config.Feedback.FeedbackRotorOffset = 0;
+        config.Feedback.SensorToMechanismRatio = 1;
 
-    config.Audio.BeepOnBoot = true;
+        config.HardwareLimitSwitch.ForwardLimitEnable = false;
+        config.HardwareLimitSwitch.ForwardLimitAutosetPositionEnable = false;
+        config.HardwareLimitSwitch.ForwardLimitSource = ForwardLimitSourceValue.LimitSwitchPin;
+        config.HardwareLimitSwitch.ForwardLimitType = ForwardLimitTypeValue.NormallyOpen;
+        config.HardwareLimitSwitch.ReverseLimitEnable = false;
+        config.HardwareLimitSwitch.ReverseLimitAutosetPositionEnable = false;
+        config.HardwareLimitSwitch.ReverseLimitSource = ReverseLimitSourceValue.LimitSwitchPin;
+        config.HardwareLimitSwitch.ReverseLimitType = ReverseLimitTypeValue.NormallyOpen;
 
-    return config;
-  }
+        config.Audio.BeepOnBoot = true;
 
-  private static TalonFX createTalon(CanDeviceId id) {
-    TalonFX talon = new TalonFX(id.getDeviceNumber(), id.getBus());
-    talon.clearStickyFaults();
+        return config;
+    }
 
-    return talon;
-  }
+    private static TalonFX createTalon(CanDeviceId id) {
+        TalonFX talon = new TalonFX(id.getDeviceNumber(), id.getBus());
+        talon.clearStickyFaults();
 
-  public static CANcoder createCANcoder(CanDeviceId id) {
-    CANcoder cancoder = new CANcoder(id.getDeviceNumber(), id.getBus());
-    cancoder.clearStickyFaults();
+        return talon;
+    }
 
-    return cancoder;
-  }
+    public static CANcoder createCANcoder(CanDeviceId id) {
+        CANcoder cancoder = new CANcoder(id.getDeviceNumber(), id.getBus());
+        cancoder.clearStickyFaults();
+
+        return cancoder;
+    }
 }

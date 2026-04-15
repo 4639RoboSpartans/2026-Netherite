@@ -24,92 +24,88 @@ import org.team4639.lib.util.Phoenix6Factory;
 import org.team4639.lib.util.PhoenixUtil;
 
 public class HoodIOTalonFX implements HoodIO {
-  private final TalonFX hoodMotor;
-  private final CANcoder hoodEncoder;
+    private final TalonFX hoodMotor;
+    private final CANcoder hoodEncoder;
 
-  private final TalonFXConfiguration config = new TalonFXConfiguration();
+    private final TalonFXConfiguration config = new TalonFXConfiguration();
 
-  private final PositionVoltage request = new PositionVoltage(0);
+    private final PositionVoltage request = new PositionVoltage(0);
 
-  private final StatusSignal<Angle> hoodPosition;
-  private final StatusSignal<AngularVelocity> hoodVelocity;
-  private final StatusSignal<Voltage> motorVoltage;
-  private final StatusSignal<Current> motorCurrent;
+    private final StatusSignal<Angle> hoodPosition;
+    private final StatusSignal<AngularVelocity> hoodVelocity;
+    private final StatusSignal<Voltage> motorVoltage;
+    private final StatusSignal<Current> motorCurrent;
 
-  public HoodIOTalonFX(PortConfiguration ports) {
-    hoodMotor = Phoenix6Factory.createDefaultTalon(ports.HoodMotorID);
-    hoodEncoder = Phoenix6Factory.createCANcoder(ports.HoodEncoderID);
+    public HoodIOTalonFX(PortConfiguration ports) {
+        hoodMotor = Phoenix6Factory.createDefaultTalon(ports.HoodMotorID);
+        hoodEncoder = Phoenix6Factory.createCANcoder(ports.HoodEncoderID);
 
-    hoodEncoder
-        .getConfigurator()
-        .apply(
-            new MagnetSensorConfigs()
-                .withMagnetOffset(0)
-                .withAbsoluteSensorDiscontinuityPoint(0.95));
+        hoodEncoder
+                .getConfigurator()
+                .apply(new MagnetSensorConfigs().withMagnetOffset(0).withAbsoluteSensorDiscontinuityPoint(0.95));
 
-    config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-    config.Feedback.SensorToMechanismRatio = 1.0 / Constants.MOTOR_TO_HOOD_GEAR_RATIO;
-    // do NOT change this
-    config.CurrentLimits.SupplyCurrentLimit = 20.0;
-    config.CurrentLimits.SupplyCurrentLimitEnable = true;
-    config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.StatorCurrentLimit = 20;
-    config.Audio.BeepOnConfig = false;
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.ClosedLoopGeneral.ContinuousWrap = true;
+        config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+        config.Feedback.SensorToMechanismRatio = 1.0 / Constants.MOTOR_TO_HOOD_GEAR_RATIO;
+        // do NOT change this
+        config.CurrentLimits.SupplyCurrentLimit = 20.0;
+        config.CurrentLimits.SupplyCurrentLimitEnable = true;
+        config.CurrentLimits.StatorCurrentLimitEnable = true;
+        config.CurrentLimits.StatorCurrentLimit = 20;
+        config.Audio.BeepOnConfig = false;
+        config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        config.ClosedLoopGeneral.ContinuousWrap = true;
 
-    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-    config.Slot0.kP = 20 / ENCODER_TO_PIVOT_GEAR_RATIO;
-    applyNewGains();
+        config.Slot0.kP = 20 / ENCODER_TO_PIVOT_GEAR_RATIO;
+        applyNewGains();
 
-    hoodPosition = hoodMotor.getPosition();
-    hoodVelocity = hoodMotor.getVelocity();
-    motorVoltage = hoodMotor.getMotorVoltage();
-    motorCurrent = hoodMotor.getStatorCurrent();
-  }
+        hoodPosition = hoodMotor.getPosition();
+        hoodVelocity = hoodMotor.getVelocity();
+        motorVoltage = hoodMotor.getMotorVoltage();
+        motorCurrent = hoodMotor.getStatorCurrent();
+    }
 
-  @Override
-  public void setSetpointDegrees(double setpointDegrees) {
-    request.Position = Units.degreesToRotations(setpointDegrees);
-    hoodMotor.setControl(request);
-  }
+    @Override
+    public void setSetpointDegrees(double setpointDegrees) {
+        request.Position = Units.degreesToRotations(setpointDegrees);
+        hoodMotor.setControl(request);
+    }
 
-  @Override
-  public void updateInputs(HoodIOInputs inputs) {
-    inputs.connected =
-        BaseStatusSignal.refreshAll(
-                motorVoltage, motorCurrent, hoodMotor.getDeviceTemp(), hoodVelocity, hoodPosition)
-            .isOK();
-    inputs.volts = motorVoltage.getValueAsDouble();
-    inputs.amps = motorCurrent.getValueAsDouble();
-    inputs.celsius = hoodMotor.getDeviceTemp().getValueAsDouble();
-    inputs.degrees = hoodPosition.getValueAsDouble() * 360;
-    inputs.degreesPerSecond = hoodVelocity.getValueAsDouble() * 360;
-  }
+    @Override
+    public void updateInputs(HoodIOInputs inputs) {
+        inputs.connected = BaseStatusSignal.refreshAll(
+                        motorVoltage, motorCurrent, hoodMotor.getDeviceTemp(), hoodVelocity, hoodPosition)
+                .isOK();
+        inputs.volts = motorVoltage.getValueAsDouble();
+        inputs.amps = motorCurrent.getValueAsDouble();
+        inputs.celsius = hoodMotor.getDeviceTemp().getValueAsDouble();
+        inputs.degrees = hoodPosition.getValueAsDouble() * 360;
+        inputs.degreesPerSecond = hoodVelocity.getValueAsDouble() * 360;
+    }
 
-  @Override
-  public void setVoltage(double volts) {
-    hoodMotor.setVoltage(volts);
-  }
+    @Override
+    public void setVoltage(double volts) {
+        hoodMotor.setVoltage(volts);
+    }
 
-  public void updateGains() {
-    // config.Slot0.kP = PIDs.hoodKp.get();
-    // config.Slot0.kI = PIDs.hoodKi.get();
-    // config.Slot0.kD = PIDs.hoodKd.get();
-    // config.Slot0.kS = PIDs.hoodKs.get();
-    // config.Slot0.kV = PIDs.hoodKv.get();
-    // config.Slot0.kA = PIDs.hoodKa.get();
-  }
+    public void updateGains() {
+        // config.Slot0.kP = PIDs.hoodKp.get();
+        // config.Slot0.kI = PIDs.hoodKi.get();
+        // config.Slot0.kD = PIDs.hoodKd.get();
+        // config.Slot0.kS = PIDs.hoodKs.get();
+        // config.Slot0.kV = PIDs.hoodKv.get();
+        // config.Slot0.kA = PIDs.hoodKa.get();
+    }
 
-  @Override
-  public void applyNewGains() {
-    updateGains();
-    PhoenixUtil.tryUntilOk(5, () -> hoodMotor.getConfigurator().apply(config));
-  }
+    @Override
+    public void applyNewGains() {
+        updateGains();
+        PhoenixUtil.tryUntilOk(5, () -> hoodMotor.getConfigurator().apply(config));
+    }
 
-  @Override
-  public void setPosition(double positionDegrees) {
-    hoodMotor.setPosition(positionDegrees / 360.0);
-  }
+    @Override
+    public void setPosition(double positionDegrees) {
+        hoodMotor.setPosition(positionDegrees / 360.0);
+    }
 }

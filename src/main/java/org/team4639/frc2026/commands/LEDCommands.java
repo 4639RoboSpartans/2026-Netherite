@@ -8,26 +8,26 @@ import org.team4639.frc2026.subsystems.ledkicker.LEDKicker;
 import org.team4639.lib.led.pattern.LEDPattern;
 
 public class LEDCommands {
-  private static final class defaultSchema extends Command {
-    private LEDPattern pattern = null;
-    private final LEDKicker leds;
-    private final RobotState state;
+    private static final class defaultSchema extends Command {
+        private LEDPattern pattern = null;
+        private final LEDKicker leds;
+        private final RobotState state;
 
-    public defaultSchema(LEDKicker leds, RobotState state) {
-      this.leds = leds;
-      this.state = state;
+        public defaultSchema(LEDKicker leds, RobotState state) {
+            this.leds = leds;
+            this.state = state;
 
-      addRequirements(leds);
+            addRequirements(leds);
+        }
+
+        @Override
+        public void execute() {
+            LEDPattern newPattern = state.getDesiredLEDPattern();
+            leds.setPattern(newPattern);
+        }
     }
 
-    @Override
-    public void execute() {
-      LEDPattern newPattern = state.getDesiredLEDPattern();
-      leds.setPattern(newPattern);
+    public static Command useDefaultSchema(LEDKicker leds, RobotState state) {
+        return new defaultSchema(leds, state).ignoringDisable(true);
     }
-  }
-
-  public static Command useDefaultSchema(LEDKicker leds, RobotState state) {
-    return new defaultSchema(leds, state).ignoringDisable(true);
-  }
 }

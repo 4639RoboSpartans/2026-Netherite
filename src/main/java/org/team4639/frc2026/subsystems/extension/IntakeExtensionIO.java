@@ -6,21 +6,21 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface IntakeExtensionIO {
 
-  default void setVoltage(double appliedVoltage) {}
+    default void setVoltage(double appliedVoltage) {}
 
-  default void stop() {}
+    default void stop() {}
 
-  default void updateInputs(IntakeExtensionIOInputs inputs) {}
+    default void updateInputs(IntakeExtensionIOInputs inputs) {}
 
-  default void setBrakeMode(boolean brake) {}
+    default void setBrakeMode(boolean brake) {}
 
-  @AutoLog
-  class IntakeExtensionIOInputs {
-    public boolean connected = true;
-    public double volts;
-    public double amps;
-    public double celsius;
-    public double rotationsPerSecond;
-    public double rotations;
-  }
+    @AutoLog
+    class IntakeExtensionIOInputs {
+        public boolean connected = true;
+        public double volts;
+        public double amps;
+        public double celsius;
+        public double rotationsPerSecond;
+        public double rotations;
+    }
 }

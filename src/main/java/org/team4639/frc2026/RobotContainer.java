@@ -24,6 +24,7 @@ import org.team4639.frc2026.subsystems.hood.HoodIO;
 import org.team4639.frc2026.subsystems.hood.HoodIOSim;
 import org.team4639.frc2026.subsystems.hood.HoodIOTalonFX;
 import org.team4639.frc2026.subsystems.intake.*;
+import org.team4639.frc2026.subsystems.intake.IntakeRollerIOTalonFX;
 import org.team4639.frc2026.subsystems.kicker.Kicker;
 import org.team4639.frc2026.subsystems.kicker.KickerIO;
 import org.team4639.frc2026.subsystems.kicker.KickerIOTalonFX;
@@ -41,7 +42,7 @@ import org.team4639.frc2026.subsystems.spindexer.SpindexerIOTalonFX;
 import org.team4639.frc2026.subsystems.turret.*;
 import org.team4639.frc2026.subsystems.vision.*;
 import org.team4639.frc2026.util.PortConfiguration;
-import org.team4639.lib.oi.DeadbandXboxController;
+import org.team4639.lib.oi.OI;
 import org.team4639.lib.util.Commands2;
 import org.team4639.lib.util.LoggedLazyAutoChooser;
 
@@ -52,398 +53,314 @@ import org.team4639.lib.util.LoggedLazyAutoChooser;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  private final PortConfiguration portConfiguration = Netherite.portConfiguration;
+    private final PortConfiguration portConfiguration = Netherite.portConfiguration;
 
-  // Subsystems
-  private final Drive drive;
-  private final Vision vision;
-  private final Intake intake;
-  private final Extension extension;
-  private final Spindexer spindexer;
-  private final Kicker kicker;
-  private final TurretCamera turretCamera;
-  private final Hood hood;
-  private final Shooter shooter;
-  private final Turret turret;
-  private final LEDKicker ledkicker;
+    // Subsystems
+    private final Drive drive;
 
-  // Controller
-  private final CommandXboxController driver = new DeadbandXboxController(0);
-  private final CommandXboxController operator = new DeadbandXboxController(1);
+    @SuppressWarnings("unused")
+    private final Vision vision;
 
-  // Dashboard inputs
-  private final LoggedLazyAutoChooser autoChooser;
+    private final Intake intake;
+    private final Extension extension;
+    private final Spindexer spindexer;
+    private final Kicker kicker;
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer() {
-    switch (Constants.currentMode) {
-      case REAL:
-        drive =
-            new Drive(
-                new GyroIOPigeon2(),
-                new ModuleIOTalonFX(TunerConstants.FrontLeft),
-                new ModuleIOTalonFX(TunerConstants.FrontRight),
-                new ModuleIOTalonFX(TunerConstants.BackLeft),
-                new ModuleIOTalonFX(TunerConstants.BackRight),
-                pose -> {});
+    @SuppressWarnings("unused")
+    private final TurretCamera turretCamera;
 
-        intake =
-            new Intake(
-                /*new IntakeRollerIO() {}*/
-                new IntakeRollerIOTalonFX(portConfiguration), RobotState.getInstance());
+    private final Hood hood;
+    private final Shooter shooter;
+    private final Turret turret;
+    private final LEDKicker ledkicker;
 
-        extension =
-            new Extension(
-                new IntakeExtensionIOTalonFX(portConfiguration), RobotState.getInstance());
+    // Controller
+    private final CommandXboxController driver = OI.driver;
+    private final CommandXboxController operator = OI.operator;
 
-        spindexer =
-            new Spindexer(new SpindexerIOTalonFX(portConfiguration), RobotState.getInstance());
+    // Dashboard inputs
+    private final LoggedLazyAutoChooser autoChooser;
 
-        kicker = new Kicker(new KickerIOTalonFX(portConfiguration), RobotState.getInstance());
+    /** The container for the robot. Contains subsystems, OI devices, and commands. */
+    public RobotContainer() {
+        switch (Constants.currentMode) {
+            case REAL:
+                drive = new Drive(
+                        new GyroIOPigeon2(),
+                        new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                        new ModuleIOTalonFX(TunerConstants.FrontRight),
+                        new ModuleIOTalonFX(TunerConstants.BackLeft),
+                        new ModuleIOTalonFX(TunerConstants.BackRight),
+                        pose -> {});
 
-        turret =
-            new Turret(
-                new TurretIOTalonFX(portConfiguration),
-                new EncoderIOCANCoder(
-                    portConfiguration.TurretLeftEncoderID,
-                    org.team4639.frc2026.subsystems.turret.Constants.LEFT_ENCODER_OFFSET,
-                    org.team4639.frc2026.subsystems.turret.Constants.LEFT_ENCODER_INVERTED),
-                new EncoderIOCANCoder(
-                    portConfiguration.TurretRightEncoderID,
-                    org.team4639.frc2026.subsystems.turret.Constants.RIGHT_ENCODER_OFFSET,
-                    org.team4639.frc2026.subsystems.turret.Constants.RIGHT_ENCODER_INVERTED),
-                RobotState.getInstance());
+                intake = new Intake(
+                        /*new IntakeRollerIO() {}*/
+                        new IntakeRollerIOTalonFX(portConfiguration), RobotState.getInstance());
 
-        hood =
-            new Hood(
-                new HoodIOTalonFX(portConfiguration) /*new HoodIO(){}*/, RobotState.getInstance());
+                extension = new Extension(new IntakeExtensionIOTalonFX(portConfiguration), RobotState.getInstance());
 
-        shooter = new Shooter(new ShooterIOSparkFlex(portConfiguration), RobotState.getInstance());
+                spindexer = new Spindexer(new SpindexerIOTalonFX(portConfiguration), RobotState.getInstance());
 
-        vision =
-            new Vision(
-                RobotState.getInstance(),
-                new VisionIOLimelight(
-                    "limelight-left",
-                    () -> RobotState.getInstance().getEstimatedPose().getRotation()),
-                new VisionIOLimelight(
-                    "limelight-right",
-                    () -> RobotState.getInstance().getEstimatedPose().getRotation()));
+                kicker = new Kicker(new KickerIOTalonFX(portConfiguration), RobotState.getInstance());
 
-        turretCamera =
-            new TurretCamera(
-                RobotState.getInstance(),
-                new VisionIOLimelight4(
-                    "limelight-turret",
-                    () -> RobotState.getInstance().getTurretPose().getRotation()));
+                turret = new Turret(
+                        new TurretIOTalonFX(portConfiguration),
+                        new EncoderIOCANCoder(
+                                portConfiguration.TurretLeftEncoderID,
+                                org.team4639.frc2026.subsystems.turret.Constants.LEFT_ENCODER_OFFSET,
+                                org.team4639.frc2026.subsystems.turret.Constants.LEFT_ENCODER_INVERTED),
+                        new EncoderIOCANCoder(
+                                portConfiguration.TurretRightEncoderID,
+                                org.team4639.frc2026.subsystems.turret.Constants.RIGHT_ENCODER_OFFSET,
+                                org.team4639.frc2026.subsystems.turret.Constants.RIGHT_ENCODER_INVERTED),
+                        RobotState.getInstance());
 
-        ledkicker = new LEDKicker(new LEDKickerIOHardware(portConfiguration, 150));
+                hood = new Hood(new HoodIOTalonFX(portConfiguration) /*new HoodIO(){}*/, RobotState.getInstance());
 
-        configureButtonBindings();
-        break;
+                shooter = new Shooter(new ShooterIOSparkFlex(portConfiguration), RobotState.getInstance());
 
-      case SIM:
-        SimRobot.getInstance().setupDriveSim();
+                vision = new Vision(
+                        RobotState.getInstance(),
+                        new VisionIOLimelight("limelight-left", () -> RobotState.getInstance()
+                                .getEstimatedPose()
+                                .getRotation()),
+                        new VisionIOLimelight("limelight-right", () -> RobotState.getInstance()
+                                .getEstimatedPose()
+                                .getRotation()));
 
-        drive =
-            new Drive(
-                new GyroIOSim(
-                    SimRobot.getInstance().getSwerveDriveSimulation().getGyroSimulation()),
-                new ModuleIOTalonFXSim(
-                    TunerConstants.FrontLeft,
-                    SimRobot.getInstance().getSwerveDriveSimulation().getModules()[0]),
-                new ModuleIOTalonFXSim(
-                    TunerConstants.FrontRight,
-                    SimRobot.getInstance().getSwerveDriveSimulation().getModules()[1]),
-                new ModuleIOTalonFXSim(
-                    TunerConstants.BackLeft,
-                    SimRobot.getInstance().getSwerveDriveSimulation().getModules()[2]),
-                new ModuleIOTalonFXSim(
-                    TunerConstants.BackRight,
-                    SimRobot.getInstance().getSwerveDriveSimulation().getModules()[3]),
-                SimRobot.getInstance()::resetPose);
+                turretCamera = new TurretCamera(
+                        RobotState.getInstance(),
+                        new VisionIOLimelight4(
+                                "limelight-turret",
+                                () -> RobotState.getInstance().getTurretPose().getRotation()));
 
-        intake = new Intake(new IntakeRollerIOSim(), RobotState.getInstance());
+                ledkicker = new LEDKicker(new LEDKickerIOHardware(portConfiguration, 150));
 
-        extension = new Extension(new IntakeExtensionIOSim(), RobotState.getInstance());
+                configureButtonBindings();
+                break;
 
-        spindexer = new Spindexer(new SpindexerIO() {}, RobotState.getInstance());
+            case SIM:
+                SimRobot.getInstance().setupDriveSim();
 
-        kicker = new Kicker(new KickerIO() {}, RobotState.getInstance());
+                drive = new Drive(
+                        new GyroIOSim(SimRobot.getInstance()
+                                .getSwerveDriveSimulation()
+                                .getGyroSimulation()),
+                        new ModuleIOTalonFXSim(
+                                TunerConstants.FrontLeft,
+                                SimRobot.getInstance()
+                                        .getSwerveDriveSimulation()
+                                        .getModules()[0]),
+                        new ModuleIOTalonFXSim(
+                                TunerConstants.FrontRight,
+                                SimRobot.getInstance()
+                                        .getSwerveDriveSimulation()
+                                        .getModules()[1]),
+                        new ModuleIOTalonFXSim(
+                                TunerConstants.BackLeft,
+                                SimRobot.getInstance()
+                                        .getSwerveDriveSimulation()
+                                        .getModules()[2]),
+                        new ModuleIOTalonFXSim(
+                                TunerConstants.BackRight,
+                                SimRobot.getInstance()
+                                        .getSwerveDriveSimulation()
+                                        .getModules()[3]),
+                        SimRobot.getInstance()::resetPose);
 
-        turret =
-            new Turret(
-                new TurretIOSim(),
-                new EncoderIOSim(),
-                new EncoderIOSim(),
-                RobotState.getInstance());
+                intake = new Intake(new IntakeRollerIOSim(), RobotState.getInstance());
 
-        hood = new Hood(new HoodIOSim(), RobotState.getInstance());
+                extension = new Extension(new IntakeExtensionIOSim(), RobotState.getInstance());
 
-        shooter = new Shooter(new ShooterIOSim(), RobotState.getInstance());
+                spindexer = new Spindexer(new SpindexerIO() {}, RobotState.getInstance());
 
-        // flip poses so that the vision sees the true on-field pose
-        vision =
-            new Vision(
-                RobotState.getInstance(),
-                new VisionIOPhotonVisionSim(
-                    VisionConstants.camera0Name,
-                    VisionConstants.robotToCamera0,
-                    () ->
-                        SimRobot.getInstance()
-                            .getSwerveDriveSimulation()
-                            .getSimulatedDriveTrainPose()),
-                new VisionIOPhotonVisionSim(
-                    VisionConstants.camera1Name,
-                    VisionConstants.robotToCamera1,
-                    () ->
-                        SimRobot.getInstance()
-                            .getSwerveDriveSimulation()
-                            .getSimulatedDriveTrainPose()));
+                kicker = new Kicker(new KickerIO() {}, RobotState.getInstance());
 
-        turretCamera =
-            // new TurretCamera(
-            //     RobotState.getInstance(),
-            //     new VisionIOPhotonVisionSim(
-            //         "Turret-Sim",
-            //         new Transform3d(),
-            //         () ->
-            //             SimRobot.getInstance()
-            //                 .getSwerveDriveSimulation()
-            //                 .getSimulatedDriveTrainPose()
-            //                 .transformBy(
-            //                     new Transform2d(
-            //
-            // Constants.SimConstants.originToTurretRotation.toTranslation2d(),
-            //                         Rotation2d.fromRotations(
-            //                             RobotState.getInstance()
-            //                                 .getScoringState()
-            //                                 .turretRotations())))));
-            new TurretCamera(RobotState.getInstance(), new VisionIO() {});
+                turret =
+                        new Turret(new TurretIOSim(), new EncoderIOSim(), new EncoderIOSim(), RobotState.getInstance());
 
-        ledkicker = new LEDKicker(new LEDKickerIOSim());
+                hood = new Hood(new HoodIOSim(), RobotState.getInstance());
 
-        configureSimButtonBindings();
-        break;
+                shooter = new Shooter(new ShooterIOSim(), RobotState.getInstance());
 
-      default:
-        drive =
-            new Drive(
-                new GyroIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                pose -> {});
+                // flip poses so that the vision sees the true on-field pose
+                vision = new Vision(
+                        RobotState.getInstance(),
+                        new VisionIOPhotonVisionSim(
+                                VisionConstants.camera0Name,
+                                VisionConstants.robotToCamera0,
+                                () -> SimRobot.getInstance()
+                                        .getSwerveDriveSimulation()
+                                        .getSimulatedDriveTrainPose()),
+                        new VisionIOPhotonVisionSim(
+                                VisionConstants.camera1Name,
+                                VisionConstants.robotToCamera1,
+                                () -> SimRobot.getInstance()
+                                        .getSwerveDriveSimulation()
+                                        .getSimulatedDriveTrainPose()));
 
-        intake = new Intake(new IntakeRollerIO() {}, RobotState.getInstance());
+                turretCamera =
+                        // new TurretCamera(
+                        //     RobotState.getInstance(),
+                        //     new VisionIOPhotonVisionSim(
+                        //         "Turret-Sim",
+                        //         new Transform3d(),
+                        //         () ->
+                        //             SimRobot.getInstance()
+                        //                 .getSwerveDriveSimulation()
+                        //                 .getSimulatedDriveTrainPose()
+                        //                 .transformBy(
+                        //                     new Transform2d(
+                        //
+                        // Constants.SimConstants.originToTurretRotation.toTranslation2d(),
+                        //                         Rotation2d.fromRotations(
+                        //                             RobotState.getInstance()
+                        //                                 .getScoringState()
+                        //                                 .turretRotations())))));
+                        new TurretCamera(RobotState.getInstance(), new VisionIO() {});
 
-        extension = new Extension(new IntakeExtensionIO() {}, RobotState.getInstance());
+                ledkicker = new LEDKicker(new LEDKickerIOSim());
 
-        spindexer = new Spindexer(new SpindexerIO() {}, RobotState.getInstance());
+                configureSimButtonBindings();
+                break;
 
-        kicker = new Kicker(new KickerIO() {}, RobotState.getInstance());
+            default:
+                drive = new Drive(
+                        new GyroIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {},
+                        pose -> {});
 
-        turret =
-            new Turret(
-                new TurretIO() {},
-                new EncoderIO() {},
-                new EncoderIO() {},
-                RobotState.getInstance());
+                intake = new Intake(new IntakeRollerIO() {}, RobotState.getInstance());
 
-        hood = new Hood(new HoodIO() {}, RobotState.getInstance());
+                extension = new Extension(new IntakeExtensionIO() {}, RobotState.getInstance());
 
-        shooter = new Shooter(new ShooterIO() {}, RobotState.getInstance());
+                spindexer = new Spindexer(new SpindexerIO() {}, RobotState.getInstance());
 
-        vision = new Vision(RobotState.getInstance());
+                kicker = new Kicker(new KickerIO() {}, RobotState.getInstance());
 
-        turretCamera = new TurretCamera(RobotState.getInstance(), new VisionIO() {});
+                turret =
+                        new Turret(new TurretIO() {}, new EncoderIO() {}, new EncoderIO() {}, RobotState.getInstance());
 
-        ledkicker = new LEDKicker(new LEDKickerIO() {});
+                hood = new Hood(new HoodIO() {}, RobotState.getInstance());
 
-        configureButtonBindings();
-        break;
+                shooter = new Shooter(new ShooterIO() {}, RobotState.getInstance());
+
+                vision = new Vision(RobotState.getInstance());
+
+                turretCamera = new TurretCamera(RobotState.getInstance(), new VisionIO() {});
+
+                ledkicker = new LEDKicker(new LEDKickerIO() {});
+
+                configureButtonBindings();
+                break;
+        }
+
+        // Set up auto routines
+        autoChooser = new LoggedLazyAutoChooser("Auto Choices");
+
+        autoChooser.addOption("OP_LEFT", () -> AutoCommands4.OP_LEFT(
+                        drive, shooter, hood, turret, spindexer, kicker, extension, intake, RobotState.getInstance())
+                .withTimeout(20));
+
+        autoChooser.addOption("OP_RIGHT", () -> AutoCommands4.OP_RIGHT(
+                        drive, shooter, hood, turret, spindexer, kicker, extension, intake, RobotState.getInstance())
+                .withTimeout(20));
+
+        autoChooser.addOption("OP_NEAR_LEFT", () -> AutoCommands4.OP_NEAR_LEFT(
+                        drive, shooter, hood, turret, spindexer, kicker, extension, intake, RobotState.getInstance())
+                .withTimeout(20));
+
+        autoChooser.addOption("OP_NEAR_RIGHT", () -> AutoCommands4.OP_NEAR_RIGHT(
+                        drive, shooter, hood, turret, spindexer, kicker, extension, intake, RobotState.getInstance())
+                .withTimeout(20));
     }
 
-    // Set up auto routines
-    autoChooser = new LoggedLazyAutoChooser("Auto Choices");
+    /**
+     * Use this method to define your button->command mappings. Buttons can be created by
+     * instantiating a {@link GenericHID} or one of its subclasses ({@link
+     * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
+     * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+     */
+    private void configureButtonBindings() {
+        // Default command, normal field-relative drive
+        drive.setDefaultCommand(DriveCommands.joystickDriveWithX(
+                drive,
+                () -> -driver.getLeftY(),
+                () -> -driver.getLeftX(),
+                () -> Math.pow(Math.abs(driver.getRightX()), 0.75) * (driver.getRightX() > 0 ? -1 : 1)));
 
-    autoChooser.addOption(
-        "OP_LEFT",
-        () ->
-            AutoCommands4.OP_LEFT(
-                    drive,
-                    shooter,
-                    hood,
-                    turret,
-                    spindexer,
-                    kicker,
-                    extension,
-                    intake,
-                    RobotState.getInstance())
-                .withTimeout(20));
+        ledkicker.setDefaultCommand(LEDCommands.useDefaultSchema(ledkicker, RobotState.getInstance()));
 
-    autoChooser.addOption(
-        "OP_RIGHT",
-        () ->
-            AutoCommands4.OP_RIGHT(
-                    drive,
-                    shooter,
-                    hood,
-                    turret,
-                    spindexer,
-                    kicker,
-                    extension,
-                    intake,
-                    RobotState.getInstance())
-                .withTimeout(20));
+        shooter.dummy.setDefaultCommand(
+                SuperstructureCommands.idle(shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
 
-    autoChooser.addOption(
-        "OP_NEAR_LEFT",
-        () ->
-            AutoCommands4.OP_NEAR_LEFT(
-                    drive,
-                    shooter,
-                    hood,
-                    turret,
-                    spindexer,
-                    kicker,
-                    extension,
-                    intake,
-                    RobotState.getInstance())
-                .withTimeout(20));
+        driver.rightTrigger()
+                .whileTrue(SuperstructureCommands.requestScoring(
+                        shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
+        driver.leftTrigger()
+                .whileTrue(SuperstructureCommands.requestPassing(
+                        shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
+        driver.leftBumper().or(driver.rightBumper()).whileTrue(IntakeCommands.agitate(extension, intake));
 
-    autoChooser.addOption(
-        "OP_NEAR_RIGHT",
-        () ->
-            AutoCommands4.OP_NEAR_RIGHT(
-                    drive,
-                    shooter,
-                    hood,
-                    turret,
-                    spindexer,
-                    kicker,
-                    extension,
-                    intake,
-                    RobotState.getInstance())
-                .withTimeout(20));
-  }
+        driver.x().onTrue(IntakeCommands.extend(extension));
+        driver.y().onTrue(IntakeCommands.retract(extension));
 
-  /**
-   * Use this method to define your button->command mappings. Buttons can be created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
-  private void configureButtonBindings() {
-    // Default command, normal field-relative drive
-    drive.setDefaultCommand(
-        DriveCommands.joystickDriveWithX(
-            drive,
-            () -> -driver.getLeftY(),
-            () -> -driver.getLeftX(),
-            () ->
-                Math.pow(Math.abs(driver.getRightX()), 0.75) * (driver.getRightX() > 0 ? -1 : 1)));
+        driver.a().onTrue(IntakeCommands.intake(intake));
+        driver.b().onTrue(IntakeCommands.stop(intake));
 
-    ledkicker.setDefaultCommand(LEDCommands.useDefaultSchema(ledkicker, RobotState.getInstance()));
+        driver.back().whileTrue(drive.run(drive::autoConfiguration));
+        driver.start().onTrue(turret.rezeroAgainstWires());
 
-    shooter.dummy.setDefaultCommand(
-        SuperstructureCommands.idle(
-            shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
+        driver.povDown().onTrue(IntakeCommands.outtake(intake));
 
-    driver
-        .rightTrigger()
-        .whileTrue(
-            SuperstructureCommands.requestScoring(
-                shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
-    driver
-        .leftTrigger()
-        .whileTrue(
-            SuperstructureCommands.requestPassing(
-                shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
-    driver
-        .leftBumper()
-        .or(driver.rightBumper())
-        .whileTrue(IntakeCommands.agitate(extension, intake));
+        operator.povUp().onTrue(Commands2.action(() -> LookupTables.fudge = LookupTables.fudge + 0.1));
+        operator.povDown().onTrue(Commands2.action(() -> LookupTables.fudge = LookupTables.fudge - 0.1));
 
-    driver.x().onTrue(IntakeCommands.extend(extension));
-    driver.y().onTrue(IntakeCommands.retract(extension));
+        operator.povLeft().whileTrue(turret.overrideCounterClockwise());
+        operator.povRight().whileTrue(turret.overrideCounterClockwise());
 
-    driver.a().onTrue(IntakeCommands.intake(intake));
-    driver.b().onTrue(IntakeCommands.stop(intake));
+        operator.x().onTrue(turret.rezeroAgainstWires());
 
-    driver.back().whileTrue(drive.run(drive::autoConfiguration));
-    driver.start().onTrue(turret.rezeroAgainstWires());
+        operator.back()
+                .onTrue(Commands2.action(
+                        () -> RobotState.getInstance().useTurretBuffer = !RobotState.getInstance().useTurretBuffer));
 
-    driver.povDown().onTrue(IntakeCommands.outtake(intake));
+        operator.y()
+                .onTrue(Commands2.action(
+                        () -> SuperstructureCommands.turretDisabled = !SuperstructureCommands.turretDisabled));
 
-    operator.povUp().onTrue(Commands2.action(() -> LookupTables.fudge = LookupTables.fudge + 0.1));
-    operator
-        .povDown()
-        .onTrue(Commands2.action(() -> LookupTables.fudge = LookupTables.fudge - 0.1));
+        operator.a().onTrue(Commands2.action(() -> RobotState.getInstance()
+                .setDisableTurretCamera(!RobotState.getInstance().isDisableTurretCamera())));
+        operator.b().onTrue(Commands2.action(() -> RobotState.getInstance()
+                .setDisableBottomCameras(!RobotState.getInstance().isDisableBottomCameras())));
 
-    operator.povLeft().whileTrue(turret.overrideCounterClockwise());
-    operator.povRight().whileTrue(turret.overrideCounterClockwise());
+        operator.leftTrigger()
+                .whileTrue(SuperstructureCommands.setClosestOverride(
+                        shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
+        operator.leftBumper()
+                .whileTrue(SuperstructureCommands.setCloseOverride(
+                        shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
+        operator.rightBumper()
+                .whileTrue(SuperstructureCommands.setFarOverride(
+                        shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
+        operator.rightTrigger()
+                .whileTrue(SuperstructureCommands.setFarthestOverride(
+                        shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
+    }
 
-    operator.x().onTrue(turret.rezeroAgainstWires());
-    
-    operator
-        .y()
-        .onTrue(
-            Commands2.action(
-                () ->
-                    SuperstructureCommands.turretDisabled =
-                        !SuperstructureCommands.turretDisabled));
+    private void configureSimButtonBindings() {
+        configureButtonBindings();
+    }
 
-    operator
-        .a()
-        .onTrue(
-            Commands2.action(
-                () ->
-                    RobotState.getInstance()
-                        .setDisableTurretCamera(
-                            !RobotState.getInstance().isDisableTurretCamera())));
-    operator
-        .b()
-        .onTrue(
-            Commands2.action(
-                () ->
-                    RobotState.getInstance()
-                        .setDisableBottomCameras(
-                            !RobotState.getInstance().isDisableBottomCameras())));
-
-    operator
-        .leftTrigger()
-        .whileTrue(
-            SuperstructureCommands.setClosestOverride(
-                shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
-    operator
-        .leftBumper()
-        .whileTrue(
-            SuperstructureCommands.setCloseOverride(
-                shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
-    operator
-        .rightBumper()
-        .whileTrue(
-            SuperstructureCommands.setFarOverride(
-                shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
-    operator
-        .rightTrigger()
-        .whileTrue(
-            SuperstructureCommands.setFarthestOverride(
-                shooter, hood, turret, spindexer, kicker, RobotState.getInstance()));
-  }
-
-  private void configureSimButtonBindings() {
-    configureButtonBindings();
-  }
-
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    return autoChooser.get();
-  }
+    /**
+     * Use this to pass the autonomous command to the main {@link Robot} class.
+     *
+     * @return the command to run in autonomous
+     */
+    public Command getAutonomousCommand() {
+        return autoChooser.get();
+    }
 }

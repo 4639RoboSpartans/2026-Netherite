@@ -2,7 +2,6 @@
 
 package org.team4639.frc2026;
 
-import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -15,42 +14,41 @@ import org.team4639.frc2026.constants.ports.Netherite;
  * (log replay from a file).
  */
 public final class Constants {
-  public static final Mode simMode = Mode.SIM;
-  public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+    public static final Mode simMode = Mode.SIM;
+    public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
-  public static final boolean tuningMode = true;
-  public static final boolean disableHAL = false;
+    public static final boolean tuningMode = true;
+    public static final boolean disableHAL = false;
 
-  public enum Mode {
-    /** Running on a real robot. */
-    REAL,
+    public enum Mode {
+        /** Running on a real robot. */
+        REAL,
 
-    /** Running a physics simulator. */
-    SIM,
+        /** Running a physics simulator. */
+        SIM,
 
-    /** Replaying from a log file. */
-    REPLAY
-  }
+        /** Replaying from a log file. */
+        REPLAY
+    }
 
-  public static final class RobotConstants {
-    public static final double ROBOT_MASS_KG = 50;
-    public static final double ROBOT_MOI = 3.97;
-    public static final double WHEEL_COF = 1.5;
-  }
+    public static final class RobotConstants {
+        public static final double ROBOT_MASS_KG = 50;
+        public static final double ROBOT_MOI = 3.97;
+        public static final double WHEEL_COF = 1.5;
+    }
 
-  public static final class SimConstants {
-    public static final Translation3d originToTurretRotation =
-        new Translation3d(-Units.inchesToMeters(5.84), 0, Units.inchesToMeters(13.25));
-    public static final Translation3d originToHoodRotation =
-        new Translation3d(-Units.inchesToMeters(1.834), 0, Units.inchesToMeters(16.625));
-    public static final Translation3d intakeExtendedTranslation =
-        new Translation3d(Units.inchesToMeters(10.396), 0, Units.inchesToMeters(-3.277));
-  }
+    public static final class SimConstants {
+        public static final Translation3d originToTurretRotation =
+                new Translation3d(-Units.inchesToMeters(5.84), 0, Units.inchesToMeters(13.25));
+        public static final Translation3d originToHoodRotation =
+                new Translation3d(-Units.inchesToMeters(1.834), 0, Units.inchesToMeters(16.625));
+        public static final Translation3d intakeExtendedTranslation =
+                new Translation3d(Units.inchesToMeters(10.396), 0, Units.inchesToMeters(-3.277));
+    }
 
-  public static final class URCLConstants {
-    public static final Map<Integer, String> shooterIDtoName =
-        Map.of(
-            Netherite.portConfiguration.shooterMotorLeftID.getDeviceNumber(), "Shooter Left",
-            Netherite.portConfiguration.shooterMotorRightID.getDeviceNumber(), "Shooter Right");
-  }
+    public static final class URCLConstants {
+        public static final Map<Integer, String> shooterIDtoName = Map.of(
+                Netherite.portConfiguration.shooterMotorLeftID.getDeviceNumber(), "Shooter Left",
+                Netherite.portConfiguration.shooterMotorRightID.getDeviceNumber(), "Shooter Right");
+    }
 }

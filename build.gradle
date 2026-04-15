@@ -189,7 +189,9 @@ spotless {
             include "**/*.java"
             exclude "**/build/**", "**/build-*/**"
         }
-        googleJavaFormat()
+        importOrder()
+        removeUnusedImports()
+        palantirJavaFormat('2.39.0')
         toggleOffOn()
         trimTrailingWhitespace()
         endWithNewline()

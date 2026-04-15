@@ -10,44 +10,44 @@ import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 
 public abstract class IntakeRollerSysID {
-  @Getter private SysIdRoutine routine;
+    @Getter
+    private SysIdRoutine routine;
 
-  public static class IntakeRollerSysIDCTRE extends IntakeRollerSysID {
-    public IntakeRollerSysIDCTRE(Intake intake) {
-      super();
-      super.routine =
-          new SysIdRoutine(
-              new SysIdRoutine.Config(
-                  Volts.per(Second).of(6.0 / 10),
-                  Volts.of(7),
-                  null,
-                  state -> SignalLogger.writeString("SysIDTestState", state.toString())),
-              new SysIdRoutine.Mechanism(
-                  voltage -> intake.setRollerVoltage(voltage.in(Volts)),
-                  null, // Signal Logger handles it,
-                  intake));
+    public static class IntakeRollerSysIDCTRE extends IntakeRollerSysID {
+        public IntakeRollerSysIDCTRE(Intake intake) {
+            super();
+            super.routine = new SysIdRoutine(
+                    new SysIdRoutine.Config(
+                            Volts.per(Second).of(6.0 / 10),
+                            Volts.of(7),
+                            null,
+                            state -> SignalLogger.writeString("SysIDTestState", state.toString())),
+                    new SysIdRoutine.Mechanism(
+                            voltage -> intake.setRollerVoltage(voltage.in(Volts)),
+                            null, // Signal Logger handles it,
+                            intake));
+        }
     }
-  }
 
-  public static class IntakeRollerSysIDWPI extends IntakeRollerSysID {
-    public IntakeRollerSysIDWPI(Intake intake, IntakeRollerIO.IntakeRollerIOInputs inputs) {
-      super();
-      super.routine =
-          new SysIdRoutine(
-              new SysIdRoutine.Config(
-                  Volts.per(Second).of(6.0 / 10),
-                  Volts.of(7),
-                  null,
-                  state -> Logger.recordOutput("SysIDTestState", state.toString())),
-              new SysIdRoutine.Mechanism(
-                  voltage -> intake.setRollerVoltage(voltage.in(Volts)),
-                  log -> {
-                    log.motor("roller")
-                        .angularPosition(Rotations.of(inputs.rotations))
-                        .angularVelocity(Rotations.of(inputs.rotationsPerSecond).per(Second))
-                        .voltage(Volts.of(inputs.volts));
-                  },
-                  intake));
+    public static class IntakeRollerSysIDWPI extends IntakeRollerSysID {
+        public IntakeRollerSysIDWPI(Intake intake, IntakeRollerIO.IntakeRollerIOInputs inputs) {
+            super();
+            super.routine = new SysIdRoutine(
+                    new SysIdRoutine.Config(
+                            Volts.per(Second).of(6.0 / 10),
+                            Volts.of(7),
+                            null,
+                            state -> Logger.recordOutput("SysIDTestState", state.toString())),
+                    new SysIdRoutine.Mechanism(
+                            voltage -> intake.setRollerVoltage(voltage.in(Volts)),
+                            log -> {
+                                log.motor("roller")
+                                        .angularPosition(Rotations.of(inputs.rotations))
+                                        .angularVelocity(Rotations.of(inputs.rotationsPerSecond)
+                                                .per(Second))
+                                        .voltage(Volts.of(inputs.volts));
+                            },
+                            intake));
+        }
     }
-  }
 }

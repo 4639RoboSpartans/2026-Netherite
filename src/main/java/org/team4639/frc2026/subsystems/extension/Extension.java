@@ -15,207 +15,205 @@ import org.team4639.lib.util.FullSubsystem;
 
 public class Extension extends FullSubsystem {
 
-  public static final double INTAKE_NOT_MOVING_BACKWARD_RPS = -0.1;
-  private final RobotState state;
-  private final IntakeExtensionIO io;
-  private final IntakeExtensionIOInputsAutoLogged inputs;
+    public static final double INTAKE_NOT_MOVING_BACKWARD_RPS = -0.1;
+    private final RobotState state;
+    private final IntakeExtensionIO io;
+    private final IntakeExtensionIOInputsAutoLogged inputs;
 
-  private final double ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND = 5;
-  private final double ENDSTOP_CURRENT_THRESHOLD_OUT = 19;
-  private final double ENDSTOP_CURRENT_THRESHOLD_IN = 19;
-  private final double ZERO_VELOCITY_TIME_PERIOD = 0.02;
-  private final double ZERO_VOLTAGE_OUT = 4;
-  private final double REZERO_VOLTAGE_OUT = 2;
-  private final double ZERO_VOLTAGE_IN = 3;
-  private final double ROTOR_SETPOINT_TOLERANCE = 5;
-  private final double EXTENDED_VOLTAGE = 0;
+    private final double ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND = 5;
+    private final double ENDSTOP_CURRENT_THRESHOLD_OUT = 19;
+    private final double ENDSTOP_CURRENT_THRESHOLD_IN = 19;
+    private final double ZERO_VELOCITY_TIME_PERIOD = 0.02;
+    private final double ZERO_VOLTAGE_OUT = 4;
+    private final double REZERO_VOLTAGE_OUT = 2;
+    private final double ZERO_VOLTAGE_IN = 3;
+    private final double ROTOR_SETPOINT_TOLERANCE = 5;
+    private final double EXTENDED_VOLTAGE = 0;
 
-  private final double ZERO_TIMEOUT = 1.5;
+    private final double ZERO_TIMEOUT = 1.5;
 
-  @Setter private double MANUAL_VOLTAGE = 0;
+    @Setter
+    private double MANUAL_VOLTAGE = 0;
 
-  private boolean rezero = false;
-  private boolean runExtendedVoltage = true;
+    private boolean rezero = false;
+    private boolean runExtendedVoltage = true;
 
-  private double zeroTimeStamp = Double.NaN;
+    private double zeroTimeStamp = Double.NaN;
 
-  public enum WantedState {
-    IDLE,
-    EXTENDED,
-    MANUAL_VOLTAGE
-  }
-
-  public enum SystemState {
-    IDLE,
-    EXTENDING,
-    RETRACTING,
-    EXTENDED,
-    MANUAL_VOLTAGE
-  }
-
-  @Setter private WantedState wantedState = WantedState.IDLE;
-
-  private SystemState systemState = SystemState.IDLE;
-
-  private double retractedRotorPosition = 0.0;
-  private double extendedRotorPosition = Constants.MOTOR_TO_RACK_GEAR_RATIO;
-
-  public final Subsystem dummy = new Subsystem() {};
-
-  public Extension(IntakeExtensionIO io, RobotState state) {
-    this.io = io;
-    this.state = state;
-    this.inputs = new IntakeExtensionIOInputsAutoLogged();
-    io.updateInputs(inputs);
-
-    setHomedPositions(inputs.rotations, Double.NaN);
-    setDefaultCommand(run(this::runStateMachine));
-
-    Logger.recordOutput("Extension/SystemState", systemState.toString());
-  }
-
-  public void setHomedPositions(double retractedRotorPosition, double extendedRotorPosition) {
-    if (Double.isNaN(retractedRotorPosition)) {
-      this.extendedRotorPosition = extendedRotorPosition;
-      this.retractedRotorPosition =
-          extendedRotorPosition - org.team4639.frc2026.subsystems.extension.Constants.ROTOR_RANGE;
-    } else {
-      this.retractedRotorPosition = retractedRotorPosition;
-      this.extendedRotorPosition =
-          retractedRotorPosition + org.team4639.frc2026.subsystems.extension.Constants.ROTOR_RANGE;
-    }
-  }
-
-  @Override
-  public void periodicBeforeScheduler() {
-    io.updateInputs(inputs);
-    Logger.processInputs("Extension", inputs);
-
-    state.updateIntakePosition(
-        (inputs.rotations - retractedRotorPosition)
-            / (extendedRotorPosition - retractedRotorPosition));
-  }
-
-  @Override
-  public void periodicAfterScheduler() {
-    state.setExtensionStates(new Pair<>(this.wantedState, this.systemState));
-
-    state.acceptCANMeasurement(inputs.connected);
-    state.acceptTemperatureMeasurement(inputs.celsius);
-  }
-
-  private void runStateMachine() {
-    SystemState newState = handleStateTransitions();
-    if (newState != systemState) {
-      Logger.recordOutput("Extension/SystemState", newState.toString());
-      systemState = newState;
+    public enum WantedState {
+        IDLE,
+        EXTENDED,
+        MANUAL_VOLTAGE
     }
 
-    switch (systemState) {
-      case IDLE -> handleIdle();
-      case EXTENDING -> handleExtending();
-      case RETRACTING -> handleRetracting();
-      case EXTENDED -> handleExtended();
-      case MANUAL_VOLTAGE -> handleManualVoltage();
+    public enum SystemState {
+        IDLE,
+        EXTENDING,
+        RETRACTING,
+        EXTENDED,
+        MANUAL_VOLTAGE
     }
-  }
 
-  public void handleIdle() {
-    io.stop();
-    io.setBrakeMode(true);
-  }
+    @Setter
+    private WantedState wantedState = WantedState.IDLE;
 
-  public void handleExtending() {
-    io.setVoltage(rezero ? REZERO_VOLTAGE_OUT : ZERO_VOLTAGE_OUT);
-    io.setBrakeMode(false);
-  }
+    private SystemState systemState = SystemState.IDLE;
 
-  public void handleRetracting() {
-    io.setVoltage(-ZERO_VOLTAGE_IN);
-    io.setBrakeMode(false);
-  }
+    private double retractedRotorPosition = 0.0;
+    private double extendedRotorPosition = Constants.MOTOR_TO_RACK_GEAR_RATIO;
 
-  public void handleExtended() {
-    io.setVoltage(runExtendedVoltage ? EXTENDED_VOLTAGE : 0);
-    io.setBrakeMode(false);
-  }
+    public final Subsystem dummy = new Subsystem() {};
 
-  public void handleManualVoltage() {
-    io.setVoltage(MANUAL_VOLTAGE);
-  }
+    public Extension(IntakeExtensionIO io, RobotState state) {
+        this.io = io;
+        this.state = state;
+        this.inputs = new IntakeExtensionIOInputsAutoLogged();
+        io.updateInputs(inputs);
 
-  public SystemState handleStateTransitions() {
-    switch (wantedState) {
-      case EXTENDED:
-        if (!DriverStation.isDisabled()) {
-          // if intake satisfies zero requirements
-          if (Math.abs(inputs.rotationsPerSecond)
-                  < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND
-              || Math.abs(inputs.amps) >= ENDSTOP_CURRENT_THRESHOLD_OUT
-              || (Timer.getFPGATimestamp() - zeroTimeStamp) > ZERO_TIMEOUT) {
-            if (systemState == SystemState.EXTENDED) {
-              if (!MathUtil.isNear(
-                  inputs.rotations, extendedRotorPosition, ROTOR_SETPOINT_TOLERANCE)) {
-                if (inputs.rotationsPerSecond > INTAKE_NOT_MOVING_BACKWARD_RPS) {
-                  rezero = true;
-                  return SystemState.EXTENDING;
+        setHomedPositions(inputs.rotations, Double.NaN);
+        setDefaultCommand(run(this::runStateMachine));
+
+        Logger.recordOutput("Extension/SystemState", systemState.toString());
+    }
+
+    public void setHomedPositions(double retractedRotorPosition, double extendedRotorPosition) {
+        if (Double.isNaN(retractedRotorPosition)) {
+            this.extendedRotorPosition = extendedRotorPosition;
+            this.retractedRotorPosition =
+                    extendedRotorPosition - org.team4639.frc2026.subsystems.extension.Constants.ROTOR_RANGE;
+        } else {
+            this.retractedRotorPosition = retractedRotorPosition;
+            this.extendedRotorPosition =
+                    retractedRotorPosition + org.team4639.frc2026.subsystems.extension.Constants.ROTOR_RANGE;
+        }
+    }
+
+    @Override
+    public void periodicBeforeScheduler() {
+        io.updateInputs(inputs);
+        Logger.processInputs("Extension", inputs);
+
+        state.updateIntakePosition(
+                (inputs.rotations - retractedRotorPosition) / (extendedRotorPosition - retractedRotorPosition));
+    }
+
+    @Override
+    public void periodicAfterScheduler() {
+        state.setExtensionStates(new Pair<>(this.wantedState, this.systemState));
+
+        state.acceptCANMeasurement(inputs.connected);
+        state.acceptTemperatureMeasurement(inputs.celsius);
+    }
+
+    private void runStateMachine() {
+        SystemState newState = handleStateTransitions();
+        if (newState != systemState) {
+            Logger.recordOutput("Extension/SystemState", newState.toString());
+            systemState = newState;
+        }
+
+        switch (systemState) {
+            case IDLE -> handleIdle();
+            case EXTENDING -> handleExtending();
+            case RETRACTING -> handleRetracting();
+            case EXTENDED -> handleExtended();
+            case MANUAL_VOLTAGE -> handleManualVoltage();
+        }
+    }
+
+    public void handleIdle() {
+        io.stop();
+        io.setBrakeMode(true);
+    }
+
+    public void handleExtending() {
+        io.setVoltage(rezero ? REZERO_VOLTAGE_OUT : ZERO_VOLTAGE_OUT);
+        io.setBrakeMode(false);
+    }
+
+    public void handleRetracting() {
+        io.setVoltage(-ZERO_VOLTAGE_IN);
+        io.setBrakeMode(false);
+    }
+
+    public void handleExtended() {
+        io.setVoltage(runExtendedVoltage ? EXTENDED_VOLTAGE : 0);
+        io.setBrakeMode(false);
+    }
+
+    public void handleManualVoltage() {
+        io.setVoltage(MANUAL_VOLTAGE);
+    }
+
+    public SystemState handleStateTransitions() {
+        switch (wantedState) {
+            case EXTENDED:
+                if (!DriverStation.isDisabled()) {
+                    // if intake satisfies zero requirements
+                    if (Math.abs(inputs.rotationsPerSecond) < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND
+                            || Math.abs(inputs.amps) >= ENDSTOP_CURRENT_THRESHOLD_OUT
+                            || (Timer.getFPGATimestamp() - zeroTimeStamp) > ZERO_TIMEOUT) {
+                        if (systemState == SystemState.EXTENDED) {
+                            if (!MathUtil.isNear(inputs.rotations, extendedRotorPosition, ROTOR_SETPOINT_TOLERANCE)) {
+                                if (inputs.rotationsPerSecond > INTAKE_NOT_MOVING_BACKWARD_RPS) {
+                                    rezero = true;
+                                    return SystemState.EXTENDING;
+                                } else {
+                                    runExtendedVoltage = false;
+                                    return SystemState.EXTENDED;
+                                }
+                            }
+                            runExtendedVoltage = true;
+                            return SystemState.EXTENDED;
+                        } else if (!Double.isFinite(zeroTimeStamp)) {
+                            zeroTimeStamp = Timer.getFPGATimestamp();
+                            return SystemState.EXTENDING;
+                        } else if ((Timer.getFPGATimestamp() - zeroTimeStamp) >= ZERO_VELOCITY_TIME_PERIOD) {
+                            io.stop();
+                            zeroTimeStamp = Double.NaN;
+                            setHomedPositions(Double.NaN, inputs.rotations);
+                            runExtendedVoltage = true;
+                            return SystemState.EXTENDED;
+                        } else {
+                            return SystemState.EXTENDING;
+                        }
+                    } else {
+                        zeroTimeStamp = Double.NaN;
+                        return SystemState.EXTENDING;
+                    }
                 } else {
-                  runExtendedVoltage = false;
-                  return SystemState.EXTENDED;
+                    return SystemState.EXTENDING;
                 }
-              }
-              runExtendedVoltage = true;
-              return SystemState.EXTENDED;
-            } else if (!Double.isFinite(zeroTimeStamp)) {
-              zeroTimeStamp = Timer.getFPGATimestamp();
-              return SystemState.EXTENDING;
-            } else if ((Timer.getFPGATimestamp() - zeroTimeStamp) >= ZERO_VELOCITY_TIME_PERIOD) {
-              io.stop();
-              zeroTimeStamp = Double.NaN;
-              setHomedPositions(Double.NaN, inputs.rotations);
-              runExtendedVoltage = true;
-              return SystemState.EXTENDED;
-            } else {
-              return SystemState.EXTENDING;
-            }
-          } else {
-            zeroTimeStamp = Double.NaN;
-            return SystemState.EXTENDING;
-          }
-        } else {
-          return SystemState.EXTENDING;
+            case IDLE:
+                rezero = false;
+                if (!DriverStation.isDisabled()) {
+                    if (Math.abs(inputs.rotationsPerSecond) < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND
+                            || Math.abs(inputs.amps) >= ENDSTOP_CURRENT_THRESHOLD_IN
+                            || (Timer.getFPGATimestamp() - zeroTimeStamp) > ZERO_TIMEOUT) {
+                        if (systemState == SystemState.IDLE) {
+                            return SystemState.IDLE;
+                        } else if (!Double.isFinite(zeroTimeStamp)) {
+                            zeroTimeStamp = Timer.getFPGATimestamp();
+                            return SystemState.RETRACTING;
+                        } else if ((Timer.getFPGATimestamp() - zeroTimeStamp) >= ZERO_VELOCITY_TIME_PERIOD) {
+                            io.stop();
+                            zeroTimeStamp = Double.NaN;
+                            setHomedPositions(inputs.rotations, Double.NaN);
+                            return SystemState.IDLE;
+                        } else {
+                            return SystemState.RETRACTING;
+                        }
+                    } else {
+                        zeroTimeStamp = Double.NaN;
+                        return SystemState.RETRACTING;
+                    }
+                } else {
+                    return SystemState.RETRACTING;
+                }
+            case MANUAL_VOLTAGE:
+                return SystemState.MANUAL_VOLTAGE;
+            default:
+                return SystemState.IDLE;
         }
-      case IDLE:
-        rezero = false;
-        if (!DriverStation.isDisabled()) {
-          if (Math.abs(inputs.rotationsPerSecond)
-                  < ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND
-              || Math.abs(inputs.amps) >= ENDSTOP_CURRENT_THRESHOLD_IN
-              || (Timer.getFPGATimestamp() - zeroTimeStamp) > ZERO_TIMEOUT) {
-            if (systemState == SystemState.IDLE) {
-              return SystemState.IDLE;
-            } else if (!Double.isFinite(zeroTimeStamp)) {
-              zeroTimeStamp = Timer.getFPGATimestamp();
-              return SystemState.RETRACTING;
-            } else if ((Timer.getFPGATimestamp() - zeroTimeStamp) >= ZERO_VELOCITY_TIME_PERIOD) {
-              io.stop();
-              zeroTimeStamp = Double.NaN;
-              setHomedPositions(inputs.rotations, Double.NaN);
-              return SystemState.IDLE;
-            } else {
-              return SystemState.RETRACTING;
-            }
-          } else {
-            zeroTimeStamp = Double.NaN;
-            return SystemState.RETRACTING;
-          }
-        } else {
-          return SystemState.RETRACTING;
-        }
-      case MANUAL_VOLTAGE:
-        return SystemState.MANUAL_VOLTAGE;
-      default:
-        return SystemState.IDLE;
     }
-  }
 }

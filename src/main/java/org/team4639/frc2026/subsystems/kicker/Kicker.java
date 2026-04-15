@@ -15,111 +15,111 @@ import org.team4639.lib.util.FullSubsystem;
 import org.team4639.lib.util.LoggedTunableNumber;
 
 public class Kicker extends FullSubsystem {
-  private final RobotState state;
-  private final KickerIO io;
-  private final KickerIOInputsAutoLogged inputs = new KickerIOInputsAutoLogged();
+    private final RobotState state;
+    private final KickerIO io;
+    private final KickerIOInputsAutoLogged inputs = new KickerIOInputsAutoLogged();
 
-  private double KICK_RPM = 0;
-  private final double IDLE_RPM = 0;
+    private double KICK_RPM = 0;
+    private final double IDLE_RPM = 0;
 
-  @Getter private final KickerSysID sysID = new KickerSysID.KickerSysIDWPI(this, inputs);
+    @Getter
+    private final KickerSysID sysID = new KickerSysID.KickerSysIDWPI(this, inputs);
 
-  public enum WantedState {
-    IDLE,
-    KICK
-  }
-
-  public enum SystemState {
-    IDLE,
-    KICK
-  }
-
-  private WantedState wantedState = WantedState.IDLE;
-  private SystemState systemState = SystemState.IDLE;
-
-  public final Subsystem dummy = new Subsystem() {};
-
-  public Kicker(KickerIO io, RobotState state) {
-    this.io = io;
-    this.state = state;
-
-    Logger.recordOutput("Kicker/SystemState", systemState.toString());
-    this.setDefaultCommand(this.run(this::runStateMachine));
-  }
-
-  @Override
-  public void periodicBeforeScheduler() {
-    io.updateInputs(inputs);
-    Logger.processInputs("Kicker", inputs);
-  }
-
-  @Override
-  public void periodic() {
-
-    LoggedTunableNumber.ifChanged(
-        hashCode(),
-        io::applyNewGains,
-        PIDs.kickerKP,
-        PIDs.kickerKI,
-        PIDs.kickerKD,
-        PIDs.kickerKS,
-        PIDs.kickerKV,
-        PIDs.kickerKA);
-  }
-
-  @Override
-  public void periodicAfterScheduler() {
-    state.setKickerStates(new Pair<>(this.wantedState, this.systemState));
-
-    state.acceptCANMeasurement(inputs.connected);
-    state.acceptTemperatureMeasurement(inputs.celsius);
-  }
-
-  private void runStateMachine() {
-    SystemState newState = handleStateTransitions();
-    if (newState != systemState) {
-      Logger.recordOutput("Kicker/SystemState", newState.toString());
-      systemState = newState;
+    public enum WantedState {
+        IDLE,
+        KICK
     }
 
-    if (DriverStation.isDisabled()) {
-      systemState = SystemState.IDLE;
+    public enum SystemState {
+        IDLE,
+        KICK
     }
 
-    switch (systemState) {
-      case IDLE:
-        handleIdle();
-        break;
-      case KICK:
-        handleKick();
-        break;
+    private WantedState wantedState = WantedState.IDLE;
+    private SystemState systemState = SystemState.IDLE;
+
+    public final Subsystem dummy = new Subsystem() {};
+
+    public Kicker(KickerIO io, RobotState state) {
+        this.io = io;
+        this.state = state;
+
+        Logger.recordOutput("Kicker/SystemState", systemState.toString());
+        this.setDefaultCommand(this.run(this::runStateMachine));
     }
-  }
 
-  private SystemState handleStateTransitions() {
-    return switch (wantedState) {
-      case IDLE -> SystemState.IDLE;
-      case KICK -> SystemState.KICK;
-    };
-  }
+    @Override
+    public void periodicBeforeScheduler() {
+        io.updateInputs(inputs);
+        Logger.processInputs("Kicker", inputs);
+    }
 
-  private void handleIdle() {
-    io.setRotorVelocityRPM(IDLE_RPM);
-  }
+    @Override
+    public void periodic() {
 
-  private void handleKick() {
-    KICK_RPM =
-        state.calculateScoringState(this).shooterRPM()
-            * Constants.SHOOTER_DIAMETER_TO_KICKER_DIAMETER
-            * Constants.SCALE_OF_SHOOTER;
-    io.setRotorVelocityRPM(KICK_RPM);
-  }
+        LoggedTunableNumber.ifChanged(
+                hashCode(),
+                io::applyNewGains,
+                PIDs.kickerKP,
+                PIDs.kickerKI,
+                PIDs.kickerKD,
+                PIDs.kickerKS,
+                PIDs.kickerKV,
+                PIDs.kickerKA);
+    }
 
-  public void setWantedState(WantedState wantedState) {
-    this.wantedState = wantedState;
-  }
+    @Override
+    public void periodicAfterScheduler() {
+        state.setKickerStates(new Pair<>(this.wantedState, this.systemState));
 
-  protected void setVoltage(Voltage volts) {
-    io.setVoltage(volts.in(Volts));
-  }
+        state.acceptCANMeasurement(inputs.connected);
+        state.acceptTemperatureMeasurement(inputs.celsius);
+    }
+
+    private void runStateMachine() {
+        SystemState newState = handleStateTransitions();
+        if (newState != systemState) {
+            Logger.recordOutput("Kicker/SystemState", newState.toString());
+            systemState = newState;
+        }
+
+        if (DriverStation.isDisabled()) {
+            systemState = SystemState.IDLE;
+        }
+
+        switch (systemState) {
+            case IDLE:
+                handleIdle();
+                break;
+            case KICK:
+                handleKick();
+                break;
+        }
+    }
+
+    private SystemState handleStateTransitions() {
+        return switch (wantedState) {
+            case IDLE -> SystemState.IDLE;
+            case KICK -> SystemState.KICK;
+        };
+    }
+
+    private void handleIdle() {
+        io.setRotorVelocityRPM(IDLE_RPM);
+    }
+
+    private void handleKick() {
+        KICK_RPM = state.calculateScoringState(this).shooterRPM()
+                * Constants.SHOOTER_DIAMETER_TO_KICKER_DIAMETER
+                * Constants.SCALE_OF_SHOOTER;
+        io.setRotorVelocityRPM(KICK_RPM);
+    }
+
+    public void setWantedState(WantedState wantedState) {
+        this.wantedState = wantedState;
+    }
+
+    protected void setVoltage(Voltage volts) {
+        io.setVoltage(volts.in(Volts));
+    }
 }
