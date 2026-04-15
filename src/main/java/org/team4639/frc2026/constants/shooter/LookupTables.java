@@ -9,8 +9,8 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.AbstractMap;
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.team4639.frc2026.Constants;
 import org.team4639.lib.util.geometry.GeomUtil;
 
@@ -21,8 +21,7 @@ public class LookupTables {
   public static final double MIN_RPM = 2320.0;
   public static final double MAX_RPM = 3765.0;
 
-  @AutoLogOutput(key = "RPM Fudge Factor")
-  public static double fudge = 0.85;
+  public static double fudge = 0.65;
 
   public static boolean overrideToDistance = false;
   public static double overrideDistance = 0;
@@ -102,6 +101,8 @@ public class LookupTables {
   public static ScoringState getScoringState(
       Pose2d currentRobotPose, ChassisSpeeds fieldRelativeChassisSpeeds, Translation2d targetPose) {
 
+    SmartDashboard.putNumber("RPM Fudge", fudge);
+
     if (overrideToDistance) {
       return new ScoringState(
           scoringDistanceToRPM.get(overrideDistance),
@@ -155,6 +156,9 @@ public class LookupTables {
 
   public static ScoringState getPassingState(
       Pose2d currentRobotPose, ChassisSpeeds fieldRelativeChassisSpeeds, Translation2d targetPose) {
+
+    SmartDashboard.putNumber("RPM Fudge", fudge);
+
     Pose2d nextEstimatedPose =
         currentRobotPose.exp(
             ChassisSpeeds.fromFieldRelativeSpeeds(

@@ -8,16 +8,18 @@ public class Constants {
   public static final double MOTOR_TO_TURRET_GEAR_RATIO = 12.0 / 28 * 18 / 40 * 12 / 92;
   public static final double SHARED_GEAR_TO_TURRET_GEAR_RATIO = 92.0 / 12;
 
-  public static final double MOTOR_ROTATIONS_TO_LEFT_ENCODER_ROTATIONS = 40.0 / 18.0 * 28.0 / 12.0 * 41.0 / 40.0;
-  public static final double MOTOR_ROTATIONS_TO_RIGHT_ENCODER_ROTATIONS = 40.0 / 18.0 * 28.0 / 12.0 * 40.0 / 40.0;
+  public static final double MOTOR_ROTATIONS_TO_LEFT_ENCODER_ROTATIONS =
+      40.0 / 18.0 * 28.0 / 12.0 * 40.0 / 41.0;
+  public static final double MOTOR_ROTATIONS_TO_RIGHT_ENCODER_ROTATIONS =
+      40.0 / 18.0 * 28.0 / 12.0 * 40.0 / 40.0;
 
   // As viewed from above, intake facing up
   public static final double SHARED_GEAR_TEETH = 40;
   public static final double LEFT_ENCODER_GEAR_TEETH = 41;
   public static final double RIGHT_ENCODER_GEAR_TEETH = 40;
 
-  public static final double LEFT_ENCODER_OFFSET = -0.323973;
-  public static final double RIGHT_ENCODER_OFFSET = -0.231445;
+  public static final double LEFT_ENCODER_OFFSET = -0.871094;
+  public static final double RIGHT_ENCODER_OFFSET = -0.891846;
 
   public static final boolean LEFT_ENCODER_INVERTED = true;
   public static final boolean RIGHT_ENCODER_INVERTED = true;
@@ -33,4 +35,6 @@ public class Constants {
   public static final double REZERO_ROTATION_TOLERANCE = 0.5;
 
   public static final double TURRET_FUDGE_SCALAR = 1;
+
+  public static final double MAX_TURRET_EXTENSION_ROTATIONS = 305.0 / 360.0;
 }

@@ -10,8 +10,10 @@ import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -56,6 +58,10 @@ public class Turret extends FullSubsystem {
   private final Debouncer turretStopped2 = new Debouncer(0.2, DebounceType.kRising);
 
   private final boolean periodicRezeroWithEncoders = false;
+  private final double turretRotationsOnStart;
+
+  private final double encoderRezeroPeriod = 1.0;
+  private double lastEncoderRezeroTimestamp = 0.0;
 
   public enum WantedState {
     IDLE,
@@ -94,6 +100,9 @@ public class Turret extends FullSubsystem {
 
     SmartDashboard.putString("Turret Encoder Fault Sticky", Color.kGreen.toHexString());
     SmartDashboard.putString("Turret Motor Fault Sticky", Color.kGreen.toHexString());
+
+    this.turretRotationsOnStart = turretInputs.rotations;
+    this.lastEncoderRezeroTimestamp = Timer.getTimestamp();
   }
 
   @Override
@@ -108,6 +117,7 @@ public class Turret extends FullSubsystem {
     motorPositionLock.unlock();
 
     state.updateShooterState(Double.NaN, Double.MAX_VALUE, getTurretRotationFromRotorRotation());
+    state.addTurretRotationMeasurement(turretInputs.timestamp, getTurretRotationFromRotorRotation());
   }
 
   @Override
@@ -174,187 +184,16 @@ public class Turret extends FullSubsystem {
       turretConnectionBeenLost = true;
     }
 
-    SmartDashboard.putNumberArray("Turret Motor and Encoders", compareMotorAndEncoderRelativeRotations());
+    SmartDashboard.putNumberArray(
+        "Turret Motor and Encoders", compareMotorAndEncoderRelativeRotations());
   }
 
   private SystemState handleStateTransitions() {
     return switch (wantedState) {
-      case IDLE -> {
-        if (systemState == SystemState.IDLE
-            && turretConnectionActivated
-            && turretConnectionBeenLost
-            && turretInputs.connected) {
-          yield SystemState.REZERO_MOTOR;
-        } else if (useRezeroEncoders
-            && turretInputs.connected
-            && turretConnectionActivated
-            && !turretConnectionBeenLost
-            && turretStopped2.calculate(MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5))
-            && !MathUtil.isNear(CRT(), getTurretRotationFromRotorRotation(), 0.03)) {
-          yield SystemState.REZERO_ENCODERS;
-        } else if (systemState == SystemState.REZERO_MOTOR) {
-          SmartDashboard.putString("Turret Motor Fault Sticky", Color.kRed.toHexString());
-          if (turretStopped.calculate(MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5))) {
-            rezeroTurret();
-            turretConnectionActivated = true;
-            turretConnectionBeenLost = false;
-            yield SystemState.IDLE;
-          } else {
-            yield SystemState.REZERO_MOTOR;
-          }
-        } else if (systemState == SystemState.REZERO_ENCODERS) {
-          SmartDashboard.putString("Turret Encoder Fault Sticky", Color.kRed.toHexString());
-          if (MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5)
-              && MathUtil.isNear(
-                  initialRotorRotation,
-                  turretInputs.rotations,
-                  Constants.REZERO_ROTATION_TOLERANCE)) {
-            if (leftEncoderIO instanceof EncoderIOCANCoder)
-              ((EncoderIOCANCoder) leftEncoderIO)
-                  .setOffsetRotations(leftEncoderInputs.positionWithoutOffset);
-            if (rightEncoderIO instanceof EncoderIOCANCoder)
-              ((EncoderIOCANCoder) rightEncoderIO)
-                  .setOffsetRotations(rightEncoderInputs.positionWithoutOffset);
-            yield SystemState.IDLE;
-          } else {
-            yield SystemState.REZERO_ENCODERS;
-          }
-        } else {
-          yield SystemState.IDLE;
-        }
-      }
-      case SCORING -> {
-        if (systemState == SystemState.SCORING
-            && turretConnectionActivated
-            && turretConnectionBeenLost
-            && turretInputs.connected) {
-          yield SystemState.REZERO_MOTOR;
-        } else if (useRezeroEncoders
-            && turretInputs.connected
-            && turretConnectionActivated
-            && !turretConnectionBeenLost
-            && turretStopped2.calculate(MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5))
-            && !MathUtil.isNear(CRT(), getTurretRotationFromRotorRotation(), 0.03)) {
-          yield SystemState.REZERO_ENCODERS;
-        } else if (systemState == SystemState.REZERO_MOTOR) {
-          SmartDashboard.putString("Turret Motor Fault Sticky", Color.kRed.toHexString());
-          if (turretStopped.calculate(MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5))) {
-            rezeroTurret();
-            turretConnectionActivated = true;
-            turretConnectionBeenLost = false;
-            yield SystemState.SCORING;
-          } else {
-            yield SystemState.REZERO_MOTOR;
-          }
-        } else if (systemState == SystemState.REZERO_ENCODERS) {
-          SmartDashboard.putString("Turret Encoder Fault Sticky", Color.kRed.toHexString());
-          if (MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5)
-              && MathUtil.isNear(
-                  initialRotorRotation,
-                  turretInputs.rotations,
-                  Constants.REZERO_ROTATION_TOLERANCE)) {
-            if (leftEncoderIO instanceof EncoderIOCANCoder)
-              ((EncoderIOCANCoder) leftEncoderIO)
-                  .setOffsetRotations(leftEncoderInputs.positionWithoutOffset);
-            if (rightEncoderIO instanceof EncoderIOCANCoder)
-              ((EncoderIOCANCoder) rightEncoderIO)
-                  .setOffsetRotations(rightEncoderInputs.positionWithoutOffset);
-            yield SystemState.SCORING;
-          } else {
-            yield SystemState.REZERO_ENCODERS;
-          }
-        } else {
-          yield SystemState.SCORING;
-        }
-      }
-      case PASSING -> {
-        if (systemState == SystemState.PASSING
-            && turretConnectionActivated
-            && turretConnectionBeenLost
-            && turretInputs.connected) {
-          yield SystemState.REZERO_MOTOR;
-        } else if (useRezeroEncoders
-            && turretInputs.connected
-            && turretConnectionActivated
-            && !turretConnectionBeenLost
-            && turretStopped2.calculate(MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5))
-            && !MathUtil.isNear(CRT(), getTurretRotationFromRotorRotation(), 0.03)) {
-          yield SystemState.REZERO_ENCODERS;
-        } else if (systemState == SystemState.REZERO_MOTOR) {
-          SmartDashboard.putString("Turret Motor Fault Sticky", Color.kRed.toHexString());
-          if (turretStopped.calculate(MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5))) {
-            rezeroTurret();
-            turretConnectionActivated = true;
-            turretConnectionBeenLost = false;
-            yield SystemState.PASSING;
-          } else {
-            yield SystemState.REZERO_MOTOR;
-          }
-        } else if (systemState == SystemState.REZERO_ENCODERS) {
-          SmartDashboard.putString("Turret Encoder Fault Sticky", Color.kRed.toHexString());
-          if (MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5)
-              && MathUtil.isNear(
-                  initialRotorRotation,
-                  turretInputs.rotations,
-                  Constants.REZERO_ROTATION_TOLERANCE)) {
-            if (leftEncoderIO instanceof EncoderIOCANCoder)
-              ((EncoderIOCANCoder) leftEncoderIO)
-                  .setOffsetRotations(leftEncoderInputs.positionWithoutOffset);
-            if (rightEncoderIO instanceof EncoderIOCANCoder)
-              ((EncoderIOCANCoder) rightEncoderIO)
-                  .setOffsetRotations(rightEncoderInputs.positionWithoutOffset);
-            yield SystemState.PASSING;
-          } else {
-            yield SystemState.REZERO_ENCODERS;
-          }
-        } else {
-          yield SystemState.PASSING;
-        }
-      }
-      case HUB_TRACK -> {
-        if (systemState == SystemState.HUB_TRACK
-            && turretConnectionActivated
-            && turretConnectionBeenLost
-            && turretInputs.connected) {
-          yield SystemState.REZERO_MOTOR;
-        } else if (useRezeroEncoders
-            && turretInputs.connected
-            && turretConnectionActivated
-            && !turretConnectionBeenLost
-            && turretStopped2.calculate(MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5))
-            && !MathUtil.isNear(CRT(), getTurretRotationFromRotorRotation(), 0.03)) {
-          yield SystemState.REZERO_ENCODERS;
-        } else if (systemState == SystemState.REZERO_MOTOR) {
-          SmartDashboard.putString("Turret Motor Fault Sticky", Color.kRed.toHexString());
-          if (turretStopped.calculate(MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5))) {
-            rezeroTurret();
-            turretConnectionActivated = true;
-            turretConnectionBeenLost = false;
-            yield SystemState.HUB_TRACK;
-          } else {
-            yield SystemState.REZERO_MOTOR;
-          }
-        } else if (systemState == SystemState.REZERO_ENCODERS) {
-          SmartDashboard.putString("Turret Encoder Fault Sticky", Color.kRed.toHexString());
-          if (MathUtil.isNear(0, turretInputs.rotationsPerSecond, 1e-5)
-              && MathUtil.isNear(
-                  initialRotorRotation,
-                  turretInputs.rotations,
-                  Constants.REZERO_ROTATION_TOLERANCE)) {
-            if (leftEncoderIO instanceof EncoderIOCANCoder)
-              ((EncoderIOCANCoder) leftEncoderIO)
-                  .setOffsetRotations(leftEncoderInputs.positionWithoutOffset);
-            if (rightEncoderIO instanceof EncoderIOCANCoder)
-              ((EncoderIOCANCoder) rightEncoderIO)
-                  .setOffsetRotations(rightEncoderInputs.positionWithoutOffset);
-            yield SystemState.HUB_TRACK;
-          } else {
-            yield SystemState.REZERO_ENCODERS;
-          }
-        } else {
-          yield SystemState.HUB_TRACK;
-        }
-      }
+      case IDLE -> SystemState.IDLE;
+      case SCORING -> SystemState.SCORING;
+      case PASSING -> SystemState.PASSING;
+      case HUB_TRACK -> SystemState.HUB_TRACK;
     };
   }
 
@@ -620,13 +459,38 @@ public class Turret extends FullSubsystem {
   }
 
   private double[] compareMotorAndEncoderRelativeRotations() {
-    var leftEncoderToMotorRotations = leftEncoderInputs.relativeRotations * Constants.MOTOR_ROTATIONS_TO_LEFT_ENCODER_ROTATIONS;
-    var rightEncoderToMotorRotations = rightEncoderInputs.relativeRotations * Constants.MOTOR_ROTATIONS_TO_RIGHT_ENCODER_ROTATIONS;
+    var leftEncoderToMotorRotations =
+        leftEncoderInputs.relativeRotations * Constants.MOTOR_ROTATIONS_TO_LEFT_ENCODER_ROTATIONS
+            + turretRotationsOnStart;
+    var rightEncoderToMotorRotations =
+        rightEncoderInputs.relativeRotations * Constants.MOTOR_ROTATIONS_TO_RIGHT_ENCODER_ROTATIONS
+            + turretRotationsOnStart;
 
     return new double[] {
-            leftEncoderToMotorRotations,
-            rightEncoderToMotorRotations,
-            turretInputs.rotations,
+      leftEncoderToMotorRotations, rightEncoderToMotorRotations, turretInputs.rotations,
     };
+  }
+
+  // OVERRIDE Commands -- these disable the subsystem state machine for their duration
+
+  public Command rezeroAgainstWires() {
+    return this.run(() -> setVoltage(Volts.of(3.0)))
+        .until(() -> Math.abs(turretInputs.amps) > 29.0)
+        .finallyDo(
+            () -> {
+              if (turretIO instanceof TurretIOTalonFX)
+                ((TurretIOTalonFX) turretIO)
+                    .setRotorRotations(
+                        getRotorRotationsFromAbsoluteTurretRotation(
+                            Constants.MAX_TURRET_EXTENSION_ROTATIONS));
+            });
+  }
+
+  public Command overrideClockwise() {
+    return this.run(() -> setVoltage(Volts.of(-3.0))).finallyDo(() -> setVoltage(Volts.of(0)));
+  }
+
+  public Command overrideCounterClockwise() {
+    return this.run(() -> setVoltage(Volts.of(3.0))).finallyDo(() -> setVoltage(Volts.of(0)));
   }
 }

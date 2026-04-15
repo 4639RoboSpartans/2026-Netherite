@@ -145,9 +145,6 @@ public class RobotState extends VirtualSubsystem
 
   @Setter @Getter private double gyroRotationsPerSecond;
 
-  private final TimeInterpolatableBuffer<Double> turretRobotRelativeBuffer =
-      TimeInterpolatableBuffer.createDoubleBuffer(poseBufferSizeSec);
-
   // -------------------------------------------------------------------------
   // Scoring & Shooting State
   // -------------------------------------------------------------------------
@@ -189,6 +186,11 @@ public class RobotState extends VirtualSubsystem
 
   private final PoseEstimator primaryPoseEstimator = new PoseEstimator(poseBufferSizeSec);
   private final PoseEstimator secondaryPoseEstimator = new PoseEstimator(poseBufferSizeSec);
+
+  private final TimeInterpolatableBuffer<Double> turretRotations = TimeInterpolatableBuffer.createDoubleBuffer(poseBufferSizeSec);
+
+  @AutoLogOutput(key = "Using Turret Buffer")
+  private boolean useTurretBuffer = true;
 
   @Setter private boolean sendVisionToPrimaryPoseEstimator = true;
 
@@ -415,11 +417,15 @@ public class RobotState extends VirtualSubsystem
         visionTurretPoseMeters.transformBy(
             new Transform2d(
                     Constants.SimConstants.originToTurretRotation.toTranslation2d(),
-                    Rotation2d.fromRotations(getScoringState().turretRotations()))
+                    useTurretBuffer ? Rotation2d.fromRotations(turretRotations.getSample(timestampSeconds).orElse(getScoringState().turretRotations())) : Rotation2d.fromRotations(getScoringState().turretRotations()))
                 .inverse());
 
     this.turretCameraTargets = numtargets;
     accept(999, estimatedRobotPose, timestampSeconds, visionMeasurementStdDevs);
+  }
+
+  public void addTurretRotationMeasurement(double timestamp, double rotations) {
+    turretRotations.addSample(timestamp, rotations);
   }
 
   // =========================================================================
@@ -519,7 +525,7 @@ public class RobotState extends VirtualSubsystem
   // =========================================================================
 
   public void acceptTurretMeasurement(double rotations, double timestamp) {
-    turretRobotRelativeBuffer.addSample(timestamp, rotations);
+    turretRotations.addSample(timestamp, rotations);
   }
 
   /** Attempt to find the best hub for the turret to track while idling. */

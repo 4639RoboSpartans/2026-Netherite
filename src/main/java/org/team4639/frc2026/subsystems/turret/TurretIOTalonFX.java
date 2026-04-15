@@ -7,6 +7,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -14,6 +15,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.team4639.frc2026.RobotState;
 import org.team4639.frc2026.util.PortConfiguration;
@@ -28,6 +30,7 @@ public class TurretIOTalonFX implements TurretIO {
 
   private final PositionVoltage request = new PositionVoltage(0);
   private final MotionMagicVoltage motionMagic = new MotionMagicVoltage(0);
+  private final VoltageOut voltageOut = new VoltageOut(0).withIgnoreSoftwareLimits(true);
 
   private final StatusSignal<Angle> motorPosition;
   private final StatusSignal<AngularVelocity> motorVelocity;
@@ -46,7 +49,7 @@ public class TurretIOTalonFX implements TurretIO {
     config.CurrentLimits.SupplyCurrentLimit = 20.0;
     config.CurrentLimits.SupplyCurrentLimitEnable = true;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.CurrentLimits.StatorCurrentLimit = 20;
+    config.CurrentLimits.StatorCurrentLimit = 30;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
     double kS = 0.1813163;
@@ -113,6 +116,11 @@ public class TurretIOTalonFX implements TurretIO {
     inputs.celsius = turretMotor.getDeviceTemp().getValueAsDouble();
     inputs.rotationsPerSecond = motorVelocity.getValueAsDouble();
     inputs.rotations = motorPosition.getValueAsDouble();
+
+    double timestamp = RobotController.getFPGATime() / 1e6;
+    double latency = motorPosition.getTimestamp().getLatency();
+
+    inputs.timestamp = timestamp - latency;
   }
 
   @Override
@@ -149,7 +157,7 @@ public class TurretIOTalonFX implements TurretIO {
 
   @Override
   public void setVoltage(double volts) {
-    turretMotor.setVoltage(volts);
+    turretMotor.setControl(voltageOut.withOutput(volts));
   }
 
   public void setSoftwareLimits(
@@ -161,5 +169,9 @@ public class TurretIOTalonFX implements TurretIO {
     config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = reverseLimitRotorRotations;
 
     PhoenixUtil.tryUntilOk(5, () -> turretMotor.getConfigurator().apply(config));
+  }
+
+  public void setRotorRotations(double rotorRotations) {
+    turretMotor.setPosition(rotorRotations);
   }
 }

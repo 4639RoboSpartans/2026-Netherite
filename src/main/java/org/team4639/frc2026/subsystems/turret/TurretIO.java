@@ -24,5 +24,6 @@ public interface TurretIO {
     public double celsius = 0.0;
     public double rotationsPerSecond = 0.0;
     public double rotations = 0.0;
+    public double timestamp = 0.0;
   }
 }

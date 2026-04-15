@@ -16,7 +16,8 @@ public class Intake extends FullSubsystem {
   private final IntakeRollerIO rollerIO;
   private final IntakeRollerIOInputsAutoLogged rollerInputs = new IntakeRollerIOInputsAutoLogged();
 
-  private final double INTAKE_SURFACE_VELOCITY_FEET_PER_SECOND = 28 * 3;
+  private final double INTAKE_SURFACE_VELOCITY_FEET_PER_SECOND = 28 * 4.5
+  ;
 
   @Getter
   private final IntakeRollerSysID rollerSysID =
@@ -29,7 +30,7 @@ public class Intake extends FullSubsystem {
     INTAKE,
     OUTTAKE,
     MANUAL
-  }
+  } 
 
   public enum SystemState {
     IDLE,

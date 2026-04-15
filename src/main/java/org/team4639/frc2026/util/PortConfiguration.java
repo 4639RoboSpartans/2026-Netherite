@@ -4,7 +4,8 @@ package org.team4639.frc2026.util;
 
 public class PortConfiguration {
   public CanDeviceId IntakeExtensionMotorID;
-  public CanDeviceId IntakeRollersMotorID;
+  public CanDeviceId intakeLeft;
+  public CanDeviceId intakeRight;
   public CanDeviceId SpindexerMotorID;
   public CanDeviceId KickerMotorID;
   public CanDeviceId TurretMotorID;

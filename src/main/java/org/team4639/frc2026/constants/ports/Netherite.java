@@ -10,7 +10,8 @@ public class Netherite {
 
   static {
     portConfiguration.IntakeExtensionMotorID = new CanDeviceId(20);
-    portConfiguration.IntakeRollersMotorID = new CanDeviceId(21);
+    portConfiguration.intakeLeft = new CanDeviceId(21);
+    portConfiguration.intakeRight = new CanDeviceId(40);
     portConfiguration.SpindexerMotorID = new CanDeviceId(22);
     portConfiguration.KickerMotorID = new CanDeviceId(23);
     portConfiguration.TurretMotorID = new CanDeviceId(24);

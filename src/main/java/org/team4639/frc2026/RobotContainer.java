@@ -373,6 +373,7 @@ public class RobotContainer {
     driver.b().onTrue(IntakeCommands.stop(intake));
 
     driver.back().whileTrue(drive.run(drive::autoConfiguration));
+    driver.start().onTrue(turret.rezeroAgainstWires());
 
     driver.povDown().onTrue(IntakeCommands.outtake(intake));
 
@@ -381,7 +382,11 @@ public class RobotContainer {
         .povDown()
         .onTrue(Commands2.action(() -> LookupTables.fudge = LookupTables.fudge - 0.1));
 
-    operator.x().onTrue(Commands2.action(() -> turret.rezeroTurret()));
+    operator.povLeft().whileTrue(turret.overrideCounterClockwise());
+    operator.povRight().whileTrue(turret.overrideCounterClockwise());
+
+    operator.x().onTrue(turret.rezeroAgainstWires());
+    
     operator
         .y()
         .onTrue(
