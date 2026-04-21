@@ -16,11 +16,11 @@ public interface KickerIO {
 
     @AutoLog
     class KickerIOInputs {
-        public boolean motorConnected = true;
-        public double motorVoltage;
-        public double motorCurrent;
-        public double motorVelocity;
-        public double motorTemperature;
-        public double motorPosition;
+        public boolean connected = true;
+        public double volts;
+        public double amps;
+        public double rotationsPerSecond;
+        public double celsius;
+        public double rotations;
     }
 }

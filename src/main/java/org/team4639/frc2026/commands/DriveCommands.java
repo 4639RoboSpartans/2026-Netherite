@@ -13,9 +13,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -25,13 +22,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-
 import org.team4639.frc2026.RobotState;
 import org.team4639.frc2026.subsystems.drive.Drive;
 
 public class DriveCommands {
     private static final double DEADBAND = 0.1;
-    private static final double ANGLE_KP = 10.0;
+    private static final double ANGLE_KP = 4.0;
     private static final double ANGLE_KD = 0.0;
     private static final double ANGLE_MAX_VELOCITY = 8.0;
     private static final double ANGLE_MAX_ACCELERATION = 20.0;
@@ -40,6 +36,9 @@ public class DriveCommands {
     private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
     private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
     private static final double ALIGN_FF = 1.0;
+
+    private static final SlewRateLimiter xLimiter = new SlewRateLimiter(1);
+    private static final SlewRateLimiter yLimiter = new SlewRateLimiter(1);
 
     private DriveCommands() {}
 
@@ -102,18 +101,20 @@ public class DriveCommands {
                     omega = Math.copySign(omega * omega, omega);
 
                     // Convert to field relative speeds & send command
-                    ChassisSpeeds speeds = new ChassisSpeeds(
-                            linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
-                            linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
-                            omega * drive.getMaxAngularSpeedRadPerSec());
+                    ChassisSpeeds speeds;
+                    if (SuperstructureCommands.tryingToShoot) {
+                        speeds = new ChassisSpeeds((linearVelocity.getX() * 2), (linearVelocity.getY() * 2), omega * 2);
+                    } else {
+                        speeds = new ChassisSpeeds(
+                                (linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec()),
+                                (linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec()),
+                                omega * drive.getMaxAngularSpeedRadPerSec());
+                    }
 
                     if (MathUtil.isNear(0, speeds.vxMetersPerSecond, 1e-9)
                             && MathUtil.isNear(0, speeds.vyMetersPerSecond, 1e-9)
-                            && MathUtil.isNear(0, speeds.omegaRadiansPerSecond, 1e-9)
-                    ) drive.stopWithX();
-                    else drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(
-                            speeds,
-                            drive.getRotation()));
+                            && MathUtil.isNear(0, speeds.omegaRadiansPerSecond, 1e-9)) drive.stopWithX();
+                    else drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, drive.getRotation()));
                 },
                 drive);
     }
@@ -291,11 +292,12 @@ public class DriveCommands {
         double gyroDelta = 0.0;
     }
 
-    public static Command PIDToPose(Drive drive, RobotState state, Pose2d destinationPose, double toleranceMeters, double velocityScaling) {
+    public static Command PIDToPose(
+            Drive drive, RobotState state, Pose2d destinationPose, double toleranceMeters, double velocityScaling) {
         ProfiledPIDController pidX =
-                new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(10 * velocityScaling, 19));
+                new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(5 * velocityScaling, 6));
         ProfiledPIDController pidY =
-                new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(10 * velocityScaling, 19));
+                new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(5 * velocityScaling, 6));
         PIDController headingController = new PIDController(5, 0, 0);
         headingController.enableContinuousInput(-Math.PI, Math.PI);
         headingController.setSetpoint(destinationPose.getRotation().getRadians());
@@ -310,25 +312,24 @@ public class DriveCommands {
 
         double kp = 6;
 
-        return drive
-                .run(
-                        () -> {
-                            drive.runVelocity(
-                                    ChassisSpeeds.fromFieldRelativeSpeeds(
-                                            new ChassisSpeeds(
-                                                    ALIGN_FF * pidX.getSetpoint().velocity
-                                                            + pidX.calculate(drive.getPose().getX()),
-                                                    ALIGN_FF * pidY.getSetpoint().velocity
-                                                            + pidY.calculate(drive.getPose().getY()),
-                                                    headingController.calculate(drive.getPose().getRotation().getRadians())),
-                                            drive.getPose().getRotation()));
+        return drive.run(() -> {
+                    drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(
+                            new ChassisSpeeds(
+                                    ALIGN_FF * pidX.getSetpoint().velocity
+                                            + pidX.calculate(drive.getPose().getX()),
+                                    ALIGN_FF * pidY.getSetpoint().velocity
+                                            + pidY.calculate(drive.getPose().getY()),
+                                    headingController.calculate(
+                                            drive.getPose().getRotation().getRadians())),
+                            drive.getPose().getRotation()));
 
-                                state.setChoreoSetpoint(destinationPose);
-                        })
-                .until(() -> state.getEstimatedPose().getTranslation().getDistance(destinationPose.getTranslation()) < toleranceMeters);
+                    state.setChoreoSetpoint(destinationPose);
+                })
+                .until(() -> state.getEstimatedPose().getTranslation().getDistance(destinationPose.getTranslation())
+                        < toleranceMeters);
     }
 
-    public static Command PIDToPose(Drive drive, RobotState state, Pose2d destinationPose, double toleranceMeters){
+    public static Command PIDToPose(Drive drive, RobotState state, Pose2d destinationPose, double toleranceMeters) {
         return PIDToPose(drive, state, destinationPose, toleranceMeters, 1.0);
     }
 }

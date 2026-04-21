@@ -3,14 +3,12 @@
 package org.team4639.frc2026.constants.shooter;
 
 import edu.wpi.first.math.geometry.Translation2d;
-import lombok.RequiredArgsConstructor;
 import org.team4639.frc2026.FieldConstants;
 
-// where to point at when we pass, doesn't really have all that much to do with where the ball lands
-@RequiredArgsConstructor
-public enum PassingTargets {
-    LEFT(new Translation2d(0, 5)),
-    RIGHT(new Translation2d(0, FieldConstants.fieldWidth-5));
+public class PassingTargets {
+    public static final Translation2d LEFT =
+            new Translation2d(FieldConstants.LinesVertical.allianceZone / 3., FieldConstants.fieldWidth * 5. / 6.);
 
-    public final Translation2d target;
+    public static final Translation2d RIGHT =
+            new Translation2d(FieldConstants.LinesVertical.allianceZone / 3., FieldConstants.fieldWidth * 1. / 6.);
 }

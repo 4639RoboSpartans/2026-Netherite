@@ -6,16 +6,16 @@ package org.team4639.frc2026;
  * Automatically generated file containing build version information.
  */
 public final class BuildConstants {
-  public static final String MAVEN_GROUP = "";
-  public static final String MAVEN_NAME = "2026-Season-Robot";
-  public static final String VERSION = "unspecified";
-  public static final int GIT_REVISION = 208;
-  public static final String GIT_SHA = "416545a0853148d3ccf7f2272697a7d952fd7976";
-  public static final String GIT_DATE = "2026-03-07 12:46:49 CST";
-  public static final String GIT_BRANCH = "dev";
-  public static final String BUILD_DATE = "2026-03-07 13:55:41 CST";
-  public static final long BUILD_UNIX_TIME = 1772913341880L;
-  public static final int DIRTY = 1;
+    public static final String MAVEN_GROUP = "";
+    public static final String MAVEN_NAME = "2026-Season-Robot";
+    public static final String VERSION = "unspecified";
+    public static final int GIT_REVISION = 260;
+    public static final String GIT_SHA = "81ee72973fa46988ebb42ed9cb32cdc8448518fc";
+    public static final String GIT_DATE = "2026-04-15 09:21:29 CDT";
+    public static final String GIT_BRANCH = "dev-refactor2";
+    public static final String BUILD_DATE = "2026-04-15 10:23:47 CDT";
+    public static final long BUILD_UNIX_TIME = 1776266627922L;
+    public static final int DIRTY = 1;
 
-  private BuildConstants(){}
+    private BuildConstants() {}
 }

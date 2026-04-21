@@ -2,10 +2,13 @@
 
 package org.team4639.frc2026.subsystems.hood;
 
+import static edu.wpi.first.units.Units.*;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import lombok.Getter;
 import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -13,8 +16,6 @@ import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
 import org.team4639.lib.util.FullSubsystem;
 import org.team4639.lib.util.LoggedTunableNumber;
-
-import static edu.wpi.first.units.Units.*;
 
 public class Hood extends FullSubsystem {
     private final RobotState state;
@@ -33,8 +34,6 @@ public class Hood extends FullSubsystem {
 
     @Setter
     private double MANUAL_HOOD_ANGLE = 20;
-
-    private final LoggedTunableNumber desiredHoodAngle = new LoggedTunableNumber("Desired Hood Angle").initDefault(20);
 
     @Getter
     private final HoodSysID sysID = new HoodSysID.HoodSysIDWPI(this, inputs);
@@ -60,6 +59,8 @@ public class Hood extends FullSubsystem {
 
     private WantedState lastZeroedWantedState = wantedState;
 
+    public final Subsystem dummy = new Subsystem() {};
+
     public Hood(HoodIO io, RobotState state) {
         this.io = io;
         this.state = state;
@@ -73,7 +74,7 @@ public class Hood extends FullSubsystem {
     public void periodicBeforeScheduler() {
         io.updateInputs(inputs);
         Logger.processInputs("Hood", inputs);
-        state.updateShooterState(null, Degrees.of(inputs.pivotPositionDegrees), null);
+        state.updateShooterState(Double.NaN, inputs.degrees, Double.NaN);
     }
 
     @Override
@@ -81,16 +82,22 @@ public class Hood extends FullSubsystem {
 
         if (org.team4639.frc2026.Constants.tuningMode) {
             LoggedTunableNumber.ifChanged(
-                hashCode(), io::applyNewGains,
-                PIDs.hoodKp, PIDs.hoodKi, PIDs.hoodKd,
-                PIDs.hoodKs, PIDs.hoodKv, PIDs.hoodKa,
-                PIDs.hoodKpSim, PIDs.hoodKiSim, PIDs.hoodKdSim
-            );
+                    hashCode(),
+                    io::applyNewGains,
+                    PIDs.hoodKp,
+                    PIDs.hoodKi,
+                    PIDs.hoodKd,
+                    PIDs.hoodKs,
+                    PIDs.hoodKv,
+                    PIDs.hoodKa,
+                    PIDs.hoodKpSim,
+                    PIDs.hoodKiSim,
+                    PIDs.hoodKdSim);
         }
 
-        if (this.systemState != SystemState.HOME_UP && this.systemState != SystemState.HOME_DOWN){
-            if (Math.abs(this.inputs.pivotCurrent) >= 19.0) {
-                if (this.inputs.pivotVoltage < 0){
+        if (this.systemState != SystemState.HOME_UP && this.systemState != SystemState.HOME_DOWN) {
+            if (Math.abs(this.inputs.amps) >= 19.0) {
+                if (this.inputs.volts < 0) {
                     io.setPosition(Constants.HOOD_MIN_ANGLE_DEGREES);
                 } else {
                     io.setPosition(Constants.HOOD_MIN_ANGLE_DEGREES + Constants.HOOD_RANGE_DEGREES);
@@ -102,17 +109,15 @@ public class Hood extends FullSubsystem {
     @Override
     public void periodicAfterScheduler() {
         state.setHoodStates(new Pair<>(wantedState, systemState));
-        state.accept(inputs);
-
-        state.acceptCANMeasurement(inputs.hoodMotorConnected);
-        state.acceptTemperatureMeasurement(inputs.pivotTemperature);
+        state.acceptCANMeasurement(inputs.connected);
+        state.acceptTemperatureMeasurement(inputs.celsius);
     }
 
     private SystemState handleStateTransitions() {
         return switch (wantedState) {
             case IDLE -> {
-                if (systemState == SystemState.HOME_DOWN){
-                    if (Math.abs(inputs.pivotCurrent) > 19.0){
+                if (systemState == SystemState.HOME_DOWN) {
+                    if (Math.abs(inputs.amps) > 19.0) {
                         io.setPosition(Constants.HOOD_MIN_ANGLE_DEGREES);
                         lastZeroedWantedState = WantedState.IDLE;
                         yield SystemState.IDLE;
@@ -121,8 +126,8 @@ public class Hood extends FullSubsystem {
                     }
                 }
 
-                if (systemState == SystemState.HOME_UP){
-                    if (Math.abs(inputs.pivotCurrent) > 19.0){
+                if (systemState == SystemState.HOME_UP) {
+                    if (Math.abs(inputs.amps) > 19.0) {
                         io.setPosition(Constants.HOOD_MIN_ANGLE_DEGREES + Constants.HOOD_RANGE_DEGREES);
                         lastZeroedWantedState = WantedState.IDLE;
                         yield SystemState.IDLE;
@@ -147,7 +152,9 @@ public class Hood extends FullSubsystem {
         io.setVoltage(-HOME_VOLTAGE);
     }
 
-    private void handleManual() { io.setPosition(MANUAL_HOOD_ANGLE);}
+    private void handleManual() {
+        io.setPosition(MANUAL_HOOD_ANGLE);
+    }
 
     private void handleIdle() {
         getSetpointAngle();
@@ -173,35 +180,66 @@ public class Hood extends FullSubsystem {
         setWantedState(wantedState);
         if (wantedState == WantedState.PASSING) {
             this.PASSING_HOOD_ANGLE = Rotations.of(scoringAngleRotations).in(Degrees);
-            if (this.PASSING_HOOD_ANGLE >= Constants.HOOD_MIN_ANGLE_DEGREES + Constants.HOOD_RANGE_DEGREES - 1) this.systemState = SystemState.HOME_UP;
-            else if (this.PASSING_HOOD_ANGLE <= Constants.HOOD_MIN_ANGLE_DEGREES + 1) this.systemState = SystemState.HOME_DOWN;
+            if (this.PASSING_HOOD_ANGLE >= Constants.HOOD_MIN_ANGLE_DEGREES + Constants.HOOD_RANGE_DEGREES - 1)
+                this.systemState = SystemState.HOME_UP;
+            else if (this.PASSING_HOOD_ANGLE <= Constants.HOOD_MIN_ANGLE_DEGREES + 1)
+                this.systemState = SystemState.HOME_DOWN;
         } else {
             this.SCORING_HOOD_ANGLE = Rotations.of(scoringAngleRotations).in(Degrees);
-            if (this.SCORING_HOOD_ANGLE >= Constants.HOOD_MIN_ANGLE_DEGREES + Constants.HOOD_RANGE_DEGREES - 1) this.systemState = SystemState.HOME_UP;
-            else if (this.SCORING_HOOD_ANGLE <= Constants.HOOD_MIN_ANGLE_DEGREES + 1) this.systemState = SystemState.HOME_DOWN;
+            if (this.SCORING_HOOD_ANGLE >= Constants.HOOD_MIN_ANGLE_DEGREES + Constants.HOOD_RANGE_DEGREES - 1)
+                this.systemState = SystemState.HOME_UP;
+            else if (this.SCORING_HOOD_ANGLE <= Constants.HOOD_MIN_ANGLE_DEGREES + 1)
+                this.systemState = SystemState.HOME_DOWN;
         }
     }
 
     /**
-     * Should not be called in comp code. All usages of
-     * setVoltage() needed for comp should be called internally.
+     * Should not be called in comp code. All usages of setVoltage() needed for comp should be called
+     * internally.
+     *
      * @param volts
      */
-    public void setVoltage(Voltage volts){
+    public void setVoltage(Voltage volts) {
         io.setVoltage(volts.in(Volts));
     }
 
     public double getSetpointAngle() {
         return switch (systemState) {
-            case SCORING -> SCORING_HOOD_ANGLE = state.calculateScoringState(this).hoodAngle().in(Degrees);
-            case PASSING -> PASSING_HOOD_ANGLE = state.calculatePassingState(this).hoodAngle().in(Degrees);
+            case SCORING -> {
+                var setpointState = state.calculateScoringState(this);
+                yield SCORING_HOOD_ANGLE = MathUtil.clamp(
+                        setpointState.hoodDegrees()
+                                + MathUtil.clamp(
+                                        (setpointState.shooterRPM()
+                                                        + state.getScoringState()
+                                                                .shooterRPM())
+                                                / 75.0,
+                                        0,
+                                        10),
+                        20,
+                        50);
+            }
+            case PASSING -> {
+                var setpointState = state.calculatePassingState(this);
+                yield PASSING_HOOD_ANGLE = MathUtil.clamp(
+                        setpointState.hoodDegrees()
+                                + MathUtil.clamp(
+                                        (setpointState.shooterRPM()
+                                                        + state.getScoringState()
+                                                                .shooterRPM())
+                                                / 75.0,
+                                        -10,
+                                        10),
+                        20,
+                        50);
+            }
             case MANUAL -> MANUAL_HOOD_ANGLE;
             default -> Constants.HOOD_MIN_ANGLE_DEGREES;
         };
     }
 
     public boolean atSetpoint() {
-        return MathUtil.isNear(getSetpointAngle(), inputs.pivotPositionDegrees, HOOD_TOLERANCE_DEGREES);
+        return MathUtil.isNear(getSetpointAngle(), inputs.degrees, HOOD_TOLERANCE_DEGREES);
     }
 
     private void runStateMachine() {

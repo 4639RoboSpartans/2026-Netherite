@@ -3,20 +3,12 @@
 package org.team4639.frc2026;
 
 import com.ctre.phoenix6.SignalLogger;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructArrayPublisher;
-import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructArrayPublisher;
+import com.pathplanner.lib.commands.PathfindingCommand;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import org.ironmaple.simulation.SimulatedArena;
-import org.ironmaple.simulation.gamepieces.GamePiece;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -37,6 +29,7 @@ import org.team4639.lib.util.VirtualSubsystem;
 public class Robot extends LoggedRobot {
     private Command autonomousCommand;
     private RobotContainer robotContainer;
+    private final double bootupTimestamp;
 
     public Robot() {
         // Record metadata
@@ -80,15 +73,17 @@ public class Robot extends LoggedRobot {
 
         // Start CTRE Logger and URCL if tuning mode on
         if (Constants.tuningMode) {
-                SignalLogger.enableAutoLogging(true);
-                URCL.start(DataLogManager.getLog());
-            }
+            SignalLogger.enableAutoLogging(true);
+            Logger.registerURCL(URCL.startExternal(Constants.URCLConstants.shooterIDtoName));
+        }
 
         // Instantiate our RobotContainer. This will perform all our button bindings,
         // and put our autonomous chooser on the dashboard.
         robotContainer = new RobotContainer();
 
-        SignalLogger.start();
+        bootupTimestamp = Timer.getTimestamp();
+
+        CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand());
     }
 
     /** This function is called periodically during all modes. */
@@ -116,17 +111,7 @@ public class Robot extends LoggedRobot {
         LoggedTracer.record("PeriodicAfterScheduler");
 
         SmartDashboard.putNumber("Match Time", Timer.getMatchTime());
-
-        /*// Get the positions of the fuel (both on the field and in the air)
-        Pose3d[] fuelPoses = SimulatedArena.getInstance()
-                .getGamePiecesArrayByType("Fuel");
-        fuelPosesPublisher.accept(SimulatedArena.getInstance()
-                .getGamePiecesByType("Fuel")
-                        .stream().map(GamePiece::getPose3d)
-                .toArray(Pose3d[]::new)
-        );
-
-        robotContainer.publishComponentPoses();*/
+        SmartDashboard.putNumber("Run Time", Timer.getTimestamp() - bootupTimestamp);
     }
 
     /** This function is called once when the robot is disabled. */

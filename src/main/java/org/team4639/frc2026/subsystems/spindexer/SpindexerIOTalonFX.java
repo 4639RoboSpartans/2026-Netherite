@@ -24,38 +24,42 @@ public class SpindexerIOTalonFX implements SpindexerIO {
         TalonFXConfiguration config = new TalonFXConfiguration();
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
-        config.CurrentLimits.SupplyCurrentLimit = 40;
+        config.CurrentLimits.SupplyCurrentLimit = 35;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
         config.CurrentLimits.StatorCurrentLimit = 80;
-        config.Slot0.kV = 0.087712 * 9/8;
+
+        config.Slot0.kV = 0.087712 * 9 / 8;
         config.Slot0.kA = 0.23735;
-        //config.Slot0.kP = 1;
+        config.Slot0.kP = 0;
+
+        config.MotorOutput.PeakForwardDutyCycle = 1;
+        config.MotorOutput.PeakReverseDutyCycle = 0;
 
         PhoenixUtil.tryUntilOk(5, () -> spindexerMotor.getConfigurator().apply(config));
     }
 
     @Override
     public void updateInputs(SpindexerIOInputs inputs) {
-        inputs.motorConnected = BaseStatusSignal.refreshAll(
-                spindexerMotor.getMotorVoltage(),
-                spindexerMotor.getStatorCurrent(),
-                spindexerMotor.getVelocity(),
-                spindexerMotor.getDeviceTemp()
-        ).isOK();
-        inputs.motorVoltage = spindexerMotor.getMotorVoltage().getValueAsDouble();
-        inputs.motorCurrent = spindexerMotor.getStatorCurrent().getValueAsDouble();
-        inputs.motorVelocity = spindexerMotor.getVelocity().getValueAsDouble();
-        inputs.motorTemperature = spindexerMotor.getDeviceTemp().getValueAsDouble();
-        inputs.motorPosition = spindexerMotor.getPosition().getValueAsDouble();
+        inputs.connected = BaseStatusSignal.refreshAll(
+                        spindexerMotor.getMotorVoltage(),
+                        spindexerMotor.getStatorCurrent(),
+                        spindexerMotor.getVelocity(),
+                        spindexerMotor.getDeviceTemp())
+                .isOK();
+        inputs.volts = spindexerMotor.getMotorVoltage().getValueAsDouble();
+        inputs.amps = spindexerMotor.getStatorCurrent().getValueAsDouble();
+        inputs.rotationsPerSecond = spindexerMotor.getVelocity().getValueAsDouble();
+        inputs.celsius = spindexerMotor.getDeviceTemp().getValueAsDouble();
+        inputs.rotations = spindexerMotor.getPosition().getValueAsDouble();
     }
 
     @Override
-    public void setVoltage(double appliedVoltage)  {
+    public void setVoltage(double appliedVoltage) {
         spindexerMotor.setControl(voltageControl.withOutput(appliedVoltage));
     }
 
     @Override
     public void setRotorVelocityRPM(double targetVelocity) {
-        spindexerMotor.setControl(velocityControl.withVelocity(targetVelocity * 9. / 60));
+        spindexerMotor.setControl(velocityControl.withVelocity(targetVelocity * 4. / 60));
     }
 }

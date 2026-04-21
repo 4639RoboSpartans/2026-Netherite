@@ -17,8 +17,10 @@ import org.team4639.frc2026.RobotState;
 
 public class Module {
     private final ModuleIO io;
+
     @Getter
     private final ModuleIOInputsAutoLogged inputs = new ModuleIOInputsAutoLogged();
+
     private final int index;
     private final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> constants;
 

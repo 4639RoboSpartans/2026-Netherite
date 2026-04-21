@@ -4,7 +4,6 @@ package org.team4639.frc2026.constants.led;
 
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
-
 import org.team4639.lib.led.pattern.LEDPattern;
 import org.team4639.lib.led.pattern2.BlockPattern;
 import org.team4639.lib.led.pattern2.MovingPattern;
@@ -27,17 +26,11 @@ public class Patterns {
     public static final LEDPattern MANUAL = color(Color.kViolet);
 
     private static LEDPattern createMovingPattern(LEDPattern pattern) {
-        return new MovingPattern(
-                new BlockPattern(
-                        MOVING_BLOCK_SIZE,
-                        pattern,
-                        LEDPattern.BLANK
-                ),
-                LEDS_PER_SECOND
-        );
+        return new MovingPattern(new BlockPattern(MOVING_BLOCK_SIZE, pattern, LEDPattern.BLANK), LEDS_PER_SECOND);
     }
 
-    private static LEDPattern color(Color color){
-        return new RGBPattern(LEDPattern.ofColor(color), new Color8Bit(0, 63, 0), new Color8Bit(255, 0, 0), new Color8Bit(0, 0, 31));
+    private static LEDPattern color(Color color) {
+        return new RGBPattern(
+                LEDPattern.ofColor(color), new Color8Bit(0, 63, 0), new Color8Bit(255, 0, 0), new Color8Bit(0, 0, 31));
     }
 }

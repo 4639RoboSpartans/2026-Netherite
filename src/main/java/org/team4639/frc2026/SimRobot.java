@@ -2,6 +2,8 @@
 
 package org.team4639.frc2026;
 
+import static edu.wpi.first.units.Units.*;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -21,8 +23,6 @@ import org.team4639.frc2026.constants.shooter.ScoringState;
 import org.team4639.frc2026.subsystems.drive.Drive;
 import org.team4639.lib.util.VirtualSubsystem;
 
-import static edu.wpi.first.units.Units.*;
-
 public class SimRobot extends VirtualSubsystem {
     @Getter
     private static volatile SimRobot instance = new SimRobot();
@@ -37,7 +37,7 @@ public class SimRobot extends VirtualSubsystem {
             .withGyro(COTS.ofPigeon2())
             .withSwerveModule(COTS.ofMark4i(
                     DCMotor.getKrakenX60(1), DCMotor.getKrakenX60(1), Constants.RobotConstants.WHEEL_COF, 3))
-            .withBumperSize(Inches.of(32), Inches.of(32));
+            .withBumperSize(Inches.of(34), Inches.of(34));
 
     @Override
     public void periodic() {
@@ -59,25 +59,34 @@ public class SimRobot extends VirtualSubsystem {
         arena.setEfficiencyMode(false);
         SimulatedArena.overrideInstance(arena);
         SimulatedArena.getInstance().addDriveTrainSimulation(this.swerveDriveSimulation);
+        SimulatedArena.getInstance().resetFieldForAuto();
     }
 
     public void shootFuel(ScoringState scoringState) {
         RebuiltFuelOnFly fuelOnFly = new RebuiltFuelOnFly(
                 // Specify the position of the chassis when the note is launched
                 swerveDriveSimulation.getSimulatedDriveTrainPose().getTranslation(),
-                // Specify the translation of the shooter from the robot center (in the shooter’s reference frame)
-                new Translation2d(-Units.inchesToMeters(5.84), 0).rotateBy(swerveDriveSimulation.getSimulatedDriveTrainPose().getRotation()),
-                // Specify the field-relative speed of the chassis, adding it to the initial velocity of the projectile
+                // Specify the translation of the shooter from the robot center (in the shooter’s
+                // reference frame)
+                new Translation2d(-Units.inchesToMeters(5.84), 0)
+                        .rotateBy(swerveDriveSimulation
+                                .getSimulatedDriveTrainPose()
+                                .getRotation()),
+                // Specify the field-relative speed of the chassis, adding it to the initial velocity of
+                // the projectile
                 swerveDriveSimulation.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
                 // The shooter facing direction is the same as the robot’s facing direction
-                swerveDriveSimulation.getSimulatedDriveTrainPose().getRotation().plus(Rotation2d.fromRotations(scoringState.turretAngle().in(Rotations))),
+                swerveDriveSimulation
+                        .getSimulatedDriveTrainPose()
+                        .getRotation()
+                        .plus(Rotation2d.fromRotations(scoringState.turretRotations())),
                 // Initial height of the flying note
                 Meters.of(0.508),
-                // The launch speed is proportional to the RPM; assumed to be 16 meters/second at 6000 RPM
-                Meters.per(Second).of(scoringState.shooterRPM().in(Radians.per(Second)) * 0.0508),
+                // The launch speed is proportional to the RPM; assumed to be 16 meters/second at 6000
+                // RPM
+                Meters.per(Second).of(Units.rotationsPerMinuteToRadiansPerSecond(scoringState.shooterRPM()) * 0.0508),
                 // The angle at which the note is launched
-                Rotations.of(0.25).minus(scoringState.hoodAngle())
-        );
+                Rotations.of(0.25).minus(Degrees.of(scoringState.hoodDegrees())));
         fuelOnFly.setHitTargetCallBack(() -> System.out.println("FUEL hits HUB!"));
         SimulatedArena.getInstance().addGamePieceProjectile(fuelOnFly);
     }

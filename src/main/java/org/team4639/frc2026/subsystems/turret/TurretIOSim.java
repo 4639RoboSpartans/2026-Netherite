@@ -2,28 +2,21 @@
 
 package org.team4639.frc2026.subsystems.turret;
 
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import org.team4639.frc2026.Robot;
 
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-
 public class TurretIOSim implements TurretIO {
     private final DCMotorSim turretSim = new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44(1), 0.0000001, 1),
-            DCMotor.getKrakenX44(1)
-    );
-    private final ProfiledPIDController turretPIDController = new ProfiledPIDController(
-            0, 0, 0,
-            new TrapezoidProfile.Constraints(
-                    120, 200
-            )
-    );
+            LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX44(1), 0.0000001, 1), DCMotor.getKrakenX44(1));
+    private final ProfiledPIDController turretPIDController =
+            new ProfiledPIDController(0, 0, 0, new TrapezoidProfile.Constraints(120, 200));
     private double appliedVolts = 0.0;
     private double goalRotation = 0.0;
 
@@ -36,12 +29,9 @@ public class TurretIOSim implements TurretIO {
         setRotorRotationSetpoint(goalRotation);
         turretSim.update(Robot.defaultPeriodSecs);
 
-        inputs.motorVoltage = appliedVolts;
-        inputs.motorPositionRotations = turretSim.getAngularPositionRotations();
-        inputs.motorVelocity = turretSim.getAngularVelocity().in(RotationsPerSecond);
-
-        inputs.motorPositionsRotations = new double[]{turretSim.getAngularPositionRotations()};
-        inputs.motorPositionsTimestamps = new double[]{Timer.getFPGATimestamp()};
+        inputs.volts = appliedVolts;
+        inputs.rotations = turretSim.getAngularPositionRotations();
+        inputs.rotationsPerSecond = turretSim.getAngularVelocity().in(RotationsPerSecond);
     }
 
     @Override
@@ -59,11 +49,7 @@ public class TurretIOSim implements TurretIO {
     }
 
     public void updateGains() {
-        turretPIDController.setPID(
-                PIDs.turretKpSim.get(),
-                PIDs.turretKiSim.get(),
-                PIDs.turretKdSim.get()
-        );
+        turretPIDController.setPID(PIDs.turretKpSim.get(), PIDs.turretKiSim.get(), PIDs.turretKdSim.get());
     }
 
     @Override

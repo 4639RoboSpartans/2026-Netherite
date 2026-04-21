@@ -16,6 +16,7 @@ public class PIDs {
     public static final LoggedTunableNumber shooterKiSim = new LoggedTunableNumber("Shooter/kISim").initDefault(0);
     public static final LoggedTunableNumber shooterKdSim = new LoggedTunableNumber("Shooter/kDSim").initDefault(0);
     public static final LoggedTunableNumber shooterKsSim = new LoggedTunableNumber("Shooter/kSSim").initDefault(0);
-    public static final LoggedTunableNumber shooterKvSim = new LoggedTunableNumber("Shooter/kVSim").initDefault(0.0017386);
+    public static final LoggedTunableNumber shooterKvSim =
+            new LoggedTunableNumber("Shooter/kVSim").initDefault(0.0017386);
     public static final LoggedTunableNumber shooterKaSim = new LoggedTunableNumber("Shooter/kASim").initDefault(0);
 }

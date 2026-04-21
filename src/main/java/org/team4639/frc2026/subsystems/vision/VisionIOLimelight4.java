@@ -14,10 +14,7 @@ public class VisionIOLimelight4 extends VisionIOLimelight {
         super(name, rotationSupplier);
         this.name = name;
 
-        NetworkTableInstance.getDefault()
-                .getTable(name)
-                .getEntry("imumode_set")
-                .setInteger(0);
+        NetworkTableInstance.getDefault().getTable(name).getEntry("imumode_set").setInteger(0);
     }
 
     @Override

@@ -2,31 +2,36 @@
 
 package org.team4639.frc2026.subsystems.spindexer;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
 import org.team4639.lib.util.FullSubsystem;
-
-import static edu.wpi.first.units.Units.Volts;
 
 public class Spindexer extends FullSubsystem {
     private final RobotState state;
     private final SpindexerIO io;
     private final SpindexerIOInputsAutoLogged inputs = new SpindexerIOInputsAutoLogged();
 
-    private final double KICK_RPM = -400;
+    private final double SPIN_RPM = 1800;
     private final double IDLE_RPM = 0;
 
     private double unjamStartTime = Double.NaN;
-    private final double unjamTimePeriod = 0.2;
+    private final double unjamTimePeriod = 1.0;
+
+    private final Debouncer movingNothingDebouncer = new Debouncer(0.8, Debouncer.DebounceType.kRising);
 
     @Getter
     private final SpindexerSysID sysID = new SpindexerSysID.SpindexerSysIDWPI(this, inputs);
+
+    public final Subsystem dummy = new Subsystem() {};
 
     public enum WantedState {
         IDLE,
@@ -57,15 +62,13 @@ public class Spindexer extends FullSubsystem {
     }
 
     @Override
-    public void periodic() {
-
-    }
+    public void periodic() {}
 
     @Override
     public void periodicAfterScheduler() {
         state.setSpindexerStates(new Pair<>(this.wantedState, this.systemState));
-        state.acceptCANMeasurement(inputs.motorConnected);
-        state.acceptTemperatureMeasurement(inputs.motorTemperature);
+        state.acceptCANMeasurement(inputs.connected);
+        state.acceptTemperatureMeasurement(inputs.celsius);
     }
 
     private void runStateMachine() {
@@ -96,12 +99,15 @@ public class Spindexer extends FullSubsystem {
         return switch (wantedState) {
             case IDLE -> SystemState.IDLE;
             case SPIN -> {
-                switch(systemState){
+                switch (systemState) {
                     case IDLE -> {
                         yield SystemState.SPIN;
                     }
                     case SPIN -> {
-                        if (Math.abs(inputs.motorCurrent) > 70){
+                        if (Math.abs(inputs.amps) > 70) {
+                            unjamStartTime = Timer.getTimestamp();
+                            yield SystemState.UNJAM;
+                        } else if (false && movingNothingDebouncer.calculate(Math.abs(inputs.amps) < 30)) {
                             unjamStartTime = Timer.getTimestamp();
                             yield SystemState.UNJAM;
                         } else {
@@ -109,7 +115,7 @@ public class Spindexer extends FullSubsystem {
                         }
                     }
                     case UNJAM -> {
-                        if (Timer.getTimestamp() - unjamStartTime >= unjamTimePeriod){
+                        if (Timer.getTimestamp() - unjamStartTime >= unjamTimePeriod) {
                             yield SystemState.SPIN;
                         } else {
                             yield SystemState.IDLE;
@@ -117,7 +123,6 @@ public class Spindexer extends FullSubsystem {
                     }
                 }
                 yield SystemState.SPIN;
-
             }
         };
     }
@@ -127,18 +132,18 @@ public class Spindexer extends FullSubsystem {
     }
 
     private void handleKick() {
-        io.setRotorVelocityRPM(KICK_RPM);
+        io.setRotorVelocityRPM(SPIN_RPM);
     }
 
     public void setWantedState(WantedState wantedState) {
         this.wantedState = wantedState;
     }
 
-    protected void setVoltage(Voltage volts){
+    protected void setVoltage(Voltage volts) {
         io.setVoltage(volts.in(Volts));
     }
 
     private void handleUnjam() {
-        io.setRotorVelocityRPM(-KICK_RPM);
+        io.setRotorVelocityRPM(-SPIN_RPM);
     }
 }

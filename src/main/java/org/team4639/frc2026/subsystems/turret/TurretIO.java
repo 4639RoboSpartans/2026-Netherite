@@ -18,14 +18,12 @@ public interface TurretIO {
 
     @AutoLog
     class TurretIOInputs {
-        public boolean turretMotorConnected = true;
-        public double motorVoltage = 0.0;
-        public double motorCurrent = 0.0;
-        public double motorTemperature = 0.0;
-        public double motorVelocity = 0.0;
-        public double motorPositionRotations = 0.0;
-
-        public double[] motorPositionsTimestamps = new double[]{};
-        public double[] motorPositionsRotations = new double[]{};
+        public boolean connected = true;
+        public double volts = 0.0;
+        public double amps = 0.0;
+        public double celsius = 0.0;
+        public double rotationsPerSecond = 0.0;
+        public double rotations = 0.0;
+        public double timestamp = 0.0;
     }
 }

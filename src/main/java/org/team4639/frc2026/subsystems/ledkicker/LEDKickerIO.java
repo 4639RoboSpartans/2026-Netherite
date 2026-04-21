@@ -7,9 +7,7 @@ import org.team4639.lib.led.pattern.LEDPattern;
 
 public abstract class LEDKickerIO {
     @AutoLog
-    public static class LEDKickerIOInputs{
-
-    }
+    public static class LEDKickerIOInputs {}
 
     public void setPattern(LEDPattern pattern) {}
 

@@ -2,6 +2,8 @@
 
 package org.team4639.frc2026.subsystems.drive;
 
+import static edu.wpi.first.units.Units.*;
+
 import choreo.trajectory.SwerveSample;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.ModuleConfig;
@@ -30,10 +32,14 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.Constants;
@@ -41,13 +47,6 @@ import org.team4639.frc2026.Constants.Mode;
 import org.team4639.frc2026.RobotState;
 import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
 import org.team4639.frc2026.util.LocalADStarAK;
-
-import java.util.Optional;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Consumer;
-
-import static edu.wpi.first.units.Units.*;
 
 public class Drive extends SubsystemBase {
     // TunerConstants doesn't include these constants, so they are declared locally
@@ -140,23 +139,33 @@ public class Drive extends SubsystemBase {
         driveSysID = new SysIdRoutine(
                 new SysIdRoutine.Config(
                         null, null, null, (state) -> Logger.recordOutput("SysIDTestState", state.toString())),
-                new SysIdRoutine.Mechanism((voltage) -> runCharacterization(voltage.in(Volts)), log -> {
-                    log.motor("Drive Motor")
-                            .voltage(Volts.of(modules[0].getInputs().driveAppliedVolts))
-                            .angularPosition(Radians.of(modules[0].getInputs().drivePositionRad))
-                            .angularVelocity(RadiansPerSecond.of(modules[0].getInputs().driveVelocityRadPerSec));
-                }, this));
+                new SysIdRoutine.Mechanism(
+                        (voltage) -> runCharacterization(voltage.in(Volts)),
+                        log -> {
+                            log.motor("Drive Motor")
+                                    .voltage(Volts.of(modules[0].getInputs().driveAppliedVolts))
+                                    .angularPosition(Radians.of(modules[0].getInputs().drivePositionRad))
+                                    .angularVelocity(
+                                            RadiansPerSecond.of(modules[0].getInputs().driveVelocityRadPerSec));
+                        },
+                        this));
 
         // Configure SysId
         turnSysID = new SysIdRoutine(
                 new SysIdRoutine.Config(
                         null, null, null, (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
-                new SysIdRoutine.Mechanism((voltage) -> runCharacterizationAzimuth(voltage.in(Volts)), log -> {
-                    log.motor("Drive Motor")
-                            .voltage(Volts.of(modules[0].getInputs().turnAppliedVolts))
-                            .angularPosition(Radians.of(modules[0].getInputs().turnAbsolutePosition.getRadians()))
-                            .angularVelocity(RadiansPerSecond.of(modules[0].getInputs().turnVelocityRadPerSec));
-                }, this));
+                new SysIdRoutine.Mechanism(
+                        (voltage) -> runCharacterizationAzimuth(voltage.in(Volts)),
+                        log -> {
+                            log.motor("Drive Motor")
+                                    .voltage(Volts.of(modules[0].getInputs().turnAppliedVolts))
+                                    .angularPosition(Radians.of(modules[0]
+                                            .getInputs()
+                                            .turnAbsolutePosition
+                                            .getRadians()))
+                                    .angularVelocity(RadiansPerSecond.of(modules[0].getInputs().turnVelocityRadPerSec));
+                        },
+                        this));
 
         headingController.enableContinuousInput(-Math.PI / 2, Math.PI / 2);
 
@@ -217,9 +226,11 @@ public class Drive extends SubsystemBase {
                             gyroInputs.connected ? Optional.of(rawGyroRotation) : Optional.empty(),
                             sampleTimestamps[i]);
 
-            RobotState.getInstance().updateChassisSpeeds(ChassisSpeeds.fromRobotRelativeSpeeds(getChassisSpeeds(), getRotation()));
+            RobotState.getInstance()
+                    .updateChassisSpeeds(ChassisSpeeds.fromRobotRelativeSpeeds(getChassisSpeeds(), getRotation()));
 
-            RobotState.getInstance().setGyroRotationsPerSecond(Units.radiansToRotations(gyroInputs.yawVelocityRadPerSec));
+            RobotState.getInstance()
+                    .setGyroRotationsPerSecond(Units.radiansToRotations(gyroInputs.yawVelocityRadPerSec));
         }
 
         // Update gyro alert
@@ -234,7 +245,8 @@ public class Drive extends SubsystemBase {
         // ChassisSpeeds speeds = new ChassisSpeeds(
         //         sample.vx + xController.calculate(pose.getX(), sample.x),
         //         sample.vy + yController.calculate(pose.getY(), sample.y),
-        //         sample.omega + headingController.calculate(pose.getRotation().getRadians(), sample.heading));
+        //         sample.omega + headingController.calculate(pose.getRotation().getRadians(),
+        // sample.heading));
 
         ChassisSpeeds speeds = new ChassisSpeeds(sample.vx, sample.vy, sample.omega);
 
@@ -294,6 +306,13 @@ public class Drive extends SubsystemBase {
         for (int i = 0; i < 4; i++) {
             headings[i] = getModuleTranslations()[i].getAngle();
         }
+        kinematics.resetHeadings(headings);
+        stop();
+    }
+
+    public void autoConfiguration() {
+        Rotation2d[] headings = new Rotation2d[4];
+        Arrays.fill(headings, Rotation2d.kCCW_90deg);
         kinematics.resetHeadings(headings);
         stop();
     }

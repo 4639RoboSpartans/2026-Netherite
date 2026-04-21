@@ -3,15 +3,11 @@
 package org.team4639.frc2026.subsystems.intake;
 
 import edu.wpi.first.math.Pair;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import lombok.Getter;
 import lombok.Setter;
-import org.ironmaple.simulation.IntakeSimulation;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
-import org.team4639.frc2026.subsystems.extension.IntakeExtensionIO;
 import org.team4639.lib.util.FullSubsystem;
 import org.team4639.lib.util.LoggedTunableNumber;
 
@@ -20,27 +16,34 @@ public class Intake extends FullSubsystem {
     private final IntakeRollerIO rollerIO;
     private final IntakeRollerIOInputsAutoLogged rollerInputs = new IntakeRollerIOInputsAutoLogged();
 
-    private final double INTAKE_SURFACE_VELOCITY_FEET_PER_SECOND = 28 * 5;
-
+    private final double INTAKE_SURFACE_VELOCITY_FEET_PER_SECOND = 28 * 4.5;
 
     @Getter
     private final IntakeRollerSysID rollerSysID = new IntakeRollerSysID.IntakeRollerSysIDWPI(this, rollerInputs);
 
+    @Setter
+    private double MANUAL_VOLTS;
+
     public enum WantedState {
         IDLE,
         INTAKE,
-        OUTTAKE
+        OUTTAKE,
+        MANUAL
     }
 
     public enum SystemState {
         IDLE,
         INTAKE,
-        OUTTAKE
+        OUTTAKE,
+        MANUAL
     }
 
     @Setter
     private WantedState wantedState = WantedState.IDLE;
+
     private SystemState systemState = SystemState.IDLE;
+
+    public final Subsystem dummy = new Subsystem() {};
 
     public Intake(IntakeRollerIO rollerIO, RobotState state) {
         this.rollerIO = rollerIO;
@@ -59,7 +62,9 @@ public class Intake extends FullSubsystem {
 
     @Override
     public void periodic() {
-        LoggedTunableNumber.ifChanged(hashCode(), rollerIO::applyNewGains,
+        LoggedTunableNumber.ifChanged(
+                hashCode(),
+                rollerIO::applyNewGains,
                 PIDs.rollerkP,
                 PIDs.rollerkI,
                 PIDs.rollerkD,
@@ -73,7 +78,7 @@ public class Intake extends FullSubsystem {
         state.setIntakeStates(new Pair<>(this.wantedState, this.systemState));
 
         state.acceptCANMeasurement(rollerInputs.connected);
-        state.acceptTemperatureMeasurement(rollerInputs.temperature);
+        state.acceptTemperatureMeasurement(rollerInputs.celsius);
     }
 
     public SystemState handleStateTransitions() {
@@ -93,6 +98,7 @@ public class Intake extends FullSubsystem {
                     yield SystemState.OUTTAKE;
                 }
             }
+            case MANUAL -> SystemState.MANUAL;
         };
     }
 
@@ -108,8 +114,11 @@ public class Intake extends FullSubsystem {
         rollerIO.setSurfaceVelocityFeetPerSecond(-INTAKE_SURFACE_VELOCITY_FEET_PER_SECOND);
     }
 
+    public void handleManual() {
+        rollerIO.setVoltage(MANUAL_VOLTS);
+    }
 
-    public void setRollerVoltage(double volts){
+    public void setRollerVoltage(double volts) {
         rollerIO.setVoltage(volts);
     }
 
@@ -120,11 +129,10 @@ public class Intake extends FullSubsystem {
             systemState = newState;
         }
 
-        switch(systemState){
+        switch (systemState) {
             case IDLE -> handleIdle();
             case INTAKE -> handleIntaking();
             case OUTTAKE -> handleOuttaking();
         }
     }
-
 }

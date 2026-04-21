@@ -36,8 +36,9 @@ public class TunerConstants {
             .withKP(0.16552)
             .withKI(0)
             .withKD(0)
-            .withKS(0.17783)
-            .withKV(0.77701);
+            .withKS(0.05138044)
+            .withKV(0.8073755)
+            .withKA(0.00640741);
 
     // The closed-loop output type to use for the steer motors;
     // This affects the PID/FF gains for the steer motors
@@ -61,16 +62,27 @@ public class TunerConstants {
 
     // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
-    private static final TalonFXConfiguration driveInitialConfigs = new TalonFXConfiguration();
+    private static final TalonFXConfiguration driveInitialConfigs = new TalonFXConfiguration()
+            .withCurrentLimits(new CurrentLimitsConfigs()
+                    .withSupplyCurrentLimitEnable(true)
+                    .withSupplyCurrentLimit(70)
+                    .withSupplyCurrentLowerTime(1)
+                    .withSupplyCurrentLowerLimit(30));
     private static final TalonFXConfiguration steerInitialConfigs = new TalonFXConfiguration()
             .withCurrentLimits(new CurrentLimitsConfigs()
-                    // Swerve azimuth does not require much torque output, so we can set a relatively low
+                    // Swerve azimuth does not require much torque output, so we can set a relatively
+                    // low
                     // stator current limit to help avoid brownouts without impacting performance.
-                    .withStatorCurrentLimit(Amps.of(60))
-                    .withStatorCurrentLimitEnable(true));
+                    .withStatorCurrentLimit(Amps.of(40))
+                    .withStatorCurrentLimitEnable(true)
+                    .withSupplyCurrentLimit(40)
+                    .withSupplyCurrentLowerLimit(10)
+                    .withSupplyCurrentLowerTime(0.5)
+                    .withSupplyCurrentLimitEnable(true));
     private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();
     // Configs for the Pigeon 2; leave this null to skip applying Pigeon 2 configs
-    private static final Pigeon2Configuration pigeonConfigs = new Pigeon2Configuration().withMountPose(new MountPoseConfigs().withMountPoseYaw(180).withMountPosePitch(180));
+    private static final Pigeon2Configuration pigeonConfigs = new Pigeon2Configuration()
+            .withMountPose(new MountPoseConfigs().withMountPoseYaw(180).withMountPosePitch(180));
 
     // CAN bus that the devices are located on;
     // All swerve devices must share the same CAN bus
@@ -78,13 +90,13 @@ public class TunerConstants {
 
     // Theoretical free speed (m/s) at 12 V applied output;
     // This needs to be tuned to your individual robot
-    public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(4.04);
+    public static final LinearVelocity kSpeedAt12Volts = FeetPerSecond.of(15.5);
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
     // This may need to be tuned to your individual robot
     private static final double kCoupleRatio = 3.5714285714285716;
 
-    private static final double kDriveGearRatio = 6.75;
+    private static final double kDriveGearRatio = 6.746031746031747;
     private static final double kSteerGearRatio = 21.428571428571427;
     private static final Distance kWheelRadius = Inches.of(1.887);
 
@@ -132,8 +144,8 @@ public class TunerConstants {
     // Front Left
     private static final int kFrontLeftDriveMotorId = 6;
     private static final int kFrontLeftSteerMotorId = 7;
-    private static final int kFrontLeftEncoderId = 21;
-    private static final Angle kFrontLeftEncoderOffset = Rotations.of(0.31103515625);
+    private static final int kFrontLeftEncoderId = 12;
+    private static final Angle kFrontLeftEncoderOffset = Rotations.of(0.308349609375);
     private static final boolean kFrontLeftSteerMotorInverted = true;
     private static final boolean kFrontLeftEncoderInverted = false;
 
@@ -143,8 +155,8 @@ public class TunerConstants {
     // Front Right
     private static final int kFrontRightDriveMotorId = 3;
     private static final int kFrontRightSteerMotorId = 2;
-    private static final int kFrontRightEncoderId = 34;
-    private static final Angle kFrontRightEncoderOffset = Rotations.of(0.214599609375);
+    private static final int kFrontRightEncoderId = 13;
+    private static final Angle kFrontRightEncoderOffset = Rotations.of(0.214111328125);
     private static final boolean kFrontRightSteerMotorInverted = true;
     private static final boolean kFrontRightEncoderInverted = false;
 
@@ -154,8 +166,8 @@ public class TunerConstants {
     // Back Left
     private static final int kBackLeftDriveMotorId = 9;
     private static final int kBackLeftSteerMotorId = 8;
-    private static final int kBackLeftEncoderId = 8;
-    private static final Angle kBackLeftEncoderOffset = Rotations.of(0.192626953125);
+    private static final int kBackLeftEncoderId = 11;
+    private static final Angle kBackLeftEncoderOffset = Rotations.of(0.198974609375);
     private static final boolean kBackLeftSteerMotorInverted = true;
     private static final boolean kBackLeftEncoderInverted = false;
 
@@ -165,8 +177,8 @@ public class TunerConstants {
     // Back Right
     private static final int kBackRightDriveMotorId = 5;
     private static final int kBackRightSteerMotorId = 4;
-    private static final int kBackRightEncoderId = 7;
-    private static final Angle kBackRightEncoderOffset = Rotations.of(-0.14794921875);
+    private static final int kBackRightEncoderId = 10;
+    private static final Angle kBackRightEncoderOffset = Rotations.of(-0.14404296875);
     private static final boolean kBackRightSteerMotorInverted = true;
     private static final boolean kBackRightEncoderInverted = false;
 
@@ -218,19 +230,16 @@ public class TunerConstants {
                     kBackRightSteerMotorInverted,
                     kBackRightEncoderInverted);
 
-    /**
-     * Swerve Drive class utilizing CTR Electronics' Phoenix 6 API with the selected device types.
-     */
+    /** Swerve Drive class utilizing CTR Electronics' Phoenix 6 API with the selected device types. */
     public static class TunerSwerveDrivetrain extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> {
         /**
          * Constructs a CTRE SwerveDrivetrain using the specified constants.
-         * <p>
-         * This constructs the underlying hardware devices, so users should not construct
-         * the devices themselves. If they need the devices, they can access them through
-         * getters in the classes.
          *
-         * @param drivetrainConstants   Drivetrain-wide constants for the swerve drive
-         * @param modules               Constants for each specific module
+         * <p>This constructs the underlying hardware devices, so users should not construct the devices
+         * themselves. If they need the devices, they can access them through getters in the classes.
+         *
+         * @param drivetrainConstants Drivetrain-wide constants for the swerve drive
+         * @param modules Constants for each specific module
          */
         public TunerSwerveDrivetrain(
                 SwerveDrivetrainConstants drivetrainConstants, SwerveModuleConstants<?, ?, ?>... modules) {
@@ -239,16 +248,14 @@ public class TunerConstants {
 
         /**
          * Constructs a CTRE SwerveDrivetrain using the specified constants.
-         * <p>
-         * This constructs the underlying hardware devices, so users should not construct
-         * the devices themselves. If they need the devices, they can access them through
-         * getters in the classes.
          *
-         * @param drivetrainConstants     Drivetrain-wide constants for the swerve drive
-         * @param odometryUpdateFrequency The frequency to run the odometry loop. If
-         *                                unspecified or set to 0 Hz, this is 250 Hz on
-         *                                CAN FD, and 100 Hz on CAN 2.0.
-         * @param modules                 Constants for each specific module
+         * <p>This constructs the underlying hardware devices, so users should not construct the devices
+         * themselves. If they need the devices, they can access them through getters in the classes.
+         *
+         * @param drivetrainConstants Drivetrain-wide constants for the swerve drive
+         * @param odometryUpdateFrequency The frequency to run the odometry loop. If unspecified or set
+         *     to 0 Hz, this is 250 Hz on CAN FD, and 100 Hz on CAN 2.0.
+         * @param modules Constants for each specific module
          */
         public TunerSwerveDrivetrain(
                 SwerveDrivetrainConstants drivetrainConstants,
@@ -259,22 +266,18 @@ public class TunerConstants {
 
         /**
          * Constructs a CTRE SwerveDrivetrain using the specified constants.
-         * <p>
-         * This constructs the underlying hardware devices, so users should not construct
-         * the devices themselves. If they need the devices, they can access them through
-         * getters in the classes.
          *
-         * @param drivetrainConstants       Drivetrain-wide constants for the swerve drive
-         * @param odometryUpdateFrequency   The frequency to run the odometry loop. If
-         *                                  unspecified or set to 0 Hz, this is 250 Hz on
-         *                                  CAN FD, and 100 Hz on CAN 2.0.
-         * @param odometryStandardDeviation The standard deviation for odometry calculation
-         *                                  in the form [x, y, theta]áµ€, with units in meters
-         *                                  and radians
-         * @param visionStandardDeviation   The standard deviation for vision calculation
-         *                                  in the form [x, y, theta]áµ€, with units in meters
-         *                                  and radians
-         * @param modules                   Constants for each specific module
+         * <p>This constructs the underlying hardware devices, so users should not construct the devices
+         * themselves. If they need the devices, they can access them through getters in the classes.
+         *
+         * @param drivetrainConstants Drivetrain-wide constants for the swerve drive
+         * @param odometryUpdateFrequency The frequency to run the odometry loop. If unspecified or set
+         *     to 0 Hz, this is 250 Hz on CAN FD, and 100 Hz on CAN 2.0.
+         * @param odometryStandardDeviation The standard deviation for odometry calculation in the form
+         *     [x, y, theta]áµ€, with units in meters and radians
+         * @param visionStandardDeviation The standard deviation for vision calculation in the form [x,
+         *     y, theta]áµ€, with units in meters and radians
+         * @param modules Constants for each specific module
          */
         public TunerSwerveDrivetrain(
                 SwerveDrivetrainConstants drivetrainConstants,

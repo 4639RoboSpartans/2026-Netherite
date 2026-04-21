@@ -4,9 +4,6 @@ package org.team4639.lib.util.geometry;
 
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.DriverStation;
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
-import org.team4639.frc2026.Constants;
 import org.team4639.frc2026.FieldConstants;
 
 public class AllianceFlipUtil {

@@ -19,11 +19,9 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
-
 import java.util.Queue;
 import org.team4639.frc2026.subsystems.drive.generated.TunerConstants;
 import org.team4639.lib.util.PhoenixUtil;
-
 
 /**
  * Module IO implementation for Talon FX drive motor controller, Talon FX turn motor controller, and
@@ -31,7 +29,7 @@ import org.team4639.lib.util.PhoenixUtil;
  *
  * <p>Device configuration and other behaviors not exposed by TunerConstants can be customized here.
  */
-public class    ModuleIOTalonFX implements ModuleIO {
+public class ModuleIOTalonFX implements ModuleIO {
     private final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> constants;
 
     // Hardware objects
@@ -107,9 +105,9 @@ public class    ModuleIOTalonFX implements ModuleIO {
             case SyncCANcoder -> FeedbackSensorSourceValue.SyncCANcoder;
             default -> throw new RuntimeException(
                     "You have selected a turn feedback source that is not supported by the default implementation of"
-                        + " ModuleIOTalonFX. Please check the AdvantageKit documentation for more information on"
-                        + " alternative configurations:"
-                        + " https://docs.advantagekit.org/getting-started/template-projects/talonfx-swerve-template#custom-module-implementations");};
+                            + " ModuleIOTalonFX. Please check the AdvantageKit documentation for more information on"
+                            + " alternative configurations:"
+                            + " https://docs.advantagekit.org/getting-started/template-projects/talonfx-swerve-template#custom-module-implementations");};
         turnConfig.Feedback.RotorToSensorRatio = constants.SteerMotorGearRatio;
         turnConfig.MotionMagic.MotionMagicCruiseVelocity = 100.0 / constants.SteerMotorGearRatio;
         turnConfig.MotionMagic.MotionMagicAcceleration = turnConfig.MotionMagic.MotionMagicCruiseVelocity / 0.100;

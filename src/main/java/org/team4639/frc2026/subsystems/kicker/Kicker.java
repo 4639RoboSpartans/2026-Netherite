@@ -2,24 +2,24 @@
 
 package org.team4639.frc2026.subsystems.kicker;
 
+import static edu.wpi.first.units.Units.Volts;
+
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
 import org.team4639.lib.util.FullSubsystem;
 import org.team4639.lib.util.LoggedTunableNumber;
 
-import static edu.wpi.first.units.Units.Volts;
-
 public class Kicker extends FullSubsystem {
     private final RobotState state;
     private final KickerIO io;
     private final KickerIOInputsAutoLogged inputs = new KickerIOInputsAutoLogged();
 
-    private final double KICK_RPM = 500 * 2 * 1.75;
+    private double KICK_RPM = 0;
     private final double IDLE_RPM = 0;
 
     @Getter
@@ -38,6 +38,8 @@ public class Kicker extends FullSubsystem {
     private WantedState wantedState = WantedState.IDLE;
     private SystemState systemState = SystemState.IDLE;
 
+    public final Subsystem dummy = new Subsystem() {};
+
     public Kicker(KickerIO io, RobotState state) {
         this.io = io;
         this.state = state;
@@ -55,8 +57,9 @@ public class Kicker extends FullSubsystem {
     @Override
     public void periodic() {
 
-
-        LoggedTunableNumber.ifChanged(hashCode(), io::applyNewGains,
+        LoggedTunableNumber.ifChanged(
+                hashCode(),
+                io::applyNewGains,
                 PIDs.kickerKP,
                 PIDs.kickerKI,
                 PIDs.kickerKD,
@@ -69,8 +72,8 @@ public class Kicker extends FullSubsystem {
     public void periodicAfterScheduler() {
         state.setKickerStates(new Pair<>(this.wantedState, this.systemState));
 
-        state.acceptCANMeasurement(inputs.motorConnected);
-        state.acceptTemperatureMeasurement(inputs.motorTemperature);
+        state.acceptCANMeasurement(inputs.connected);
+        state.acceptTemperatureMeasurement(inputs.celsius);
     }
 
     private void runStateMachine() {
@@ -106,6 +109,9 @@ public class Kicker extends FullSubsystem {
     }
 
     private void handleKick() {
+        KICK_RPM = state.calculateScoringState(this).shooterRPM()
+                * Constants.SHOOTER_DIAMETER_TO_KICKER_DIAMETER
+                * Constants.SCALE_OF_SHOOTER;
         io.setRotorVelocityRPM(KICK_RPM);
     }
 
@@ -113,7 +119,7 @@ public class Kicker extends FullSubsystem {
         this.wantedState = wantedState;
     }
 
-    protected void setVoltage(Voltage volts){
+    protected void setVoltage(Voltage volts) {
         io.setVoltage(volts.in(Volts));
     }
 }

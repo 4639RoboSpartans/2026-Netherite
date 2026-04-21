@@ -24,43 +24,54 @@ public class KickerIOTalonFX implements KickerIO {
         TalonFXConfiguration config = new TalonFXConfiguration();
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
-        config.CurrentLimits.SupplyCurrentLimit = 40;
+        config.CurrentLimits.SupplyCurrentLimit = 25;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
         config.CurrentLimits.StatorCurrentLimit = 80;
         config.Slot0.kV = 0.10888;
         config.Slot0.kS = 0.095981;
         config.Slot0.kA = 0.0015124;
 
+        config.Slot0.kP = 9999;
+
+        config.Slot1.kV = 0.10888;
+        config.Slot1.kS = 0.095981;
+        config.Slot1.kA = 0.0015124;
+
+        config.MotorOutput.PeakForwardDutyCycle = 1;
+        config.MotorOutput.PeakReverseDutyCycle = 0;
+
         PhoenixUtil.tryUntilOk(5, () -> kickerMotor.getConfigurator().apply(config));
     }
 
     @Override
     public void updateInputs(KickerIOInputs inputs) {
-        inputs.motorConnected = BaseStatusSignal.refreshAll(
-                kickerMotor.getMotorVoltage(),
-                kickerMotor.getStatorCurrent(),
-                kickerMotor.getVelocity(),
-                kickerMotor.getDeviceTemp()
-        ).isOK();
-        inputs.motorVoltage = kickerMotor.getMotorVoltage().getValueAsDouble();
-        inputs.motorCurrent = kickerMotor.getStatorCurrent().getValueAsDouble();
-        inputs.motorVelocity = kickerMotor.getVelocity().getValueAsDouble();
-        inputs.motorTemperature = kickerMotor.getDeviceTemp().getValueAsDouble();
-        inputs.motorPosition = kickerMotor.getPosition().getValueAsDouble();
+        inputs.connected = BaseStatusSignal.refreshAll(
+                        kickerMotor.getMotorVoltage(),
+                        kickerMotor.getStatorCurrent(),
+                        kickerMotor.getVelocity(),
+                        kickerMotor.getDeviceTemp())
+                .isOK();
+        inputs.volts = kickerMotor.getMotorVoltage().getValueAsDouble();
+        inputs.amps = kickerMotor.getStatorCurrent().getValueAsDouble();
+        inputs.rotationsPerSecond = kickerMotor.getVelocity().getValueAsDouble();
+        inputs.celsius = kickerMotor.getDeviceTemp().getValueAsDouble();
+        inputs.rotations = kickerMotor.getPosition().getValueAsDouble();
     }
 
     @Override
-    public void setVoltage(double appliedVoltage)  {
+    public void setVoltage(double appliedVoltage) {
         kickerMotor.setControl(voltageControl.withOutput(appliedVoltage));
     }
 
     @Override
     public void setRotorVelocityRPM(double targetVelocity) {
-        kickerMotor.setControl(velocityControl.withVelocity(targetVelocity * (32. / 9) * (1. / 60)));
+        kickerMotor.setControl(velocityControl
+                .withVelocity(targetVelocity * (32. / 9) * (1. / 60))
+                .withSlot(targetVelocity == 0 ? 1 : 0));
     }
 
     @Override
-    public void applyNewGains(double[] newGains){
+    public void applyNewGains(double[] newGains) {
         var config = new TalonFXConfiguration().Slot0;
         config.kP = newGains[0];
         config.kI = newGains[1];

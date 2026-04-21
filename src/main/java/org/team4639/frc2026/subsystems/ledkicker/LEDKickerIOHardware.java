@@ -15,12 +15,10 @@ public class LEDKickerIOHardware extends LEDKickerIO {
     }
 
     @Override
-    public void setPattern(LEDPattern pattern){
+    public void setPattern(LEDPattern pattern) {
         ledStrip.setPattern(pattern);
     }
 
     @Override
-    public void updateInputs(LEDKickerIOInputs inputs) {
-
-    }
+    public void updateInputs(LEDKickerIOInputs inputs) {}
 }

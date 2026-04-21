@@ -10,11 +10,11 @@ public class ValueCacher<T, R> {
     private final Supplier<R> calculateValue;
     private R lastCalculatedValue;
 
-    public ValueCacher (Supplier<R> calculateValueFunction) {
+    public ValueCacher(Supplier<R> calculateValueFunction) {
         this.calculateValue = calculateValueFunction;
     }
 
-    public R get(T caller){
+    public R get(T caller) {
         boolean needsToRecalculate = lastCalculatedValue == null || beenUpdated.contains(caller);
 
         if (needsToRecalculate) {

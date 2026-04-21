@@ -117,16 +117,6 @@ public class GeomUtil {
     }
 
     /**
-     * Converts a ChassisSpeeds to a Twist2d by extracting two dimensions (Y and Z). chain
-     *
-     * @param speeds The original translation
-     * @return The resulting translation
-     */
-    public static Twist2d toTwist2d(ChassisSpeeds speeds) {
-        return new Twist2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, speeds.omegaRadiansPerSecond);
-    }
-
-    /**
      * Creates a new pose from an existing one using a different translation value.
      *
      * @param pose The original pose
@@ -146,5 +136,19 @@ public class GeomUtil {
      */
     public static Pose2d withRotation(Pose2d pose, Rotation2d rotation) {
         return new Pose2d(pose.getTranslation(), rotation);
+    }
+
+    public static ChassisSpeeds transformVelocity(
+            ChassisSpeeds velocity, Translation2d transform, Rotation2d currentRotation) {
+        return new ChassisSpeeds(
+                velocity.vxMetersPerSecond
+                        + velocity.omegaRadiansPerSecond
+                                * (transform.getY() * currentRotation.getCos()
+                                        - transform.getX() * currentRotation.getSin()),
+                velocity.vyMetersPerSecond
+                        + velocity.omegaRadiansPerSecond
+                                * (transform.getX() * currentRotation.getCos()
+                                        - transform.getY() * currentRotation.getSin()),
+                velocity.omegaRadiansPerSecond);
     }
 }

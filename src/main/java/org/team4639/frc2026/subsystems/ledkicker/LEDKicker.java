@@ -2,8 +2,6 @@
 
 package org.team4639.frc2026.subsystems.ledkicker;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.lib.led.pattern.LEDPattern;
 import org.team4639.lib.util.FullSubsystem;

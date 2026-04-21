@@ -2,58 +2,52 @@
 
 package org.team4639.frc2026.subsystems.intake;
 
+import static edu.wpi.first.units.Units.*;
+
 import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import lombok.Getter;
-
 import org.littletonrobotics.junction.Logger;
-
-import static edu.wpi.first.units.Units.*;
 
 public abstract class IntakeRollerSysID {
     @Getter
     private SysIdRoutine routine;
 
-    public static class IntakeRollerSysIDCTRE extends IntakeRollerSysID{
-        public IntakeRollerSysIDCTRE(Intake intake){
+    public static class IntakeRollerSysIDCTRE extends IntakeRollerSysID {
+        public IntakeRollerSysIDCTRE(Intake intake) {
             super();
             super.routine = new SysIdRoutine(
                     new SysIdRoutine.Config(
-                            Volts.per(Second).of(6.0/10),
+                            Volts.per(Second).of(6.0 / 10),
                             Volts.of(7),
                             null,
-                            state -> SignalLogger.writeString("SysIDTestState", state.toString())
-                    ),
+                            state -> SignalLogger.writeString("SysIDTestState", state.toString())),
                     new SysIdRoutine.Mechanism(
                             voltage -> intake.setRollerVoltage(voltage.in(Volts)),
                             null, // Signal Logger handles it,
-                            intake
-                    )
-            );
+                            intake));
         }
     }
 
-    public static class IntakeRollerSysIDWPI extends IntakeRollerSysID{
-        public IntakeRollerSysIDWPI(Intake intake, IntakeRollerIO.IntakeRollerIOInputs inputs){
+    public static class IntakeRollerSysIDWPI extends IntakeRollerSysID {
+        public IntakeRollerSysIDWPI(Intake intake, IntakeRollerIO.IntakeRollerIOInputs inputs) {
             super();
             super.routine = new SysIdRoutine(
                     new SysIdRoutine.Config(
-                            Volts.per(Second).of(6.0/10),
+                            Volts.per(Second).of(6.0 / 10),
                             Volts.of(7),
                             null,
-                            state -> Logger.recordOutput("SysIDTestState", state.toString())
-                    ),
+                            state -> Logger.recordOutput("SysIDTestState", state.toString())),
                     new SysIdRoutine.Mechanism(
                             voltage -> intake.setRollerVoltage(voltage.in(Volts)),
                             log -> {
                                 log.motor("roller")
-                                        .angularPosition(Rotations.of(inputs.position))
-                                        .angularVelocity(Rotations.of(inputs.velocity).per(Second))
-                                        .voltage(Volts.of(inputs.voltage));
+                                        .angularPosition(Rotations.of(inputs.rotations))
+                                        .angularVelocity(Rotations.of(inputs.rotationsPerSecond)
+                                                .per(Second))
+                                        .voltage(Volts.of(inputs.volts));
                             },
-                            intake
-                    )
-            );
+                            intake));
         }
     }
 }

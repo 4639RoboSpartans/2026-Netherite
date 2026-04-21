@@ -13,7 +13,7 @@ public class LEDCommands {
         private final LEDKicker leds;
         private final RobotState state;
 
-        public defaultSchema(LEDKicker leds, RobotState state){
+        public defaultSchema(LEDKicker leds, RobotState state) {
             this.leds = leds;
             this.state = state;
 
@@ -27,7 +27,7 @@ public class LEDCommands {
         }
     }
 
-    public static Command useDefaultSchema(LEDKicker leds, RobotState state){
+    public static Command useDefaultSchema(LEDKicker leds, RobotState state) {
         return new defaultSchema(leds, state).ignoringDisable(true);
     }
 }

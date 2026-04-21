@@ -128,9 +128,11 @@ public class TurretCamera extends SubsystemBase {
 
             // Log camera metadata
             Logger.recordOutput(
-                    "TurretVision/Camera" + Integer.toString(cameraIndex) + "/TagPoses", tagPoses.toArray(new Pose3d[0]));
+                    "TurretVision/Camera" + Integer.toString(cameraIndex) + "/TagPoses",
+                    tagPoses.toArray(new Pose3d[0]));
             Logger.recordOutput(
-                    "TurretVision/Camera" + Integer.toString(cameraIndex) + "/RobotPoses", robotPoses.toArray(new Pose3d[0]));
+                    "TurretVision/Camera" + Integer.toString(cameraIndex) + "/RobotPoses",
+                    robotPoses.toArray(new Pose3d[0]));
             Logger.recordOutput(
                     "TurretVision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesAccepted",
                     robotPosesAccepted.toArray(new Pose3d[0]));

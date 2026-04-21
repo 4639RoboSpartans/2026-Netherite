@@ -24,50 +24,36 @@ public class RGBPattern implements LEDPattern {
     public Color get(int led, double time) {
         Color8Bit color = new Color8Bit(pattern.get(led, time));
         Color8Bit transformedColor =
-                new Color8Bit(
-                        collapse(color, this.red),
-                        collapse(color, this.green),
-                        collapse(color, this.blue)
-                );
+                new Color8Bit(collapse(color, this.red), collapse(color, this.green), collapse(color, this.blue));
 
         return new Color(transformedColor);
     }
 
     private int[] toIntArray(Color8Bit color) {
-        return new int[] {
-                color.red,
-                color.green,
-                color.blue
-        };
+        return new int[] {color.red, color.green, color.blue};
     }
 
-    private int collapse(Color8Bit color, Color8Bit mask){
+    private int collapse(Color8Bit color, Color8Bit mask) {
         int[] colorArray = toIntArray(color);
         int[] maskArray = toIntArray(mask);
 
         double sum = 0;
         for (int i = 0; i < colorArray.length; i++) {
-            sum += (int) (colorArray[i] * maskArray[i])/(255.0);
+            sum += (int) (colorArray[i] * maskArray[i]) / (255.0);
         }
 
         return (int) MathUtil.clamp(sum, 0, 255);
     }
 
-    public static LEDPattern GRB(LEDPattern pattern){
-        return new RGBPattern(
-                pattern,
-                new Color8Bit(0, 255, 0),
-                new Color8Bit(255, 0, 0),
-                new Color8Bit(0, 0, 255)
-        );
+    public static LEDPattern GRB(LEDPattern pattern) {
+        return new RGBPattern(pattern, new Color8Bit(0, 255, 0), new Color8Bit(255, 0, 0), new Color8Bit(0, 0, 255));
     }
 
-    public static LEDPattern GRB(Color color){
+    public static LEDPattern GRB(Color color) {
         return new RGBPattern(
                 LEDPattern.ofColor(color),
                 new Color8Bit(0, 255, 0),
                 new Color8Bit(255, 0, 0),
-                new Color8Bit(0, 0, 255)
-        );
+                new Color8Bit(0, 0, 255));
     }
 }
