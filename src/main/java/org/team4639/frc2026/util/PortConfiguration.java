@@ -4,8 +4,8 @@ package org.team4639.frc2026.util;
 
 public class PortConfiguration {
     public CanDeviceId IntakeExtensionMotorID;
-    public CanDeviceId intakeLeft;
-    public CanDeviceId intakeRight;
+    public CanDeviceId IntakeLeftID;
+    public CanDeviceId IntakeRightID;
     public CanDeviceId SpindexerMotorID;
     public CanDeviceId KickerMotorID;
     public CanDeviceId TurretMotorID;
@@ -13,8 +13,8 @@ public class PortConfiguration {
     public CanDeviceId TurretRightEncoderID;
     public CanDeviceId HoodMotorID;
     public CanDeviceId HoodEncoderID;
-    public CanDeviceId shooterMotorLeftID;
-    public CanDeviceId shooterMotorRightID;
+    public CanDeviceId ShooterMotorLeftID;
+    public CanDeviceId ShooterMotorRightID;
 
-    public int ledkicker;
+    public int KickerLEDOutputPort;
 }

@@ -29,9 +29,7 @@ public class HoodIOSim implements HoodIO {
     private double appliedVolts = 0.0;
     private double pivotSetpointDegrees = 0.0;
 
-    public HoodIOSim() {
-        applyNewGains();
-    }
+    public HoodIOSim() {}
 
     @Override
     public void updateInputs(HoodIOInputs inputs) {
@@ -57,17 +55,8 @@ public class HoodIOSim implements HoodIO {
         hoodSim.setInputVoltage(appliedVolts);
     }
 
-    public void updateGains() {
-        hoodPIDController.setPID(PIDs.hoodKpSim.get(), PIDs.hoodKiSim.get(), PIDs.hoodKdSim.get());
-    }
-
     @Override
     public void setPosition(double positionDegrees) {
         hoodSim.setState(Units.degreesToRadians(positionDegrees), 0);
-    }
-
-    @Override
-    public void applyNewGains() {
-        updateGains();
     }
 }

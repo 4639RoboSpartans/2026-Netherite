@@ -8,8 +8,6 @@ import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.*;
 import com.revrobotics.spark.config.*;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.util.PortConfiguration;
@@ -26,9 +24,6 @@ public class ShooterIOSparkFlex implements ShooterIO {
     public static final SparkFlexConfig followerConfig = new SparkFlexConfig();
 
     private final double SHOOTER_GEAR_RATIO = 1.0;
-
-    private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0.074548, 0.10976, 0.044959);
-    private final PIDController pid = new PIDController(0.0090597, 0, 0);
 
     public ShooterIOSparkFlex(PortConfiguration ports) {
         shooterConfig.idleMode(SparkBaseConfig.IdleMode.kCoast);
@@ -48,8 +43,8 @@ public class ShooterIOSparkFlex implements ShooterIO {
         shooterConfig.encoder.velocityConversionFactor(1.0 / 60.0);
         shooterConfig.encoder.quadratureMeasurementPeriod(25).quadratureAverageDepth(32);
 
-        leftShooter = new SparkFlex(ports.shooterMotorLeftID.getDeviceNumber(), SparkLowLevel.MotorType.kBrushless);
-        rightShooter = new SparkFlex(ports.shooterMotorRightID.getDeviceNumber(), SparkLowLevel.MotorType.kBrushless);
+        leftShooter = new SparkFlex(ports.ShooterMotorLeftID.getDeviceNumber(), SparkLowLevel.MotorType.kBrushless);
+        rightShooter = new SparkFlex(ports.ShooterMotorRightID.getDeviceNumber(), SparkLowLevel.MotorType.kBrushless);
 
         leaderConfig.apply(shooterConfig);
 
@@ -76,9 +71,7 @@ public class ShooterIOSparkFlex implements ShooterIO {
     public void updateInputs(ShooterIOInputs inputs) {
         inputs.rightConnected = rightShooter.getFaults().rawBits == 0;
         inputs.leftConnected = leftShooter.getFaults().rawBits == 0;
-        inputs.leftVolts = leftShooter.getAppliedOutput()
-                * leftShooter.getBusVoltage(); // revs api sucks but for future reference this is how you get the
-        // voltage
+        inputs.leftVolts = leftShooter.getAppliedOutput() * leftShooter.getBusVoltage();
         inputs.rightVolts = rightShooter.getAppliedOutput() * rightShooter.getBusVoltage();
         inputs.leftAmps = leftShooter.getOutputCurrent();
         inputs.rightAmps = rightShooter.getOutputCurrent();
@@ -105,22 +98,5 @@ public class ShooterIOSparkFlex implements ShooterIO {
                 leftShooter.getEncoder().getVelocity() > applied + 8 ? ClosedLoopSlot.kSlot1 : ClosedLoopSlot.kSlot0);
         Logger.recordOutput("Shooter Setpoint RPS", closedLoopController.getSetpoint());
         Logger.recordOutput("Shooter RevLib Error", err.toString());
-    }
-
-    public void updateGains() {
-        /*closedLoopConfig.pid(PIDs.shooterKp.get(), PIDs.shooterKi.get(), PIDs.shooterKd.get());
-        closedLoopConfig.apply(new FeedForwardConfig()
-                .kS(PIDs.shooterKs.get())
-                .kV(PIDs.shooterKv.get())
-                .kA(PIDs.shooterKa.get()));*/
-    }
-
-    @Override
-    public void applyNewGains() {
-        updateGains();
-        leaderConfig.apply(closedLoopConfig);
-        followerConfig.apply(closedLoopConfig);
-        leftShooter.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        rightShooter.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 }

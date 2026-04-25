@@ -11,8 +11,8 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 import org.team4639.frc2026.Constants;
 
 /**
- * Class for a tunable number. Gets value from dashboard in tuning mode, returns default if not or
- * value not in dashboard.
+ * Class for a tunable number. Gets value from dashboard in tuning mode, returns
+ * default if not or value not in dashboard.
  */
 @SuppressWarnings("unused")
 public class LoggedTunableNumber implements DoubleSupplier {
@@ -27,7 +27,8 @@ public class LoggedTunableNumber implements DoubleSupplier {
     /**
      * Create a new LoggedTunableNumber
      *
-     * @param dashboardKey Key on dashboard
+     * @param dashboardKey
+     *            Key on dashboard
      */
     public LoggedTunableNumber(String dashboardKey) {
         this.key = tableKey + "/" + dashboardKey;
@@ -36,8 +37,10 @@ public class LoggedTunableNumber implements DoubleSupplier {
     /**
      * Create a new LoggedTunableNumber with the default value
      *
-     * @param dashboardKey Key on dashboard
-     * @param defaultValue Default value
+     * @param dashboardKey
+     *            Key on dashboard
+     * @param defaultValue
+     *            Default value
      */
     public LoggedTunableNumber(String dashboardKey, double defaultValue) {
         this(dashboardKey);
@@ -47,7 +50,8 @@ public class LoggedTunableNumber implements DoubleSupplier {
     /**
      * Set the default value of the number. The default value can only be set once.
      *
-     * @param defaultValue The default value
+     * @param defaultValue
+     *            The default value
      */
     public LoggedTunableNumber initDefault(double defaultValue) {
         if (!hasDefault) {
@@ -76,10 +80,12 @@ public class LoggedTunableNumber implements DoubleSupplier {
     /**
      * Checks whether the number has changed since our last check
      *
-     * @param id Unique identifier for the caller to avoid conflicts when shared between multiple
-     *     objects. Recommended approach is to pass the result of "hashCode()"
-     * @return True if the number has changed since the last time this method was called, false
-     *     otherwise.
+     * @param id
+     *            Unique identifier for the caller to avoid conflicts when shared
+     *            between multiple objects. Recommended approach is to pass the
+     *            result of "hashCode()"
+     * @return True if the number has changed since the last time this method was
+     *         called, false otherwise.
      */
     public boolean hasChanged(int id) {
         double currentValue = get();
@@ -95,11 +101,15 @@ public class LoggedTunableNumber implements DoubleSupplier {
     /**
      * Runs action if any of the tunableNumbers have changed
      *
-     * @param id Unique identifier for the caller to avoid conflicts when shared between multiple *
-     *     objects. Recommended approach is to pass the result of "hashCode()"
-     * @param action Callback to run when any of the tunable numbers have changed. Access tunable
-     *     numbers in order inputted in method
-     * @param tunableNumbers All tunable numbers to check
+     * @param id
+     *            Unique identifier for the caller to avoid conflicts when shared
+     *            between multiple * objects. Recommended approach is to pass the
+     *            result of "hashCode()"
+     * @param action
+     *            Callback to run when any of the tunable numbers have changed.
+     *            Access tunable numbers in order inputted in method
+     * @param tunableNumbers
+     *            All tunable numbers to check
      */
     public static void ifChanged(int id, Consumer<double[]> action, LoggedTunableNumber... tunableNumbers) {
         if (Arrays.stream(tunableNumbers).anyMatch(tunableNumber -> tunableNumber.hasChanged(id))) {

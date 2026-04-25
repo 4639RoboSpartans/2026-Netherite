@@ -15,7 +15,6 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
 import org.team4639.lib.util.FullSubsystem;
-import org.team4639.lib.util.LoggedTunableNumber;
 
 public class Hood extends FullSubsystem {
     private final RobotState state;
@@ -29,8 +28,10 @@ public class Hood extends FullSubsystem {
     private double SCORING_HOOD_ANGLE = 0;
 
     private double HOME_VOLTAGE = -3;
-
+    // hood positional tolerance in degrees
     private final double HOOD_TOLERANCE_DEGREES = 5;
+    // current at which we determine the hood is at its hardstop
+    public static final double HOME_CURRENT_THRESHOLD = 19.0;
 
     @Setter
     private double MANUAL_HOOD_ANGLE = 20;
@@ -79,24 +80,9 @@ public class Hood extends FullSubsystem {
 
     @Override
     public void periodic() {
-
-        if (org.team4639.frc2026.Constants.tuningMode) {
-            LoggedTunableNumber.ifChanged(
-                    hashCode(),
-                    io::applyNewGains,
-                    PIDs.hoodKp,
-                    PIDs.hoodKi,
-                    PIDs.hoodKd,
-                    PIDs.hoodKs,
-                    PIDs.hoodKv,
-                    PIDs.hoodKa,
-                    PIDs.hoodKpSim,
-                    PIDs.hoodKiSim,
-                    PIDs.hoodKdSim);
-        }
-
+        // if hood hits a hardstop while not trying to home, reset its position anyway
         if (this.systemState != SystemState.HOME_UP && this.systemState != SystemState.HOME_DOWN) {
-            if (Math.abs(this.inputs.amps) >= 19.0) {
+            if (Math.abs(this.inputs.amps) >= HOME_CURRENT_THRESHOLD) {
                 if (this.inputs.volts < 0) {
                     io.setPosition(Constants.HOOD_MIN_ANGLE_DEGREES);
                 } else {
@@ -117,7 +103,7 @@ public class Hood extends FullSubsystem {
         return switch (wantedState) {
             case IDLE -> {
                 if (systemState == SystemState.HOME_DOWN) {
-                    if (Math.abs(inputs.amps) > 19.0) {
+                    if (Math.abs(inputs.amps) > HOME_CURRENT_THRESHOLD) {
                         io.setPosition(Constants.HOOD_MIN_ANGLE_DEGREES);
                         lastZeroedWantedState = WantedState.IDLE;
                         yield SystemState.IDLE;
@@ -127,7 +113,7 @@ public class Hood extends FullSubsystem {
                 }
 
                 if (systemState == SystemState.HOME_UP) {
-                    if (Math.abs(inputs.amps) > 19.0) {
+                    if (Math.abs(inputs.amps) > HOME_CURRENT_THRESHOLD) {
                         io.setPosition(Constants.HOOD_MIN_ANGLE_DEGREES + Constants.HOOD_RANGE_DEGREES);
                         lastZeroedWantedState = WantedState.IDLE;
                         yield SystemState.IDLE;
@@ -180,12 +166,14 @@ public class Hood extends FullSubsystem {
         setWantedState(wantedState);
         if (wantedState == WantedState.PASSING) {
             this.PASSING_HOOD_ANGLE = Rotations.of(scoringAngleRotations).in(Degrees);
+            // if desired hood angle is close enough to hardstops, get there by homing
             if (this.PASSING_HOOD_ANGLE >= Constants.HOOD_MIN_ANGLE_DEGREES + Constants.HOOD_RANGE_DEGREES - 1)
                 this.systemState = SystemState.HOME_UP;
             else if (this.PASSING_HOOD_ANGLE <= Constants.HOOD_MIN_ANGLE_DEGREES + 1)
                 this.systemState = SystemState.HOME_DOWN;
         } else {
             this.SCORING_HOOD_ANGLE = Rotations.of(scoringAngleRotations).in(Degrees);
+            // if desired hood angle is close enough to hardstops, get there by homing
             if (this.SCORING_HOOD_ANGLE >= Constants.HOOD_MIN_ANGLE_DEGREES + Constants.HOOD_RANGE_DEGREES - 1)
                 this.systemState = SystemState.HOME_UP;
             else if (this.SCORING_HOOD_ANGLE <= Constants.HOOD_MIN_ANGLE_DEGREES + 1)
@@ -194,8 +182,8 @@ public class Hood extends FullSubsystem {
     }
 
     /**
-     * Should not be called in comp code. All usages of setVoltage() needed for comp should be called
-     * internally.
+     * Should not be called in comp code. All usages of setVoltage() needed for comp
+     * should be called internally.
      *
      * @param volts
      */
@@ -207,6 +195,7 @@ public class Hood extends FullSubsystem {
         return switch (systemState) {
             case SCORING -> {
                 var setpointState = state.calculateScoringState(this);
+                // slight hood correction in case shooter RPM is deficient
                 yield SCORING_HOOD_ANGLE = MathUtil.clamp(
                         setpointState.hoodDegrees()
                                 + MathUtil.clamp(
@@ -221,6 +210,7 @@ public class Hood extends FullSubsystem {
             }
             case PASSING -> {
                 var setpointState = state.calculatePassingState(this);
+                // slight hood correction in case shooter RPM is deficient
                 yield PASSING_HOOD_ANGLE = MathUtil.clamp(
                         setpointState.hoodDegrees()
                                 + MathUtil.clamp(

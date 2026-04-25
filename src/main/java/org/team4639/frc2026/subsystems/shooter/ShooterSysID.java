@@ -55,7 +55,8 @@ public abstract sealed class ShooterSysID {
                             (state) -> Logger.recordOutput("SysIdTestState", state.toString())),
                     new SysIdRoutine.Mechanism(
                             shooter::setVoltage,
-                            null // record URCL data, left motor should be used as leader for SparkFlex io
+                            null // record URCL data, left motor should be used
+                            // as leader for SparkFlex io
                             ,
                             shooter));
         }
@@ -72,7 +73,8 @@ public abstract sealed class ShooterSysID {
                             (state) -> SignalLogger.writeString("SysIdTestState", state.toString())),
                     new SysIdRoutine.Mechanism(
                             shooter::setVoltage,
-                            null // record SignalLogger data, right motor should be used as leader in io
+                            null // record SignalLogger data, right motor should
+                            // be used as leader in io
                             // talonFX
                             ,
                             shooter));

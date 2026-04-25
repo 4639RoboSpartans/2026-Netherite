@@ -20,9 +20,7 @@ public class TurretIOSim implements TurretIO {
     private double appliedVolts = 0.0;
     private double goalRotation = 0.0;
 
-    public TurretIOSim() {
-        applyNewGains();
-    }
+    public TurretIOSim() {}
 
     @Override
     public void updateInputs(TurretIO.TurretIOInputs inputs) {
@@ -46,14 +44,5 @@ public class TurretIOSim implements TurretIO {
     @Override
     public void setRotorRotationSetpoint(double rotation, double velocityrps) {
         setRotorRotationSetpoint(rotation);
-    }
-
-    public void updateGains() {
-        turretPIDController.setPID(PIDs.turretKpSim.get(), PIDs.turretKiSim.get(), PIDs.turretKdSim.get());
-    }
-
-    @Override
-    public void applyNewGains() {
-        updateGains();
     }
 }

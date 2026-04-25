@@ -5,12 +5,16 @@ package org.team4639.lib.util.geometry;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 
-/** Geometry utilities for working with translations, rotations, transforms, and poses. */
+/**
+ * Geometry utilities for working with translations, rotations, transforms, and
+ * poses.
+ */
 public class GeomUtil {
     /**
      * Creates a pure translating transform
      *
-     * @param translation The translation to create the transform with
+     * @param translation
+     *            The translation to create the transform with
      * @return The resulting transform
      */
     public static Transform2d toTransform2d(Translation2d translation) {
@@ -20,8 +24,10 @@ public class GeomUtil {
     /**
      * Creates a pure translating transform
      *
-     * @param x The x coordinate of the translation
-     * @param y The y coordinate of the translation
+     * @param x
+     *            The x coordinate of the translation
+     * @param y
+     *            The y coordinate of the translation
      * @return The resulting transform
      */
     public static Transform2d toTransform2d(double x, double y) {
@@ -31,7 +37,8 @@ public class GeomUtil {
     /**
      * Creates a pure rotating transform
      *
-     * @param rotation The rotation to create the transform with
+     * @param rotation
+     *            The rotation to create the transform with
      * @return The resulting transform
      */
     public static Transform2d toTransform2d(Rotation2d rotation) {
@@ -41,7 +48,8 @@ public class GeomUtil {
     /**
      * Converts a Pose2d to a Transform2d to be used in a kinematic chain
      *
-     * @param pose The pose that will represent the transform
+     * @param pose
+     *            The pose that will represent the transform
      * @return The resulting transform
      */
     public static Transform2d toTransform2d(Pose2d pose) {
@@ -54,10 +62,11 @@ public class GeomUtil {
     }
 
     /**
-     * Converts a Transform2d to a Pose2d to be used as a position or as the start of a kinematic
-     * chain
+     * Converts a Transform2d to a Pose2d to be used as a position or as the start
+     * of a kinematic chain
      *
-     * @param transform The transform that will represent the pose
+     * @param transform
+     *            The transform that will represent the pose
      * @return The resulting pose
      */
     public static Pose2d toPose2d(Transform2d transform) {
@@ -67,7 +76,8 @@ public class GeomUtil {
     /**
      * Creates a pure translated pose
      *
-     * @param translation The translation to create the pose with
+     * @param translation
+     *            The translation to create the pose with
      * @return The resulting pose
      */
     public static Pose2d toPose2d(Translation2d translation) {
@@ -77,7 +87,8 @@ public class GeomUtil {
     /**
      * Creates a pure rotated pose
      *
-     * @param rotation The rotation to create the pose with
+     * @param rotation
+     *            The rotation to create the pose with
      * @return The resulting pose
      */
     public static Pose2d toPose2d(Rotation2d rotation) {
@@ -87,8 +98,10 @@ public class GeomUtil {
     /**
      * Multiplies a twist by a scaling factor
      *
-     * @param twist The twist to multiply
-     * @param factor The scaling factor for the twist components
+     * @param twist
+     *            The twist to multiply
+     * @param factor
+     *            The scaling factor for the twist components
      * @return The new twist
      */
     public static Twist2d multiply(Twist2d twist, double factor) {
@@ -98,7 +111,8 @@ public class GeomUtil {
     /**
      * Converts a Pose3d to a Transform3d to be used in a kinematic chain
      *
-     * @param pose The pose that will represent the transform
+     * @param pose
+     *            The pose that will represent the transform
      * @return The resulting transform
      */
     public static Transform3d toTransform3d(Pose3d pose) {
@@ -106,10 +120,11 @@ public class GeomUtil {
     }
 
     /**
-     * Converts a Transform3d to a Pose3d to be used as a position or as the start of a kinematic
-     * chain
+     * Converts a Transform3d to a Pose3d to be used as a position or as the start
+     * of a kinematic chain
      *
-     * @param transform The transform that will represent the pose
+     * @param transform
+     *            The transform that will represent the pose
      * @return The resulting pose
      */
     public static Pose3d toPose3d(Transform3d transform) {
@@ -119,8 +134,10 @@ public class GeomUtil {
     /**
      * Creates a new pose from an existing one using a different translation value.
      *
-     * @param pose The original pose
-     * @param translation The new translation to use
+     * @param pose
+     *            The original pose
+     * @param translation
+     *            The new translation to use
      * @return The new pose with the new translation and original rotation
      */
     public static Pose2d withTranslation(Pose2d pose, Translation2d translation) {
@@ -130,8 +147,10 @@ public class GeomUtil {
     /**
      * Creates a new pose from an existing one using a different rotation value.
      *
-     * @param pose The original pose
-     * @param rotation The new rotation to use
+     * @param pose
+     *            The original pose
+     * @param rotation
+     *            The new rotation to use
      * @return The new pose with the original translation and new rotation
      */
     public static Pose2d withRotation(Pose2d pose, Rotation2d rotation) {

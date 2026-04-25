@@ -10,8 +10,8 @@ public class Netherite {
 
     static {
         portConfiguration.IntakeExtensionMotorID = new CanDeviceId(20);
-        portConfiguration.intakeLeft = new CanDeviceId(21);
-        portConfiguration.intakeRight = new CanDeviceId(40);
+        portConfiguration.IntakeLeftID = new CanDeviceId(21);
+        portConfiguration.IntakeRightID = new CanDeviceId(40);
         portConfiguration.SpindexerMotorID = new CanDeviceId(22);
         portConfiguration.KickerMotorID = new CanDeviceId(23);
         portConfiguration.TurretMotorID = new CanDeviceId(24);
@@ -19,10 +19,10 @@ public class Netherite {
         portConfiguration.TurretRightEncoderID = new CanDeviceId(26);
         portConfiguration.HoodMotorID = new CanDeviceId(27);
         portConfiguration.HoodEncoderID = new CanDeviceId(28);
-        portConfiguration.shooterMotorLeftID = new CanDeviceId(29);
-        portConfiguration.shooterMotorRightID = new CanDeviceId(30);
+        portConfiguration.ShooterMotorLeftID = new CanDeviceId(29);
+        portConfiguration.ShooterMotorRightID = new CanDeviceId(30);
 
         // non CAN objects
-        portConfiguration.ledkicker = 9;
+        portConfiguration.KickerLEDOutputPort = 9;
     }
 }

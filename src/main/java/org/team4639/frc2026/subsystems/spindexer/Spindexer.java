@@ -26,6 +26,9 @@ public class Spindexer extends FullSubsystem {
     private double unjamStartTime = Double.NaN;
     private final double unjamTimePeriod = 1.0;
 
+    // current at which we assume the spindexer to be jammed.
+    public static final int JAMMED_CURRENT_THRESHOLD = 70;
+
     private final Debouncer movingNothingDebouncer = new Debouncer(0.8, Debouncer.DebounceType.kRising);
 
     @Getter
@@ -104,7 +107,7 @@ public class Spindexer extends FullSubsystem {
                         yield SystemState.SPIN;
                     }
                     case SPIN -> {
-                        if (Math.abs(inputs.amps) > 70) {
+                        if (Math.abs(inputs.amps) > JAMMED_CURRENT_THRESHOLD) {
                             unjamStartTime = Timer.getTimestamp();
                             yield SystemState.UNJAM;
                         } else if (false && movingNothingDebouncer.calculate(Math.abs(inputs.amps) < 30)) {
@@ -114,6 +117,7 @@ public class Spindexer extends FullSubsystem {
                             yield SystemState.SPIN;
                         }
                     }
+                        // temporarily reverse spindexer if jammed
                     case UNJAM -> {
                         if (Timer.getTimestamp() - unjamStartTime >= unjamTimePeriod) {
                             yield SystemState.SPIN;

@@ -4,26 +4,19 @@ package org.team4639.frc2026.subsystems.turret;
 
 import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.CANBus;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.Getter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
 import org.team4639.lib.util.FullSubsystem;
-import org.team4639.lib.util.LoggedTunableNumber;
 
 public class Turret extends FullSubsystem {
     private final RobotState state;
@@ -41,28 +34,15 @@ public class Turret extends FullSubsystem {
     private double initialTurretRotation;
     private double initialRotorRotation;
 
-    protected static final double ODOMETRY_FREQUENCY = CANBus.roboRIO().isNetworkFD() ? 250.0 : 100.0;
-
     protected static final ReentrantLock motorPositionLock = new ReentrantLock();
 
     @Getter
     private final TurretSysID sysID = new TurretSysID.TurretSysIDWPI(this, turretInputs);
 
-    private final Debouncer turretRezeroDebouncer = new Debouncer(0.5);
-    private final Queue<Double> CRTMeasurements = new LinkedList<>();
-
-    private final boolean useRezeroEncoders = false;
-
     private boolean turretConnectionActivated = false;
     private boolean turretConnectionBeenLost = false;
-    private final Debouncer turretStopped = new Debouncer(0.5, DebounceType.kRising);
-    private final Debouncer turretStopped2 = new Debouncer(0.2, DebounceType.kRising);
 
-    private final boolean periodicRezeroWithEncoders = false;
     private final double turretRotationsOnStart;
-
-    private final double encoderRezeroPeriod = 1.0;
-    private double lastEncoderRezeroTimestamp = 0.0;
 
     public enum WantedState {
         IDLE,
@@ -102,7 +82,6 @@ public class Turret extends FullSubsystem {
         SmartDashboard.putString("Turret Motor Fault Sticky", Color.kGreen.toHexString());
 
         this.turretRotationsOnStart = turretInputs.rotations;
-        this.lastEncoderRezeroTimestamp = Timer.getTimestamp();
     }
 
     @Override
@@ -121,25 +100,7 @@ public class Turret extends FullSubsystem {
     }
 
     @Override
-    public void periodic() {
-        if (org.team4639.frc2026.Constants.tuningMode) {
-            LoggedTunableNumber.ifChanged(
-                    hashCode(),
-                    turretIO::applyNewGains,
-                    PIDs.turretKp,
-                    PIDs.turretKi,
-                    PIDs.turretKd,
-                    PIDs.turretKs,
-                    PIDs.turretKv,
-                    PIDs.turretKa,
-                    PIDs.turretKpSim,
-                    PIDs.turretKiSim,
-                    PIDs.turretKdSim,
-                    PIDs.turretKsSim,
-                    PIDs.turretKvSim,
-                    PIDs.turretKaSim);
-        }
-    }
+    public void periodic() {}
 
     private void runStateMachine() {
         SystemState newState = handleStateTransitions();
@@ -196,7 +157,8 @@ public class Turret extends FullSubsystem {
         };
     }
 
-    // CRT, should only be used on startup to seed position and not while turret is moving
+    // CRT, should only be used on startup to seed position and not while turret is
+    // moving
     public double getTurretRotation(double leftEncoderRotations, double rightEncoderRotations) {
         double abs1 = MathUtil.inputModulus(leftEncoderRotations, 0.0, 1.0) % 1;
         double abs2 = MathUtil.inputModulus(rightEncoderRotations, 0.0, 1.0) % 1;
@@ -445,7 +407,8 @@ public class Turret extends FullSubsystem {
         };
     }
 
-    // OVERRIDE Commands -- these disable the subsystem state machine for their duration
+    // OVERRIDE Commands -- these disable the subsystem state machine for their
+    // duration
 
     public Command rezeroAgainstWires() {
         return this.run(() -> setVoltage(Volts.of(3.0)))

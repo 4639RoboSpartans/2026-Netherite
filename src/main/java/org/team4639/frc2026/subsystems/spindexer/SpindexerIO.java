@@ -12,8 +12,6 @@ public interface SpindexerIO {
 
     default void updateInputs(SpindexerIOInputs inputs) {}
 
-    default void applyNewGains() {}
-
     @AutoLog
     class SpindexerIOInputs {
         public boolean connected = true;

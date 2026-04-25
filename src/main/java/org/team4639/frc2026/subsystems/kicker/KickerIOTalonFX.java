@@ -31,12 +31,14 @@ public class KickerIOTalonFX implements KickerIO {
         config.Slot0.kS = 0.095981;
         config.Slot0.kA = 0.0015124;
 
+        // bang-bang control
         config.Slot0.kP = 9999;
 
         config.Slot1.kV = 0.10888;
         config.Slot1.kS = 0.095981;
         config.Slot1.kA = 0.0015124;
 
+        // bang-bang control
         config.MotorOutput.PeakForwardDutyCycle = 1;
         config.MotorOutput.PeakReverseDutyCycle = 0;
 
@@ -64,20 +66,9 @@ public class KickerIOTalonFX implements KickerIO {
     }
 
     @Override
-    public void setRotorVelocityRPM(double targetVelocity) {
+    public void setMechanismVelocityRPM(double targetVelocity) {
         kickerMotor.setControl(velocityControl
                 .withVelocity(targetVelocity * (32. / 9) * (1. / 60))
                 .withSlot(targetVelocity == 0 ? 1 : 0));
-    }
-
-    @Override
-    public void applyNewGains(double[] newGains) {
-        var config = new TalonFXConfiguration().Slot0;
-        config.kP = newGains[0];
-        config.kI = newGains[1];
-        config.kD = newGains[2];
-        config.kS = newGains[3];
-        config.kV = newGains[4];
-        config.kA = newGains[5];
     }
 }

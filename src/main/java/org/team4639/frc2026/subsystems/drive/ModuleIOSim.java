@@ -15,8 +15,9 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 /**
- * Physics sim implementation of module IO. The sim models are configured using a set of module
- * constants from Phoenix. Simulation is always based on voltage control.
+ * Physics sim implementation of module IO. The sim models are configured using
+ * a set of module constants from Phoenix. Simulation is always based on voltage
+ * control.
  */
 public class ModuleIOSim implements ModuleIO {
     // TunerConstants doesn't support separate sim constants, so they are declared

@@ -95,21 +95,22 @@ public final class PhoenixUtil {
      *
      * <h2>Regulates the {@link SwerveModuleConstants} for a single module.</h2>
      *
-     * <p>This method applies specific adjustments to the {@link SwerveModuleConstants} for simulation
-     * purposes. These changes have no effect on real robot operations and address known simulation
-     * bugs:
+     * <p>
+     * This method applies specific adjustments to the {@link SwerveModuleConstants}
+     * for simulation purposes. These changes have no effect on real robot
+     * operations and address known simulation bugs:
      *
      * <ul>
-     *   <li><strong>Inverted Drive Motors:</strong> Prevents drive PID issues caused by inverted
-     *       configurations.
-     *   <li><strong>Non-zero CanCoder Offsets:</strong> Fixes potential module state optimization
-     *       issues.
-     *   <li><strong>Steer Motor PID:</strong> Adjusts PID values tuned for real robots to improve
-     *       simulation performance.
+     * <li><strong>Inverted Drive Motors:</strong> Prevents drive PID issues caused
+     * by inverted configurations.
+     * <li><strong>Non-zero CanCoder Offsets:</strong> Fixes potential module state
+     * optimization issues.
+     * <li><strong>Steer Motor PID:</strong> Adjusts PID values tuned for real
+     * robots to improve simulation performance.
      * </ul>
      *
-     * <h4>Note:This function is skipped when running on a real robot, ensuring no impact on constants
-     * used on real robot hardware.</h4>
+     * <h4>Note:This function is skipped when running on a real robot, ensuring no
+     * impact on constants used on real robot hardware.</h4>
      */
     public static SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
             regulateModuleConstantForSimulation(

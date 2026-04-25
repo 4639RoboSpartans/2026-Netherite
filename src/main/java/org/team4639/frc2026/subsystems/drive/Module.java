@@ -69,7 +69,10 @@ public class Module {
         RobotState.getInstance().acceptTemperatureMeasurement(inputs.turnTemperatureCelsius);
     }
 
-    /** Runs the module with the specified setpoint state. Mutates the state to optimize it. */
+    /**
+     * Runs the module with the specified setpoint state. Mutates the state to
+     * optimize it.
+     */
     public void runSetpoint(SwerveModuleState state) {
         // Optimize velocity setpoint
         state.optimize(getAngle());
@@ -80,7 +83,9 @@ public class Module {
         io.setTurnPosition(state.angle);
     }
 
-    /** Runs the module with the specified output while controlling to zero degrees. */
+    /**
+     * Runs the module with the specified output while controlling to zero degrees.
+     */
     public void runCharacterization(double output) {
         io.setDriveOpenLoop(output);
         io.setTurnPosition(Rotation2d.kZero);

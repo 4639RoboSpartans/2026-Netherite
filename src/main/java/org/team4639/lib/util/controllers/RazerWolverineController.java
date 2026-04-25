@@ -16,8 +16,9 @@ public class RazerWolverineController extends CommandXboxController {
     /**
      * Constructs a Trigger instance around the left claw button's digital signal.
      *
-     * @return a Trigger instance representing the left claw button's digital signal attached to the
-     *     {@link CommandScheduler#getDefaultButtonLoop() default scheduler button loop}.
+     * @return a Trigger instance representing the left claw button's digital signal
+     *         attached to the {@link CommandScheduler#getDefaultButtonLoop()
+     *         default scheduler button loop}.
      * @see #back(EventLoop)
      */
     public Trigger leftClaw() {
@@ -27,8 +28,9 @@ public class RazerWolverineController extends CommandXboxController {
     /**
      * Constructs a Trigger instance around the right claw button's digital signal.
      *
-     * @return a Trigger instance representing the right claw button's digital signal attached to the
-     *     {@link CommandScheduler#getDefaultButtonLoop() default scheduler button loop}.
+     * @return a Trigger instance representing the right claw button's digital
+     *         signal attached to the {@link CommandScheduler#getDefaultButtonLoop()
+     *         default scheduler button loop}.
      * @see #start(EventLoop)
      */
     public Trigger rightClaw() {
@@ -36,10 +38,13 @@ public class RazerWolverineController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance around the upper left paddle button's digital signal.
+     * Constructs a Trigger instance around the upper left paddle button's digital
+     * signal.
      *
-     * @return a Trigger instance representing the upper left paddle button's digital signal attached
-     *     to the {@link CommandScheduler#getDefaultButtonLoop() default scheduler button loop}.
+     * @return a Trigger instance representing the upper left paddle button's
+     *         digital signal attached to the
+     *         {@link CommandScheduler#getDefaultButtonLoop() default scheduler
+     *         button loop}.
      * @see #start(EventLoop)
      */
     public Trigger upperLeftPaddle() {
@@ -47,10 +52,13 @@ public class RazerWolverineController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance around the lower left paddle button's digital signal.
+     * Constructs a Trigger instance around the lower left paddle button's digital
+     * signal.
      *
-     * @return a Trigger instance representing the lower left paddle button's digital signal attached
-     *     to the {@link CommandScheduler#getDefaultButtonLoop() default scheduler button loop}.
+     * @return a Trigger instance representing the lower left paddle button's
+     *         digital signal attached to the
+     *         {@link CommandScheduler#getDefaultButtonLoop() default scheduler
+     *         button loop}.
      * @see #start(EventLoop)
      */
     public Trigger lowerLeftPaddle() {
@@ -58,10 +66,13 @@ public class RazerWolverineController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance around the upper right paddle button's digital signal.
+     * Constructs a Trigger instance around the upper right paddle button's digital
+     * signal.
      *
-     * @return a Trigger instance representing the upper right paddle button's digital signal attached
-     *     to the {@link CommandScheduler#getDefaultButtonLoop() default scheduler button loop}.
+     * @return a Trigger instance representing the upper right paddle button's
+     *         digital signal attached to the
+     *         {@link CommandScheduler#getDefaultButtonLoop() default scheduler
+     *         button loop}.
      * @see #start(EventLoop)
      */
     public Trigger upperRightPaddle() {
@@ -69,10 +80,13 @@ public class RazerWolverineController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance around the lower right paddle button's digital signal.
+     * Constructs a Trigger instance around the lower right paddle button's digital
+     * signal.
      *
-     * @return a Trigger instance representing the lower right paddle button's digital signal attached
-     *     to the {@link CommandScheduler#getDefaultButtonLoop() default scheduler button loop}.
+     * @return a Trigger instance representing the lower right paddle button's
+     *         digital signal attached to the
+     *         {@link CommandScheduler#getDefaultButtonLoop() default scheduler
+     *         button loop}.
      * @see #start(EventLoop)
      */
     public Trigger lowerRightPaddle() {

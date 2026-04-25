@@ -62,13 +62,12 @@ public class TurretIOTalonFX implements TurretIO {
 
         config.Slot1.kP = 15; // most aggressive for turret wraparound
 
-        config.Slot2.kP = 4; // want to reach zero setpoint with accuracy, don't care about speed but don't want
+        config.Slot2.kP = 4; // want to reach zero setpoint with accuracy, don't care about speed but don't
+        // want
         // steady state error
 
         config.MotionMagic.MotionMagicCruiseVelocity = 2.0 / Constants.MOTOR_TO_TURRET_GEAR_RATIO;
         config.MotionMagic.MotionMagicAcceleration = 8.0 / Constants.MOTOR_TO_TURRET_GEAR_RATIO;
-
-        // applyNewGains();
 
         PhoenixUtil.tryUntilOk(5, () -> turretMotor.getConfigurator().apply(config));
 
@@ -76,14 +75,6 @@ public class TurretIOTalonFX implements TurretIO {
         motorVelocity = turretMotor.getVelocity();
         motorVoltage = turretMotor.getMotorVoltage();
         motorCurrent = turretMotor.getStatorCurrent();
-
-        /*BaseStatusSignal.setUpdateFrequencyForAll(
-                50.0,
-                motorPosition,
-                motorVelocity,
-                motorVoltage,
-                motorCurrent
-        );*/
 
         RobotState.disabled.onTrue(Commands.runOnce(
                         () -> PhoenixUtil.tryUntilOk(5, () -> turretMotor.setNeutralMode(NeutralModeValue.Coast)))
@@ -126,21 +117,6 @@ public class TurretIOTalonFX implements TurretIO {
 
     public void setRotorRotationSetpointSlot2(double rotation) {
         turretMotor.setControl(request.withPosition(rotation).withSlot(2).withVelocity(0));
-    }
-
-    public void updateGains() {
-        config.Slot0.kP = PIDs.turretKp.get();
-        config.Slot0.kI = PIDs.turretKi.get();
-        config.Slot0.kD = PIDs.turretKd.get();
-        config.Slot0.kS = PIDs.turretKs.get();
-        config.Slot0.kV = PIDs.turretKv.get();
-        config.Slot0.kA = PIDs.turretKa.get();
-    }
-
-    @Override
-    public void applyNewGains() {
-        // updateGains();
-        // PhoenixUtil.tryUntilOk(5, () -> turretMotor.getConfigurator().apply(config));
     }
 
     @Override

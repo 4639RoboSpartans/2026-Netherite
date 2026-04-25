@@ -12,8 +12,9 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
- * Auto Chooser intended to mimic the functionality of {@link choreo.auto.AutoChooser} while staying
- * consistent with AdvantageKit logging.
+ * Auto Chooser intended to mimic the functionality of
+ * {@link choreo.auto.AutoChooser} while staying consistent with AdvantageKit
+ * logging.
  */
 public class LoggedLazyAutoChooser extends VirtualSubsystem {
     private Command command = null;
@@ -26,8 +27,8 @@ public class LoggedLazyAutoChooser extends VirtualSubsystem {
     @Getter
     @Accessors(fluent = true)
     /**
-     * Verify that the command has changed at least once since the start of the robot program and is
-     * not the default option (Commands.none()).
+     * Verify that the command has changed at least once since the start of the
+     * robot program and is not the default option (Commands.none()).
      */
     private boolean hasCommand = false;
 

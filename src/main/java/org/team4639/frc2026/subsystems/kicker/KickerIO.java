@@ -8,11 +8,9 @@ public interface KickerIO {
 
     default void setVoltage(double appliedVolts) {}
 
-    default void setRotorVelocityRPM(double targetVelocity) {}
+    default void setMechanismVelocityRPM(double targetVelocity) {}
 
     default void updateInputs(KickerIOInputs inputs) {}
-
-    default void applyNewGains(double[] newGains) {}
 
     @AutoLog
     class KickerIOInputs {

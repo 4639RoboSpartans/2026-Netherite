@@ -21,9 +21,7 @@ public class ShooterIOSim implements ShooterIO {
     private double leftAppliedVolts = 0.0;
     private double rightAppliedVolts = 0.0;
 
-    public ShooterIOSim() {
-        applyNewGains();
-    }
+    public ShooterIOSim() {}
 
     @Override
     public void updateInputs(ShooterIOInputs inputs) {
@@ -51,17 +49,5 @@ public class ShooterIOSim implements ShooterIO {
         leftAppliedVolts = MathUtil.clamp(leftAppliedVolts, -12, 12);
         rightAppliedVolts = -leftAppliedVolts;
         flywheelSim.setInputVoltage(leftAppliedVolts);
-    }
-
-    public void updateGains() {
-        flywheelFeedback.setPID(PIDs.shooterKpSim.get(), PIDs.shooterKiSim.get(), PIDs.shooterKdSim.get());
-        flywheelFeedforward.setKs(PIDs.shooterKsSim.get());
-        flywheelFeedforward.setKv(PIDs.shooterKvSim.get());
-        flywheelFeedforward.setKa(PIDs.shooterKaSim.get());
-    }
-
-    @Override
-    public void applyNewGains() {
-        updateGains();
     }
 }

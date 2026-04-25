@@ -3,9 +3,12 @@
 package org.team4639.frc2026.constants.shooter;
 
 /**
- * @param shooterRPM shooter flywheel RPM
- * @param hoodDegrees shooter angle relative to horizontal
- * @param turretRotations turret angle field-relative
+ * @param shooterRPM
+ *            shooter flywheel RPM
+ * @param hoodDegrees
+ *            shooter angle relative to horizontal
+ * @param turretRotations
+ *            turret angle field-relative
  */
 public record ScoringState(double shooterRPM, double hoodDegrees, double turretRotations) {
     @Override

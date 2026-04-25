@@ -15,10 +15,12 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Contains information for location of field element and other useful reference points.
+ * Contains information for location of field element and other useful reference
+ * points.
  *
- * <p>NOTE: All constants are defined relative to the field coordinate system, and from the
- * perspective of the blue alliance station
+ * <p>
+ * NOTE: All constants are defined relative to the field coordinate system, and
+ * from the perspective of the blue alliance station
  */
 public class FieldConstants {
     public static final FieldType fieldType = FieldType.ANDYMARK;
@@ -36,7 +38,8 @@ public class FieldConstants {
             AprilTagLayoutType.OFFICIAL.getLayout().getFieldWidth();
 
     /**
-     * Officially defined and relevant vertical lines found on the field (defined by X-axis offset)
+     * Officially defined and relevant vertical lines found on the field (defined by
+     * X-axis offset)
      */
     public static class LinesVertical {
         public static final double center = fieldLength / 2.0;
@@ -54,10 +57,12 @@ public class FieldConstants {
     }
 
     /**
-     * Officially defined and relevant horizontal lines found on the field (defined by Y-axis offset)
+     * Officially defined and relevant horizontal lines found on the field (defined
+     * by Y-axis offset)
      *
-     * <p>NOTE: The field element start and end are always left to right from the perspective of the
-     * alliance station
+     * <p>
+     * NOTE: The field element start and end are always left to right from the
+     * perspective of the alliance station
      */
     public static class LinesHorizontal {
 

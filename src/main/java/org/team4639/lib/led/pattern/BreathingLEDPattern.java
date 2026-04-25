@@ -11,18 +11,24 @@ public final class BreathingLEDPattern implements LEDPattern {
     private final double percentage_max;
 
     /**
-     * @param color The color to use
-     * @param speed The speed, in cycles per second, of the breathing effect
+     * @param color
+     *            The color to use
+     * @param speed
+     *            The speed, in cycles per second, of the breathing effect
      */
     public BreathingLEDPattern(Color color, double speed) {
         this(color, speed, 0, 1);
     }
 
     /**
-     * @param color The color to use
-     * @param speed The speed, in cycles per second, of the breathing effect
-     * @param minBrightness The minimum brightness to use
-     * @param maxBrightness The maximum brightness to use
+     * @param color
+     *            The color to use
+     * @param speed
+     *            The speed, in cycles per second, of the breathing effect
+     * @param minBrightness
+     *            The minimum brightness to use
+     * @param maxBrightness
+     *            The maximum brightness to use
      */
     public BreathingLEDPattern(Color color, double speed, double minBrightness, double maxBrightness) {
         this.color = color;

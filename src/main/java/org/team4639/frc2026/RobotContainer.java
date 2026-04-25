@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import org.team4639.frc2026.auto.AutoCommands4;
+import org.team4639.frc2026.auto.AutoCommands;
 import org.team4639.frc2026.commands.DriveCommands;
 import org.team4639.frc2026.commands.IntakeCommands;
 import org.team4639.frc2026.commands.LEDCommands;
@@ -47,10 +47,11 @@ import org.team4639.lib.util.Commands2;
 import org.team4639.lib.util.LoggedLazyAutoChooser;
 
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
- * subsystems, commands, and button mappings) should be declared here.
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a "declarative" paradigm, very little robot logic should
+ * actually be handled in the {@link Robot} periodic methods (other than the
+ * scheduler calls). Instead, the structure of the robot (including subsystems,
+ * commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
     private final PortConfiguration portConfiguration = Netherite.portConfiguration;
@@ -81,7 +82,9 @@ public class RobotContainer {
     // Dashboard inputs
     private final LoggedLazyAutoChooser autoChooser;
 
-    /** The container for the robot. Contains subsystems, OI devices, and commands. */
+    /**
+     * The container for the robot. Contains subsystems, OI devices, and commands.
+     */
     public RobotContainer() {
         switch (Constants.currentMode) {
             case REAL:
@@ -94,7 +97,7 @@ public class RobotContainer {
                         pose -> {});
 
                 intake = new Intake(
-                        /*new IntakeRollerIO() {}*/
+                        /* new IntakeRollerIO() {} */
                         new IntakeRollerIOTalonFX(portConfiguration), RobotState.getInstance());
 
                 extension = new Extension(new IntakeExtensionIOTalonFX(portConfiguration), RobotState.getInstance());
@@ -115,7 +118,7 @@ public class RobotContainer {
                                 org.team4639.frc2026.subsystems.turret.Constants.RIGHT_ENCODER_INVERTED),
                         RobotState.getInstance());
 
-                hood = new Hood(new HoodIOTalonFX(portConfiguration) /*new HoodIO(){}*/, RobotState.getInstance());
+                hood = new Hood(new HoodIOTalonFX(portConfiguration) /* new HoodIO(){} */, RobotState.getInstance());
 
                 shooter = new Shooter(new ShooterIOSparkFlex(portConfiguration), RobotState.getInstance());
 
@@ -201,22 +204,22 @@ public class RobotContainer {
 
                 turretCamera =
                         // new TurretCamera(
-                        //     RobotState.getInstance(),
-                        //     new VisionIOPhotonVisionSim(
-                        //         "Turret-Sim",
-                        //         new Transform3d(),
-                        //         () ->
-                        //             SimRobot.getInstance()
-                        //                 .getSwerveDriveSimulation()
-                        //                 .getSimulatedDriveTrainPose()
-                        //                 .transformBy(
-                        //                     new Transform2d(
+                        // RobotState.getInstance(),
+                        // new VisionIOPhotonVisionSim(
+                        // "Turret-Sim",
+                        // new Transform3d(),
+                        // () ->
+                        // SimRobot.getInstance()
+                        // .getSwerveDriveSimulation()
+                        // .getSimulatedDriveTrainPose()
+                        // .transformBy(
+                        // new Transform2d(
                         //
                         // Constants.SimConstants.originToTurretRotation.toTranslation2d(),
-                        //                         Rotation2d.fromRotations(
-                        //                             RobotState.getInstance()
-                        //                                 .getScoringState()
-                        //                                 .turretRotations())))));
+                        // Rotation2d.fromRotations(
+                        // RobotState.getInstance()
+                        // .getScoringState()
+                        // .turretRotations())))));
                         new TurretCamera(RobotState.getInstance(), new VisionIO() {});
 
                 ledkicker = new LEDKicker(new LEDKickerIOSim());
@@ -261,28 +264,28 @@ public class RobotContainer {
         // Set up auto routines
         autoChooser = new LoggedLazyAutoChooser("Auto Choices");
 
-        autoChooser.addOption("OP_LEFT", () -> AutoCommands4.OP_LEFT(
+        autoChooser.addOption("OP_LEFT", () -> AutoCommands.OP_LEFT(
                         drive, shooter, hood, turret, spindexer, kicker, extension, intake, RobotState.getInstance())
                 .withTimeout(20));
 
-        autoChooser.addOption("OP_RIGHT", () -> AutoCommands4.OP_RIGHT(
+        autoChooser.addOption("OP_RIGHT", () -> AutoCommands.OP_RIGHT(
                         drive, shooter, hood, turret, spindexer, kicker, extension, intake, RobotState.getInstance())
                 .withTimeout(20));
 
-        autoChooser.addOption("OP_NEAR_LEFT", () -> AutoCommands4.OP_NEAR_LEFT(
+        autoChooser.addOption("OP_NEAR_LEFT", () -> AutoCommands.OP_NEAR_LEFT(
                         drive, shooter, hood, turret, spindexer, kicker, extension, intake, RobotState.getInstance())
                 .withTimeout(20));
 
-        autoChooser.addOption("OP_NEAR_RIGHT", () -> AutoCommands4.OP_NEAR_RIGHT(
+        autoChooser.addOption("OP_NEAR_RIGHT", () -> AutoCommands.OP_NEAR_RIGHT(
                         drive, shooter, hood, turret, spindexer, kicker, extension, intake, RobotState.getInstance())
                 .withTimeout(20));
     }
 
     /**
-     * Use this method to define your button->command mappings. Buttons can be created by
-     * instantiating a {@link GenericHID} or one of its subclasses ({@link
-     * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-     * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+     * Use this method to define your button->command mappings. Buttons can be
+     * created by instantiating a {@link GenericHID} or one of its subclasses
+     * ({@link edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then
+     * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
         // Default command, normal field-relative drive
@@ -316,8 +319,8 @@ public class RobotContainer {
 
         driver.povDown().onTrue(IntakeCommands.outtake(intake));
 
-        operator.povUp().onTrue(Commands2.action(() -> LookupTables.fudge = LookupTables.fudge + 0.1));
-        operator.povDown().onTrue(Commands2.action(() -> LookupTables.fudge = LookupTables.fudge - 0.1));
+        operator.povUp().onTrue(Commands2.action(() -> LookupTables.RPMFudge = LookupTables.RPMFudge + 0.1));
+        operator.povDown().onTrue(Commands2.action(() -> LookupTables.RPMFudge = LookupTables.RPMFudge - 0.1));
 
         operator.povLeft().whileTrue(turret.overrideCounterClockwise());
         operator.povRight().whileTrue(turret.overrideCounterClockwise());

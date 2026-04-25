@@ -21,7 +21,10 @@ import org.team4639.frc2026.subsystems.turret.Turret;
 public class SuperstructureCommands {
     public static SuperstructureState currentState = SuperstructureState.IDLE;
 
+    // whether or not to run the spindexer while spinning up or waiting for turret
+    // aim
     private static boolean runSpindexerWhileWaiting = false;
+    // used to limit drivetrain movement while scoring
     public static boolean tryingToShoot = false;
 
     public static boolean turretDisabled = false;
@@ -33,6 +36,9 @@ public class SuperstructureCommands {
         WAIT
     }
 
+    /**
+     * Turret tracks hub for best vision, other subsystems do nothing.
+     */
     public static Command idle(
             Shooter shooter, Hood hood, Turret turret, Spindexer spindexer, Kicker kicker, RobotState state) {
         return Commands.run(
@@ -54,6 +60,9 @@ public class SuperstructureCommands {
                 kicker.dummy);
     }
 
+    /**
+     * Spins up shooter and scores while turret has aim.
+     */
     public static Command requestScoring(
             Shooter shooter, Hood hood, Turret turret, Spindexer spindexer, Kicker kicker, RobotState state) {
         return new SequentialCommandGroup(
@@ -105,6 +114,9 @@ public class SuperstructureCommands {
                         kicker.dummy));
     }
 
+    /**
+     * Spins up shooter and passes while turret has aim.
+     */
     public static Command requestPassing(
             Shooter shooter, Hood hood, Turret turret, Spindexer spindexer, Kicker kicker, RobotState state) {
         return new SequentialCommandGroup(
@@ -155,6 +167,10 @@ public class SuperstructureCommands {
                         kicker.dummy));
     }
 
+    /**
+     * Pre-spins up shooter so that we can start scoring immediately when back in
+     * Alliance Zone. Only used in auto.
+     */
     public static Command autoSpinupToShoot(
             Shooter shooter, Hood hood, Turret turret, Spindexer spindexer, Kicker kicker, RobotState state) {
         return Commands.run(
@@ -178,6 +194,14 @@ public class SuperstructureCommands {
                 kicker.dummy);
     }
 
+    /**
+     * Determines if the hood is allowed to be up based on the current robot
+     * position and speeds.
+     *
+     * @return if the hood is predicted to collide with the trench,
+     *         {@link Hood.WantedState#IDLE}; otherwise, the given desired hood
+     *         state.
+     */
     private static Hood.WantedState avoidTrench(Hood.WantedState desiredState, RobotState state) {
         ChassisSpeeds speeds = state.getChassisSpeeds();
         Pose2d currentRobotPose = state.getEstimatedPose();
@@ -195,6 +219,9 @@ public class SuperstructureCommands {
 
         return desiredState;
     }
+
+    // Manual setpoint overrides. Overrides LookupTables setpoints and requests
+    // scoring.
 
     public static Command setClosestOverride(
             Shooter shooter, Hood hood, Turret turret, Spindexer spindexer, Kicker kicker, RobotState state) {

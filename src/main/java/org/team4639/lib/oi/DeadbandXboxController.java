@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * An instance of a controller that provides utils for applying deadzone to the controller axes and
- * double click detection
+ * An instance of a controller that provides utils for applying deadzone to the
+ * controller axes and double click detection
  */
 public class DeadbandXboxController extends CommandXboxController {
     public static Set<DeadbandXboxController> instances = new HashSet<>();
@@ -30,7 +30,9 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Construct an instance of a controller.
      *
-     * @param port The port index on the Driver Station that the controller is plugged into.
+     * @param port
+     *            The port index on the Driver Station that the controller is
+     *            plugged into.
      */
     public DeadbandXboxController(int port) {
         super(port);
@@ -70,8 +72,8 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Updates the double click detection state for a button. Should be called periodically (e.g., in
-     * a periodic method).
+     * Updates the double click detection state for a button. Should be called
+     * periodically (e.g., in a periodic method).
      */
     public void updateDoubleClickDetection() {
         for (Trigger trigger : lastClickTime.keySet()) {
@@ -95,7 +97,8 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Creates a Trigger that activates on double click of the given trigger.
      *
-     * @param trigger the trigger to detect double clicks on
+     * @param trigger
+     *            the trigger to detect double clicks on
      * @return a Trigger that is true when a double click is detected
      */
     public Trigger doubleClick(Trigger trigger) {
@@ -179,9 +182,11 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Constructs an event instance around this button's digital signal.
      *
-     * @param button the button index
-     * @return an event instance representing the button's digital signal attached to the {@link
-     *     CommandScheduler#getDefaultButtonLoop()} default scheduler button loop.
+     * @param button
+     *            the button index
+     * @return an event instance representing the button's digital signal attached
+     *         to the {@link CommandScheduler#getDefaultButtonLoop()} default
+     *         scheduler button loop.
      * @see #button(int, EventLoop)
      */
     @Override
@@ -193,9 +198,12 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Constructs an event instance around this button's digital signal.
      *
-     * @param button the button index
-     * @param loop the event loop instance to attach the event to.
-     * @return an event instance representing the button's digital signal attached to the given loop.
+     * @param button
+     *            the button index
+     * @param loop
+     *            the event loop instance to attach the event to.
+     * @return an event instance representing the button's digital signal attached
+     *         to the given loop.
      */
     @Override
     @Deprecated
@@ -204,14 +212,16 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance based around this angle of the default (index 0) POV on the HID,
-     * attached to {@link CommandScheduler#getDefaultButtonLoop() the default command scheduler button
-     * loop}.
+     * Constructs a Trigger instance based around this angle of the default (index
+     * 0) POV on the HID, attached to {@link CommandScheduler#getDefaultButtonLoop()
+     * the default command scheduler button loop}.
      *
-     * <p>The POV angles start at 0 in the up direction, and increase clockwise (e.g. right is 90,
-     * upper-left is 315).
+     * <p>
+     * The POV angles start at 0 in the up direction, and increase clockwise (e.g.
+     * right is 90, upper-left is 315).
      *
-     * @param angle POV angle in degrees, or -1 for the center / not pressed.
+     * @param angle
+     *            POV angle in degrees, or -1 for the center / not pressed.
      * @return a Trigger instance based around this angle of a POV on the HID.
      */
     @Override
@@ -223,13 +233,18 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Constructs a Trigger instance based around this angle of a POV on the HID.
      *
-     * <p>The POV angles start at 0 in the up direction, and increase clockwise (e.g. right is 90,
-     * upper-left is 315).
+     * <p>
+     * The POV angles start at 0 in the up direction, and increase clockwise (e.g.
+     * right is 90, upper-left is 315).
      *
-     * @param pov index of the POV to read (starting at 0). Defaults to 0.
-     * @param angle POV angle in degrees, or -1 for the center / not pressed.
-     * @param loop the event loop instance to attach the event to. Defaults to {@link
-     *     CommandScheduler#getDefaultButtonLoop() the default command scheduler button loop}.
+     * @param pov
+     *            index of the POV to read (starting at 0). Defaults to 0.
+     * @param angle
+     *            POV angle in degrees, or -1 for the center / not pressed.
+     * @param loop
+     *            the event loop instance to attach the event to. Defaults to
+     *            {@link CommandScheduler#getDefaultButtonLoop() the default command
+     *            scheduler button loop}.
      * @return a Trigger instance based around this angle of a POV on the HID.
      */
     @Override
@@ -239,11 +254,13 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance based around the 0 degree angle (up) of the default (index 0) POV
-     * on the HID, attached to {@link CommandScheduler#getDefaultButtonLoop() the default command
-     * scheduler button loop}.
+     * Constructs a Trigger instance based around the 0 degree angle (up) of the
+     * default (index 0) POV on the HID, attached to
+     * {@link CommandScheduler#getDefaultButtonLoop() the default command scheduler
+     * button loop}.
      *
-     * @return a Trigger instance based around the 0 degree angle of a POV on the HID.
+     * @return a Trigger instance based around the 0 degree angle of a POV on the
+     *         HID.
      */
     @Override
     public Trigger povUp() {
@@ -251,11 +268,13 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance based around the 45 degree angle (right up) of the default (index
-     * 0) POV on the HID, attached to {@link CommandScheduler#getDefaultButtonLoop() the default
-     * command scheduler button loop}.
+     * Constructs a Trigger instance based around the 45 degree angle (right up) of
+     * the default (index 0) POV on the HID, attached to
+     * {@link CommandScheduler#getDefaultButtonLoop() the default command scheduler
+     * button loop}.
      *
-     * @return a Trigger instance based around the 45 degree angle of a POV on the HID.
+     * @return a Trigger instance based around the 45 degree angle of a POV on the
+     *         HID.
      */
     @Override
     public Trigger povUpRight() {
@@ -263,11 +282,13 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance based around the 90 degree angle (right) of the default (index 0)
-     * POV on the HID, attached to {@link CommandScheduler#getDefaultButtonLoop() the default command
-     * scheduler button loop}.
+     * Constructs a Trigger instance based around the 90 degree angle (right) of the
+     * default (index 0) POV on the HID, attached to
+     * {@link CommandScheduler#getDefaultButtonLoop() the default command scheduler
+     * button loop}.
      *
-     * @return a Trigger instance based around the 90 degree angle of a POV on the HID.
+     * @return a Trigger instance based around the 90 degree angle of a POV on the
+     *         HID.
      */
     @Override
     public Trigger povRight() {
@@ -275,11 +296,13 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance based around the 135 degree angle (right down) of the default
-     * (index 0) POV on the HID, attached to {@link CommandScheduler#getDefaultButtonLoop() the
-     * default command scheduler button loop}.
+     * Constructs a Trigger instance based around the 135 degree angle (right down)
+     * of the default (index 0) POV on the HID, attached to
+     * {@link CommandScheduler#getDefaultButtonLoop() the default command scheduler
+     * button loop}.
      *
-     * @return a Trigger instance based around the 135 degree angle of a POV on the HID.
+     * @return a Trigger instance based around the 135 degree angle of a POV on the
+     *         HID.
      */
     @Override
     public Trigger povDownRight() {
@@ -287,11 +310,13 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance based around the 180 degree angle (down) of the default (index 0)
-     * POV on the HID, attached to {@link CommandScheduler#getDefaultButtonLoop() the default command
-     * scheduler button loop}.
+     * Constructs a Trigger instance based around the 180 degree angle (down) of the
+     * default (index 0) POV on the HID, attached to
+     * {@link CommandScheduler#getDefaultButtonLoop() the default command scheduler
+     * button loop}.
      *
-     * @return a Trigger instance based around the 180 degree angle of a POV on the HID.
+     * @return a Trigger instance based around the 180 degree angle of a POV on the
+     *         HID.
      */
     @Override
     public Trigger povDown() {
@@ -299,11 +324,13 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance based around the 225 degree angle (down left) of the default
-     * (index 0) POV on the HID, attached to {@link CommandScheduler#getDefaultButtonLoop() the
-     * default command scheduler button loop}.
+     * Constructs a Trigger instance based around the 225 degree angle (down left)
+     * of the default (index 0) POV on the HID, attached to
+     * {@link CommandScheduler#getDefaultButtonLoop() the default command scheduler
+     * button loop}.
      *
-     * @return a Trigger instance based around the 225 degree angle of a POV on the HID.
+     * @return a Trigger instance based around the 225 degree angle of a POV on the
+     *         HID.
      */
     @Override
     public Trigger povDownLeft() {
@@ -311,11 +338,13 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance based around the 270 degree angle (left) of the default (index 0)
-     * POV on the HID, attached to {@link CommandScheduler#getDefaultButtonLoop() the default command
-     * scheduler button loop}.
+     * Constructs a Trigger instance based around the 270 degree angle (left) of the
+     * default (index 0) POV on the HID, attached to
+     * {@link CommandScheduler#getDefaultButtonLoop() the default command scheduler
+     * button loop}.
      *
-     * @return a Trigger instance based around the 270 degree angle of a POV on the HID.
+     * @return a Trigger instance based around the 270 degree angle of a POV on the
+     *         HID.
      */
     @Override
     public Trigger povLeft() {
@@ -323,11 +352,13 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance based around the 315 degree angle (left up) of the default (index
-     * 0) POV on the HID, attached to {@link CommandScheduler#getDefaultButtonLoop() the default
-     * command scheduler button loop}.
+     * Constructs a Trigger instance based around the 315 degree angle (left up) of
+     * the default (index 0) POV on the HID, attached to
+     * {@link CommandScheduler#getDefaultButtonLoop() the default command scheduler
+     * button loop}.
      *
-     * @return a Trigger instance based around the 315 degree angle of a POV on the HID.
+     * @return a Trigger instance based around the 315 degree angle of a POV on the
+     *         HID.
      */
     @Override
     public Trigger povUpLeft() {
@@ -335,11 +366,13 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance based around the center (not pressed) position of the default
-     * (index 0) POV on the HID, attached to {@link CommandScheduler#getDefaultButtonLoop() the
-     * default command scheduler button loop}.
+     * Constructs a Trigger instance based around the center (not pressed) position
+     * of the default (index 0) POV on the HID, attached to
+     * {@link CommandScheduler#getDefaultButtonLoop() the default command scheduler
+     * button loop}.
      *
-     * @return a Trigger instance based around the center position of a POV on the HID.
+     * @return a Trigger instance based around the center position of a POV on the
+     *         HID.
      */
     @Override
     public Trigger povCenter() {
@@ -347,14 +380,16 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance that is true when the axis value is less than {@code threshold},
-     * attached to {@link CommandScheduler#getDefaultButtonLoop() the default command scheduler button
-     * loop}.
+     * Constructs a Trigger instance that is true when the axis value is less than
+     * {@code threshold}, attached to {@link CommandScheduler#getDefaultButtonLoop()
+     * the default command scheduler button loop}.
      *
-     * @param axis The axis to read, starting at 0
-     * @param threshold The value below which this trigger should return true.
-     * @return a Trigger instance that is true when the axis value is less than the provided
-     *     threshold.
+     * @param axis
+     *            The axis to read, starting at 0
+     * @param threshold
+     *            The value below which this trigger should return true.
+     * @return a Trigger instance that is true when the axis value is less than the
+     *         provided threshold.
      */
     @Override
     public Trigger axisLessThan(int axis, double threshold) {
@@ -362,14 +397,17 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance that is true when the axis value is less than {@code threshold},
-     * attached to the given loop.
+     * Constructs a Trigger instance that is true when the axis value is less than
+     * {@code threshold}, attached to the given loop.
      *
-     * @param axis The axis to read, starting at 0
-     * @param threshold The value below which this trigger should return true.
-     * @param loop the event loop instance to attach the trigger to
-     * @return a Trigger instance that is true when the axis value is less than the provided
-     *     threshold.
+     * @param axis
+     *            The axis to read, starting at 0
+     * @param threshold
+     *            The value below which this trigger should return true.
+     * @param loop
+     *            the event loop instance to attach the trigger to
+     * @return a Trigger instance that is true when the axis value is less than the
+     *         provided threshold.
      */
     @Override
     public Trigger axisLessThan(int axis, double threshold, EventLoop loop) {
@@ -377,14 +415,16 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance that is true when the axis value is less than {@code threshold},
-     * attached to {@link CommandScheduler#getDefaultButtonLoop() the default command scheduler button
-     * loop}.
+     * Constructs a Trigger instance that is true when the axis value is less than
+     * {@code threshold}, attached to {@link CommandScheduler#getDefaultButtonLoop()
+     * the default command scheduler button loop}.
      *
-     * @param axis The axis to read, starting at 0
-     * @param threshold The value above which this trigger should return true.
-     * @return a Trigger instance that is true when the axis value is greater than the provided
-     *     threshold.
+     * @param axis
+     *            The axis to read, starting at 0
+     * @param threshold
+     *            The value above which this trigger should return true.
+     * @return a Trigger instance that is true when the axis value is greater than
+     *         the provided threshold.
      */
     @Override
     public Trigger axisGreaterThan(int axis, double threshold) {
@@ -392,14 +432,18 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance that is true when the axis value is greater than {@code
+     * Constructs a Trigger instance that is true when the axis value is greater
+     * than {@code
      * threshold}, attached to the given loop.
      *
-     * @param axis The axis to read, starting at 0
-     * @param threshold The value above which this trigger should return true.
-     * @param loop the event loop instance to attach the trigger to.
-     * @return a Trigger instance that is true when the axis value is greater than the provided
-     *     threshold.
+     * @param axis
+     *            The axis to read, starting at 0
+     * @param threshold
+     *            The value above which this trigger should return true.
+     * @param loop
+     *            the event loop instance to attach the trigger to.
+     * @return a Trigger instance that is true when the axis value is greater than
+     *         the provided threshold.
      */
     @Override
     public Trigger axisGreaterThan(int axis, double threshold, EventLoop loop) {
@@ -407,14 +451,18 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance that is true when the axis magnitude value is greater than {@code
+     * Constructs a Trigger instance that is true when the axis magnitude value is
+     * greater than {@code
      * threshold}, attached to the given loop.
      *
-     * @param axis The axis to read, starting at 0
-     * @param threshold The value above which this trigger should return true.
-     * @param loop the event loop instance to attach the trigger to.
-     * @return a Trigger instance that is true when the axis magnitude value is greater than the
-     *     provided threshold.
+     * @param axis
+     *            The axis to read, starting at 0
+     * @param threshold
+     *            The value above which this trigger should return true.
+     * @param loop
+     *            the event loop instance to attach the trigger to.
+     * @return a Trigger instance that is true when the axis magnitude value is
+     *         greater than the provided threshold.
      */
     @Override
     public Trigger axisMagnitudeGreaterThan(int axis, double threshold, EventLoop loop) {
@@ -422,13 +470,17 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance that is true when the axis magnitude value is greater than {@code
-     * threshold}, attached to {@link CommandScheduler#getDefaultButtonLoop() the default command
-     * scheduler button loop}.
+     * Constructs a Trigger instance that is true when the axis magnitude value is
+     * greater than {@code
+     * threshold}, attached to {@link CommandScheduler#getDefaultButtonLoop() the
+     * default command scheduler button loop}.
      *
-     * @param axis The axis to read, starting at 0
-     * @param threshold The value above which this trigger should return true.
-     * @return a Trigger instance that is true when the deadbanded axis value is active (non-zero).
+     * @param axis
+     *            The axis to read, starting at 0
+     * @param threshold
+     *            The value above which this trigger should return true.
+     * @return a Trigger instance that is true when the deadbanded axis value is
+     *         active (non-zero).
      */
     @Override
     public Trigger axisMagnitudeGreaterThan(int axis, double threshold) {
@@ -438,7 +490,8 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Get the value of the axis.
      *
-     * @param axis The axis to read, starting at 0.
+     * @param axis
+     *            The axis to read, starting at 0.
      * @return The value of the axis.
      */
     @Override
@@ -447,11 +500,13 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Set the rumble output for the HID. The DS currently supports 2 rumble values, left rumble and
-     * right rumble.
+     * Set the rumble output for the HID. The DS currently supports 2 rumble values,
+     * left rumble and right rumble.
      *
-     * @param type Which rumble value to set
-     * @param value The normalized value (0 to 1) to set the rumble to
+     * @param type
+     *            Which rumble value to set
+     * @param value
+     *            The normalized value (0 to 1) to set the rumble to
      */
     @Override
     public void setRumble(GenericHID.RumbleType type, double value) {
@@ -471,8 +526,9 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Constructs a Trigger instance around the A button's digital signal.
      *
-     * @return a Trigger instance representing the A button's digital signal attached to the {@link
-     *     CommandScheduler#getDefaultButtonLoop() default scheduler button loop}.
+     * @return a Trigger instance representing the A button's digital signal
+     *         attached to the {@link CommandScheduler#getDefaultButtonLoop()
+     *         default scheduler button loop}.
      * @see #a(EventLoop)
      */
     @Override
@@ -483,9 +539,10 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Constructs a Trigger instance around the A button's digital signal.
      *
-     * @param loop the event loop instance to attach the event to.
-     * @return a Trigger instance representing the A button's digital signal attached to the given
-     *     loop.
+     * @param loop
+     *            the event loop instance to attach the event to.
+     * @return a Trigger instance representing the A button's digital signal
+     *         attached to the given loop.
      */
     @Override
     public Trigger a(EventLoop loop) {
@@ -495,8 +552,9 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Constructs a Trigger instance around the B button's digital signal.
      *
-     * @return a Trigger instance representing the B button's digital signal attached to the {@link
-     *     CommandScheduler#getDefaultButtonLoop() default scheduler button loop}.
+     * @return a Trigger instance representing the B button's digital signal
+     *         attached to the {@link CommandScheduler#getDefaultButtonLoop()
+     *         default scheduler button loop}.
      * @see #b(EventLoop)
      */
     @Override
@@ -507,9 +565,10 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Constructs a Trigger instance around the B button's digital signal.
      *
-     * @param loop the event loop instance to attach the event to.
-     * @return a Trigger instance representing the B button's digital signal attached to the given
-     *     loop.
+     * @param loop
+     *            the event loop instance to attach the event to.
+     * @return a Trigger instance representing the B button's digital signal
+     *         attached to the given loop.
      */
     @Override
     public Trigger b(EventLoop loop) {
@@ -519,8 +578,9 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Constructs a Trigger instance around the X button's digital signal.
      *
-     * @return a Trigger instance representing the X button's digital signal attached to the {@link
-     *     CommandScheduler#getDefaultButtonLoop() default scheduler button loop}.
+     * @return a Trigger instance representing the X button's digital signal
+     *         attached to the {@link CommandScheduler#getDefaultButtonLoop()
+     *         default scheduler button loop}.
      * @see #x(EventLoop)
      */
     @Override
@@ -531,9 +591,10 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Constructs a Trigger instance around the X button's digital signal.
      *
-     * @param loop the event loop instance to attach the event to.
-     * @return a Trigger instance representing the X button's digital signal attached to the given
-     *     loop.
+     * @param loop
+     *            the event loop instance to attach the event to.
+     * @return a Trigger instance representing the X button's digital signal
+     *         attached to the given loop.
      */
     @Override
     public Trigger x(EventLoop loop) {
@@ -543,8 +604,9 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Constructs a Trigger instance around the Y button's digital signal.
      *
-     * @return a Trigger instance representing the Y button's digital signal attached to the {@link
-     *     CommandScheduler#getDefaultButtonLoop() default scheduler button loop}.
+     * @return a Trigger instance representing the Y button's digital signal
+     *         attached to the {@link CommandScheduler#getDefaultButtonLoop()
+     *         default scheduler button loop}.
      * @see #y(EventLoop)
      */
     @Override
@@ -555,9 +617,10 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Constructs a Trigger instance around the Y button's digital signal.
      *
-     * @param loop the event loop instance to attach the event to.
-     * @return a Trigger instance representing the Y button's digital signal attached to the given
-     *     loop.
+     * @param loop
+     *            the event loop instance to attach the event to.
+     * @return a Trigger instance representing the Y button's digital signal
+     *         attached to the given loop.
      */
     @Override
     public Trigger y(EventLoop loop) {
@@ -567,8 +630,9 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Constructs a Trigger instance around the left bumper button's digital signal.
      *
-     * @return a Trigger instance representing the left bumper button's digital signal attached to the
-     *     {@link CommandScheduler#getDefaultButtonLoop() default scheduler button loop}.
+     * @return a Trigger instance representing the left bumper button's digital
+     *         signal attached to the {@link CommandScheduler#getDefaultButtonLoop()
+     *         default scheduler button loop}.
      * @see #leftBumper(EventLoop)
      */
     @Override
@@ -579,9 +643,10 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Constructs a Trigger instance around the left bumper button's digital signal.
      *
-     * @param loop the event loop instance to attach the event to.
-     * @return a Trigger instance representing the left bumper button's digital signal attached to the
-     *     given loop.
+     * @param loop
+     *            the event loop instance to attach the event to.
+     * @return a Trigger instance representing the left bumper button's digital
+     *         signal attached to the given loop.
      */
     @Override
     public Trigger leftBumper(EventLoop loop) {
@@ -589,10 +654,12 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance around the right bumper button's digital signal.
+     * Constructs a Trigger instance around the right bumper button's digital
+     * signal.
      *
-     * @return a Trigger instance representing the right bumper button's digital signal attached to
-     *     the {@link CommandScheduler#getDefaultButtonLoop() default scheduler button loop}.
+     * @return a Trigger instance representing the right bumper button's digital
+     *         signal attached to the {@link CommandScheduler#getDefaultButtonLoop()
+     *         default scheduler button loop}.
      * @see #rightBumper(EventLoop)
      */
     @Override
@@ -601,11 +668,13 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance around the right bumper button's digital signal.
+     * Constructs a Trigger instance around the right bumper button's digital
+     * signal.
      *
-     * @param loop the event loop instance to attach the event to.
-     * @return a Trigger instance representing the right bumper button's digital signal attached to
-     *     the given loop.
+     * @param loop
+     *            the event loop instance to attach the event to.
+     * @return a Trigger instance representing the right bumper button's digital
+     *         signal attached to the given loop.
      */
     @Override
     public Trigger rightBumper(EventLoop loop) {
@@ -615,8 +684,9 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Constructs a Trigger instance around the back button's digital signal.
      *
-     * @return a Trigger instance representing the back button's digital signal attached to the {@link
-     *     CommandScheduler#getDefaultButtonLoop() default scheduler button loop}.
+     * @return a Trigger instance representing the back button's digital signal
+     *         attached to the {@link CommandScheduler#getDefaultButtonLoop()
+     *         default scheduler button loop}.
      * @see #back(EventLoop)
      */
     @Override
@@ -627,9 +697,10 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Constructs a Trigger instance around the back button's digital signal.
      *
-     * @param loop the event loop instance to attach the event to.
-     * @return a Trigger instance representing the back button's digital signal attached to the given
-     *     loop.
+     * @param loop
+     *            the event loop instance to attach the event to.
+     * @return a Trigger instance representing the back button's digital signal
+     *         attached to the given loop.
      */
     @Override
     public Trigger back(EventLoop loop) {
@@ -639,8 +710,9 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Constructs a Trigger instance around the start button's digital signal.
      *
-     * @return a Trigger instance representing the start button's digital signal attached to the
-     *     {@link CommandScheduler#getDefaultButtonLoop() default scheduler button loop}.
+     * @return a Trigger instance representing the start button's digital signal
+     *         attached to the {@link CommandScheduler#getDefaultButtonLoop()
+     *         default scheduler button loop}.
      * @see #start(EventLoop)
      */
     @Override
@@ -651,9 +723,10 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Constructs a Trigger instance around the start button's digital signal.
      *
-     * @param loop the event loop instance to attach the event to.
-     * @return a Trigger instance representing the start button's digital signal attached to the given
-     *     loop.
+     * @param loop
+     *            the event loop instance to attach the event to.
+     * @return a Trigger instance representing the start button's digital signal
+     *         attached to the given loop.
      */
     @Override
     public Trigger start(EventLoop loop) {
@@ -663,8 +736,9 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Constructs a Trigger instance around the left stick button's digital signal.
      *
-     * @return a Trigger instance representing the left stick button's digital signal attached to the
-     *     {@link CommandScheduler#getDefaultButtonLoop() default scheduler button loop}.
+     * @return a Trigger instance representing the left stick button's digital
+     *         signal attached to the {@link CommandScheduler#getDefaultButtonLoop()
+     *         default scheduler button loop}.
      * @see #leftStick(EventLoop)
      */
     @Override
@@ -675,9 +749,10 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Constructs a Trigger instance around the left stick button's digital signal.
      *
-     * @param loop the event loop instance to attach the event to.
-     * @return a Trigger instance representing the left stick button's digital signal attached to the
-     *     given loop.
+     * @param loop
+     *            the event loop instance to attach the event to.
+     * @return a Trigger instance representing the left stick button's digital
+     *         signal attached to the given loop.
      */
     @Override
     public Trigger leftStick(EventLoop loop) {
@@ -687,8 +762,9 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Constructs a Trigger instance around the right stick button's digital signal.
      *
-     * @return a Trigger instance representing the right stick button's digital signal attached to the
-     *     {@link CommandScheduler#getDefaultButtonLoop() default scheduler button loop}.
+     * @return a Trigger instance representing the right stick button's digital
+     *         signal attached to the {@link CommandScheduler#getDefaultButtonLoop()
+     *         default scheduler button loop}.
      * @see #rightStick(EventLoop)
      */
     @Override
@@ -699,9 +775,10 @@ public class DeadbandXboxController extends CommandXboxController {
     /**
      * Constructs a Trigger instance around the right stick button's digital signal.
      *
-     * @param loop the event loop instance to attach the event to.
-     * @return a Trigger instance representing the right stick button's digital signal attached to the
-     *     given loop.
+     * @param loop
+     *            the event loop instance to attach the event to.
+     * @return a Trigger instance representing the right stick button's digital
+     *         signal attached to the given loop.
      */
     @Override
     public Trigger rightStick(EventLoop loop) {
@@ -709,14 +786,18 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance around the axis value of the left trigger. The returned trigger
-     * will be true when the axis value is greater than {@code threshold}.
+     * Constructs a Trigger instance around the axis value of the left trigger. The
+     * returned trigger will be true when the axis value is greater than
+     * {@code threshold}.
      *
-     * @param threshold the minimum axis value for the returned {@link Trigger} to be true. This value
-     *     should be in the range [0, 1] where 0 is the unpressed state of the axis.
-     * @param loop the event loop instance to attach the Trigger to.
-     * @return a Trigger instance that is true when the left trigger's axis exceeds the provided
-     *     threshold, attached to the given event loop
+     * @param threshold
+     *            the minimum axis value for the returned {@link Trigger} to be
+     *            true. This value should be in the range [0, 1] where 0 is the
+     *            unpressed state of the axis.
+     * @param loop
+     *            the event loop instance to attach the Trigger to.
+     * @return a Trigger instance that is true when the left trigger's axis exceeds
+     *         the provided threshold, attached to the given event loop
      */
     @Override
     public Trigger leftTrigger(double threshold, EventLoop loop) {
@@ -724,14 +805,18 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance around the axis value of the left trigger. The returned trigger
-     * will be true when the axis value is greater than {@code threshold}.
+     * Constructs a Trigger instance around the axis value of the left trigger. The
+     * returned trigger will be true when the axis value is greater than
+     * {@code threshold}.
      *
-     * @param threshold the minimum axis value for the returned {@link Trigger} to be true. This value
-     *     should be in the range [0, 1] where 0 is the unpressed state of the axis.
-     * @return a Trigger instance that is true when the left trigger's axis exceeds the provided
-     *     threshold, attached to the {@link CommandScheduler#getDefaultButtonLoop() default scheduler
-     *     button loop}.
+     * @param threshold
+     *            the minimum axis value for the returned {@link Trigger} to be
+     *            true. This value should be in the range [0, 1] where 0 is the
+     *            unpressed state of the axis.
+     * @return a Trigger instance that is true when the left trigger's axis exceeds
+     *         the provided threshold, attached to the
+     *         {@link CommandScheduler#getDefaultButtonLoop() default scheduler
+     *         button loop}.
      */
     @Override
     public Trigger leftTrigger(double threshold) {
@@ -739,11 +824,12 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance around the axis value of the left trigger. The returned trigger
-     * will be true when the axis value is greater than 0.5.
+     * Constructs a Trigger instance around the axis value of the left trigger. The
+     * returned trigger will be true when the axis value is greater than 0.5.
      *
-     * @return a Trigger instance that is true when the left trigger's axis exceeds 0.5, attached to
-     *     the {@link CommandScheduler#getDefaultButtonLoop() default scheduler button loop}.
+     * @return a Trigger instance that is true when the left trigger's axis exceeds
+     *         0.5, attached to the {@link CommandScheduler#getDefaultButtonLoop()
+     *         default scheduler button loop}.
      */
     @Override
     public Trigger leftTrigger() {
@@ -751,14 +837,18 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance around the axis value of the right trigger. The returned trigger
-     * will be true when the axis value is greater than {@code threshold}.
+     * Constructs a Trigger instance around the axis value of the right trigger. The
+     * returned trigger will be true when the axis value is greater than
+     * {@code threshold}.
      *
-     * @param threshold the minimum axis value for the returned {@link Trigger} to be true. This value
-     *     should be in the range [0, 1] where 0 is the unpressed state of the axis.
-     * @param loop the event loop instance to attach the Trigger to.
-     * @return a Trigger instance that is true when the right trigger's axis exceeds the provided
-     *     threshold, attached to the given event loop
+     * @param threshold
+     *            the minimum axis value for the returned {@link Trigger} to be
+     *            true. This value should be in the range [0, 1] where 0 is the
+     *            unpressed state of the axis.
+     * @param loop
+     *            the event loop instance to attach the Trigger to.
+     * @return a Trigger instance that is true when the right trigger's axis exceeds
+     *         the provided threshold, attached to the given event loop
      */
     @Override
     public Trigger rightTrigger(double threshold, EventLoop loop) {
@@ -766,14 +856,18 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance around the axis value of the right trigger. The returned trigger
-     * will be true when the axis value is greater than {@code threshold}.
+     * Constructs a Trigger instance around the axis value of the right trigger. The
+     * returned trigger will be true when the axis value is greater than
+     * {@code threshold}.
      *
-     * @param threshold the minimum axis value for the returned {@link Trigger} to be true. This value
-     *     should be in the range [0, 1] where 0 is the unpressed state of the axis.
-     * @return a Trigger instance that is true when the right trigger's axis exceeds the provided
-     *     threshold, attached to the {@link CommandScheduler#getDefaultButtonLoop() default scheduler
-     *     button loop}.
+     * @param threshold
+     *            the minimum axis value for the returned {@link Trigger} to be
+     *            true. This value should be in the range [0, 1] where 0 is the
+     *            unpressed state of the axis.
+     * @return a Trigger instance that is true when the right trigger's axis exceeds
+     *         the provided threshold, attached to the
+     *         {@link CommandScheduler#getDefaultButtonLoop() default scheduler
+     *         button loop}.
      */
     @Override
     public Trigger rightTrigger(double threshold) {
@@ -781,11 +875,12 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Constructs a Trigger instance around the axis value of the right trigger. The returned trigger
-     * will be true when the axis value is greater than 0.5.
+     * Constructs a Trigger instance around the axis value of the right trigger. The
+     * returned trigger will be true when the axis value is greater than 0.5.
      *
-     * @return a Trigger instance that is true when the right trigger's axis exceeds 0.5, attached to
-     *     the {@link CommandScheduler#getDefaultButtonLoop() default scheduler button loop}.
+     * @return a Trigger instance that is true when the right trigger's axis exceeds
+     *         0.5, attached to the {@link CommandScheduler#getDefaultButtonLoop()
+     *         default scheduler button loop}.
      */
     @Override
     public Trigger rightTrigger() {
@@ -849,8 +944,8 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Get the left trigger axis value of the controller. Note that this axis is bound to the range of
-     * [0, 1] as opposed to the usual [-1, 1].
+     * Get the left trigger axis value of the controller. Note that this axis is
+     * bound to the range of [0, 1] as opposed to the usual [-1, 1].
      *
      * @return The axis value.
      */
@@ -860,8 +955,8 @@ public class DeadbandXboxController extends CommandXboxController {
     }
 
     /**
-     * Get the right trigger axis value of the controller. Note that this axis is bound to the range
-     * of [0, 1] as opposed to the usual [-1, 1].
+     * Get the right trigger axis value of the controller. Note that this axis is
+     * bound to the range of [0, 1] as opposed to the usual [-1, 1].
      *
      * @return The axis value.
      */

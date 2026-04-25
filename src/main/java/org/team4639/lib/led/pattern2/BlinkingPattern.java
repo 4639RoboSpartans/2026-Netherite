@@ -21,7 +21,8 @@ public class BlinkingPattern implements LEDPattern {
     public Color get(int led, double time) {
         // get the index of this time in the overall period
         double periodicTime = time % period;
-        // return the pattern that corresponds when the period is equally divided by the number of
+        // return the pattern that corresponds when the period is equally divided by the
+        // number of
         // patterns
         return patterns[(int) (periodicTime / timeOfEachPattern)].get(led, time);
     }

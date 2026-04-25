@@ -12,9 +12,6 @@ public interface IntakeRollerIO {
 
     default void updateInputs(IntakeRollerIOInputs inputs) {}
 
-    /** newGains in order: kP, kI, kD, kS, kV, kA */
-    default void applyNewGains(double[] newGains) {}
-
     @AutoLog
     class IntakeRollerIOInputs {
         public boolean connected = true;

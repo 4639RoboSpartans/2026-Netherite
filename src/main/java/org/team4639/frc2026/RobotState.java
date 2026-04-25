@@ -4,16 +4,13 @@ package org.team4639.frc2026;
 
 import edu.wpi.first.math.*;
 import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.*;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.TimeInterpolatableBuffer;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -49,7 +46,6 @@ import org.team4639.frc2026.subsystems.vision.Vision.VisionConsumer;
 import org.team4639.frc2026.util.FMSUtil;
 import org.team4639.frc2026.util.ValueCacher;
 import org.team4639.lib.led.pattern.LEDPattern;
-import org.team4639.lib.util.LoggedTunableNumber;
 import org.team4639.lib.util.PoseEstimator;
 import org.team4639.lib.util.VirtualSubsystem;
 import org.team4639.lib.util.geometry.AllianceFlipUtil;
@@ -58,35 +54,24 @@ import org.team4639.lib.util.geometry.GeomUtil;
 /**
  * RobotState handles all information involving the current state of the robot.
  *
- * <p>Pose: all poses are reported relative to *our* alliance wall, not the blue alliance wall. This
- * is done to simplify internal calculations, however there are methods available to access the true
- * on-field pose mainly for interplay with vision, but they should be used sparingly.
+ * <p>
+ * Pose: all poses are reported relative to *our* alliance wall, not the blue
+ * alliance wall. This is done to simplify internal calculations, however there
+ * are methods available to access the true on-field pose mainly for interplay
+ * with vision, but they should be used sparingly.
  */
 @ExtensionMethod(GeomUtil.class)
 public class RobotState extends VirtualSubsystem implements VisionConsumer, TurretCamera.TurretVisionConsumer {
 
-    // -------------------------------------------------------------------------
-    // Singleton
-    // -------------------------------------------------------------------------
-
     private static RobotState instance = new RobotState();
+
+    public static final double TRUST_VISION_NORMAL = 1.0;
+
+    public static final Trigger disabled = RobotModeTriggers.disabled();
 
     public static synchronized RobotState getInstance() {
         return instance = Objects.requireNonNullElseGet(instance, RobotState::new);
     }
-
-    // -------------------------------------------------------------------------
-    // Records
-    // -------------------------------------------------------------------------
-
-    private record OdometryObservation(
-            SwerveModulePosition[] wheelPositions, Optional<Rotation2d> gyroAngle, double timestamp) {}
-
-    private record VisionObservation(int camIndex, Pose2d visionPose, double timestamp, Matrix<N3, N1> stdDevs) {}
-
-    // -------------------------------------------------------------------------
-    // Constants & Configuration
-    // -------------------------------------------------------------------------
 
     double poseBufferSizeSec = 2.0;
 
@@ -95,10 +80,6 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     private final String ROBOT_FIELD_TRUE_KEY = "/RobotState/Robot Pose";
     private final String CHOREO_SETPOINT_KEY = "/Internal/Choreo Setpoint";
 
-    // -------------------------------------------------------------------------
-    // Pose Buffers
-    // -------------------------------------------------------------------------
-
     private final TimeInterpolatableBuffer<Pose2d> poseBuffer =
             TimeInterpolatableBuffer.createBuffer(poseBufferSizeSec);
 
@@ -106,10 +87,6 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
             TimeInterpolatableBuffer.createBuffer(poseBufferSizeSec);
 
     private final TimeInterpolatableBuffer<Pose2d> choreoSetpoints = TimeInterpolatableBuffer.createBuffer(0.05);
-
-    // -------------------------------------------------------------------------
-    // Odometry State
-    // -------------------------------------------------------------------------
 
     private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(Drive.getModuleTranslations());
 
@@ -128,16 +105,8 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     /** Assume gyro starts at zero. */
     private Rotation2d gyroOffset = Rotation2d.kZero;
 
-    // -------------------------------------------------------------------------
-    // Chassis Speeds
-    // -------------------------------------------------------------------------
-
     @Getter
     private ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
-
-    // -------------------------------------------------------------------------
-    // Turret State
-    // -------------------------------------------------------------------------
 
     @Getter
     private int turretCameraTargets = 0;
@@ -145,10 +114,6 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     @Setter
     @Getter
     private double gyroRotationsPerSecond;
-
-    // -------------------------------------------------------------------------
-    // Scoring & Shooting State
-    // -------------------------------------------------------------------------
 
     @Getter
     private ScoringState scoringState = new ScoringState(0, 0, 0);
@@ -168,10 +133,6 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
             new ValueCacher<>(() -> this._calculateNextPassingState(0.02));
 
     private final ValueCacher<Object, Pose2d> getNextPose = new ValueCacher<>(() -> calculateNextPose(0.02));
-
-    // -------------------------------------------------------------------------
-    // Subsystem State Pairs
-    // -------------------------------------------------------------------------
 
     @Setter
     @Getter
@@ -201,10 +162,6 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     @Getter
     private Pair<Spindexer.WantedState, Spindexer.SystemState> spindexerStates;
 
-    // -------------------------------------------------------------------------
-    // Miscellaneous Robot State
-    // -------------------------------------------------------------------------
-
     private final PoseEstimator primaryPoseEstimator = new PoseEstimator(poseBufferSizeSec);
     private final PoseEstimator secondaryPoseEstimator = new PoseEstimator(poseBufferSizeSec);
 
@@ -220,9 +177,6 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     @Setter
     private double visionStandardDeviationMultiplier = TRUST_VISION_NORMAL;
 
-    public static final double TRUST_VISION_NORMAL = 1.0;
-    public static final double TRUST_VISION_HIGH = 1.0 / 100.0;
-
     @Getter
     @AutoLogOutput(key = "Intake Extension Fraction")
     private double intakeExtensionFraction = 0.0;
@@ -234,36 +188,11 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     private final Queue<Boolean> canIsConnected = new LinkedList<>();
     private final Queue<Boolean> temperaturesAreFine = new LinkedList<>();
 
-    public static final Trigger disabled = RobotModeTriggers.disabled();
-
-    private TimeInterpolatableBuffer<Double> shooterAmps = TimeInterpolatableBuffer.createDoubleBuffer(0.3);
-    public double ballsShot = 0;
-    public double bps = 0;
-
-    public double hopperSizeEstimate = 0.0;
-
-    public InterpolatingDoubleTreeMap currentToIntakeBPS = InterpolatingDoubleTreeMap.ofEntries(
-            new AbstractMap.SimpleImmutableEntry<>(30., 0.),
-            new AbstractMap.SimpleImmutableEntry<>(42., 3.0 / 0.4),
-            new AbstractMap.SimpleImmutableEntry<>(55., 2.0 / 0.2));
-
-    // -------------------------------------------------------------------------
-    // SmartDashboard / Field Display Objects
-    // -------------------------------------------------------------------------
-
     private final Field2d robotFieldInternal = new Field2d();
     private final Field2d robotFieldTrue = new Field2d();
 
-    private final LoggedTunableNumber desiredShooterRPM = new LoggedTunableNumber("Desired Shooter RPM").initDefault(0);
-    private final LoggedTunableNumber desiredHoodDegrees =
-            new LoggedTunableNumber("Desired Hood Degrees").initDefault(20);
-
     @Getter
     private double turretToGoal = Double.POSITIVE_INFINITY;
-
-    // =========================================================================
-    // Lifecycle Methods
-    // =========================================================================
 
     @Override
     public void periodic() {
@@ -312,10 +241,6 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         }
     }
 
-    // =========================================================================
-    // Pose / Odometry Methods
-    // =========================================================================
-
     public Pose2d getEstimatedPose() {
         return primaryPoseEstimator.getEstimatedPose();
     }
@@ -334,8 +259,9 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     }
 
     /**
-     * Returns the pose relative to the blue alliance wall. Should be used sparingly; for all internal
-     * calculations, use {@link RobotState#getEstimatedPose()} instead.
+     * Returns the pose relative to the blue alliance wall. Should be used
+     * sparingly; for all internal calculations, use
+     * {@link RobotState#getEstimatedPose()} instead.
      */
     public Pose2d getTrueOnFieldPose() {
         return AllianceFlipUtil.apply(getEstimatedPose());
@@ -345,10 +271,6 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         primaryPoseEstimator.resetPose(pose);
         secondaryPoseEstimator.resetPose(pose);
         if (Constants.currentMode == Mode.SIM) SimRobot.getInstance().resetPose(pose);
-    }
-
-    public void resetGyro() {
-        resetPose(getEstimatedPose().withRotation(new Rotation2d()));
     }
 
     public void addOdometryObservation(
@@ -368,29 +290,6 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     public void setChoreoSetpoint(Pose2d pose) {
         choreoSetpoints.addSample(Timer.getTimestamp(), pose);
     }
-
-    public Pose3d[] getComponentPoses() {
-        Pose3d turretPose = new Pose3d();
-        turretPose = turretPose.rotateAround(
-                Constants.SimConstants.originToTurretRotation,
-                new Rotation3d(new Rotation2d(scoringState.turretRotations())));
-        Pose3d hoodPose = new Pose3d();
-        Rotation2d hoodRotation = Rotation2d.fromDegrees(
-                -scoringState.hoodDegrees() + org.team4639.frc2026.subsystems.hood.Constants.HOOD_MIN_ANGLE_DEGREES);
-        hoodPose = hoodPose.rotateAround(
-                Constants.SimConstants.originToHoodRotation,
-                new Rotation3d(VecBuilder.fill(0, 1, 0), -hoodRotation.getRadians()));
-        hoodPose = hoodPose.rotateAround(
-                Constants.SimConstants.originToTurretRotation,
-                new Rotation3d(new Rotation2d(scoringState.turretRotations())));
-        Pose3d intakePose = new Pose3d(
-                new Translation3d(Units.inchesToMeters(10.396), 0, Units.inchesToMeters(-3.277)), new Rotation3d());
-        return new Pose3d[] {intakePose, turretPose, hoodPose};
-    }
-
-    // =========================================================================
-    // Vision Methods
-    // =========================================================================
 
     @Override
     public void accept(
@@ -440,17 +339,9 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         turretRotations.addSample(timestamp, rotations);
     }
 
-    // =========================================================================
-    // Chassis Speed Methods
-    // =========================================================================
-
     public void updateChassisSpeeds(ChassisSpeeds chassisSpeeds) {
         this.chassisSpeeds = chassisSpeeds;
     }
-
-    // =========================================================================
-    // Scoring & Shooting Methods
-    // =========================================================================
 
     public void updateShooterState(double shooterRPM, double hoodDegrees, double turretRotations) {
         scoringState = scoringState.replace(shooterRPM, hoodDegrees, turretRotations);
@@ -518,22 +409,6 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
                 && y < FieldConstants.LinesHorizontal.center + FieldConstants.Hub.width / 2.0;
     }
 
-    public void fudgeUp() {
-        this.RPMFudge *= 1.01;
-    }
-
-    public void fudgeDown() {
-        this.RPMFudge /= 1.01;
-    }
-
-    // =========================================================================
-    // Turret Methods
-    // =========================================================================
-
-    public void acceptTurretMeasurement(double rotations, double timestamp) {
-        turretRotations.addSample(timestamp, rotations);
-    }
-
     /** Attempt to find the best hub for the turret to track while idling. */
     public Rotation2d getBestHubTrackFieldRelative() {
         var ourHub = FieldConstants.Hub.topCenterPoint.toTranslation2d();
@@ -543,10 +418,6 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         return nearestHub.minus(getTurretPose().getTranslation()).getAngle();
     }
 
-    // =========================================================================
-    // Hardware Health Methods
-    // =========================================================================
-
     public void acceptCANMeasurement(boolean isConnected) {
         this.canIsConnected.add(isConnected);
     }
@@ -555,26 +426,14 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
         this.temperaturesAreFine.add(tempCelsius < 100);
     }
 
-    // =========================================================================
-    // Intake Methods
-    // =========================================================================
-
     public void updateIntakePosition(double intakeExtensionFraction) {
         this.intakeExtensionFraction = intakeExtensionFraction;
     }
 
-    public void toggleIntakeProtection() {
-        this.useIntakeProtection = !this.useIntakeProtection;
-    }
-
     public boolean withinShooterRange() {
         var rpm = calculateScoringState("Within Shooter Range").shooterRPM();
-        return LookupTables.MIN_RPM < rpm && rpm < LookupTables.MAX_RPM;
+        return LookupTables.MIN_SCORING_RPM < rpm && rpm < LookupTables.MAX_SCORING_RPM;
     }
-
-    // =========================================================================
-    // LED Methods
-    // =========================================================================
 
     public LEDPattern getDesiredLEDPattern() {
         if (SuperstructureCommands.turretDisabled) return Patterns.DEFAULT;
@@ -613,18 +472,10 @@ public class RobotState extends VirtualSubsystem implements VisionConsumer, Turr
     private Color getLEDColor() {
         if (SuperstructureCommands.turretDisabled) return Color.kViolet;
         return switch (SuperstructureCommands.currentState) {
-            case IDLE -> {
-                yield Color.kOrange;
-            }
-            case PASS -> {
-                yield Color.kWhite;
-            }
-            case SCORE -> {
-                yield Color.kGreen;
-            }
-            case WAIT -> {
-                yield Color.kBlue;
-            }
+            case IDLE -> Color.kOrange;
+            case PASS -> Color.kWhite;
+            case SCORE -> Color.kGreen;
+            case WAIT -> Color.kBlue;
         };
     }
 

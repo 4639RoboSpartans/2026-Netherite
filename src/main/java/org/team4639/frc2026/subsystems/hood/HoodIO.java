@@ -11,8 +11,6 @@ public interface HoodIO {
 
     default void updateInputs(HoodIOInputs inputs) {}
 
-    default void applyNewGains() {}
-
     default void setPosition(double positionDegrees) {}
 
     @AutoLog

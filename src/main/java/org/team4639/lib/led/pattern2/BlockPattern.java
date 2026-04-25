@@ -21,7 +21,8 @@ public class BlockPattern implements LEDPattern {
     public Color get(int led, double time) {
         // get the index of this LED in the overall period
         int periodicLED = led % ledPeriod;
-        // return the pattern that corresponds when the period is equally divided by the number of
+        // return the pattern that corresponds when the period is equally divided by the
+        // number of
         // blocks
         return patterns[periodicLED / blockSize].get(led, time);
     }

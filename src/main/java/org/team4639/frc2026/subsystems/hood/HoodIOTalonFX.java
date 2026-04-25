@@ -21,7 +21,6 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import org.team4639.frc2026.util.PortConfiguration;
 import org.team4639.lib.util.Phoenix6Factory;
-import org.team4639.lib.util.PhoenixUtil;
 
 public class HoodIOTalonFX implements HoodIO {
     private final TalonFX hoodMotor;
@@ -46,7 +45,7 @@ public class HoodIOTalonFX implements HoodIO {
 
         config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         config.Feedback.SensorToMechanismRatio = 1.0 / Constants.MOTOR_TO_HOOD_GEAR_RATIO;
-        // do NOT change this
+
         config.CurrentLimits.SupplyCurrentLimit = 20.0;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -58,7 +57,6 @@ public class HoodIOTalonFX implements HoodIO {
         config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         config.Slot0.kP = 20 / ENCODER_TO_PIVOT_GEAR_RATIO;
-        applyNewGains();
 
         hoodPosition = hoodMotor.getPosition();
         hoodVelocity = hoodMotor.getVelocity();
@@ -87,21 +85,6 @@ public class HoodIOTalonFX implements HoodIO {
     @Override
     public void setVoltage(double volts) {
         hoodMotor.setVoltage(volts);
-    }
-
-    public void updateGains() {
-        // config.Slot0.kP = PIDs.hoodKp.get();
-        // config.Slot0.kI = PIDs.hoodKi.get();
-        // config.Slot0.kD = PIDs.hoodKd.get();
-        // config.Slot0.kS = PIDs.hoodKs.get();
-        // config.Slot0.kV = PIDs.hoodKv.get();
-        // config.Slot0.kA = PIDs.hoodKa.get();
-    }
-
-    @Override
-    public void applyNewGains() {
-        updateGains();
-        PhoenixUtil.tryUntilOk(5, () -> hoodMotor.getConfigurator().apply(config));
     }
 
     @Override

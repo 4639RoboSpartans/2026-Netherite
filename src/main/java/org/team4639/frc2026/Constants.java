@@ -9,9 +9,9 @@ import java.util.Map;
 import org.team4639.frc2026.constants.ports.Netherite;
 
 /**
- * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
- * on a roboRIO. Change the value of "simMode" to switch between "sim" (physics sim) and "replay"
- * (log replay from a file).
+ * This class defines the runtime mode used by AdvantageKit. The mode is always
+ * "real" when running on a roboRIO. Change the value of "simMode" to switch
+ * between "sim" (physics sim) and "replay" (log replay from a file).
  */
 public final class Constants {
     public static final Mode simMode = Mode.SIM;
@@ -48,7 +48,7 @@ public final class Constants {
 
     public static final class URCLConstants {
         public static final Map<Integer, String> shooterIDtoName = Map.of(
-                Netherite.portConfiguration.shooterMotorLeftID.getDeviceNumber(), "Shooter Left",
-                Netherite.portConfiguration.shooterMotorRightID.getDeviceNumber(), "Shooter Right");
+                Netherite.portConfiguration.ShooterMotorLeftID.getDeviceNumber(), "Shooter Left",
+                Netherite.portConfiguration.ShooterMotorRightID.getDeviceNumber(), "Shooter Right");
     }
 }

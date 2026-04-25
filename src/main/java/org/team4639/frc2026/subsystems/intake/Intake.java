@@ -3,20 +3,22 @@
 package org.team4639.frc2026.subsystems.intake;
 
 import edu.wpi.first.math.Pair;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import lombok.Getter;
 import lombok.Setter;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
 import org.team4639.lib.util.FullSubsystem;
-import org.team4639.lib.util.LoggedTunableNumber;
 
 public class Intake extends FullSubsystem {
+    public static final double EXTENSION_PROTECTION_PROPORTION_THRESHOLD = 0.55;
     private final RobotState state;
     private final IntakeRollerIO rollerIO;
     private final IntakeRollerIOInputsAutoLogged rollerInputs = new IntakeRollerIOInputsAutoLogged();
 
-    private final double INTAKE_SURFACE_VELOCITY_FEET_PER_SECOND = 28 * 4.5;
+    // desired intake surface velocity
+    private final double INTAKE_SURFACE_VELOCITY_FEET_PER_SECOND = 126.0;
 
     @Getter
     private final IntakeRollerSysID rollerSysID = new IntakeRollerSysID.IntakeRollerSysIDWPI(this, rollerInputs);
@@ -61,17 +63,7 @@ public class Intake extends FullSubsystem {
     }
 
     @Override
-    public void periodic() {
-        LoggedTunableNumber.ifChanged(
-                hashCode(),
-                rollerIO::applyNewGains,
-                PIDs.rollerkP,
-                PIDs.rollerkI,
-                PIDs.rollerkD,
-                PIDs.rollerkS,
-                PIDs.rollerkV,
-                PIDs.rollerkA);
-    }
+    public void periodic() {}
 
     @Override
     public void periodicAfterScheduler() {
@@ -85,14 +77,15 @@ public class Intake extends FullSubsystem {
         return switch (wantedState) {
             case IDLE -> SystemState.IDLE;
             case INTAKE -> {
-                if (state.getIntakeExtensionFraction() < 0.55 && state.useIntakeProtection()) {
+                if (state.getIntakeExtensionFraction() < EXTENSION_PROTECTION_PROPORTION_THRESHOLD
+                        && state.useIntakeProtection()) {
                     yield SystemState.IDLE;
                 } else {
                     yield SystemState.INTAKE;
                 }
             }
             case OUTTAKE -> {
-                if (state.getIntakeExtensionFraction() < 0.55) {
+                if (state.getIntakeExtensionFraction() < EXTENSION_PROTECTION_PROPORTION_THRESHOLD) {
                     yield SystemState.IDLE;
                 } else {
                     yield SystemState.OUTTAKE;
@@ -127,6 +120,10 @@ public class Intake extends FullSubsystem {
         if (newState != systemState) {
             Logger.recordOutput("Intake/SystemState", newState.toString());
             systemState = newState;
+        }
+
+        if (DriverStation.isDisabled()) {
+            systemState = SystemState.IDLE;
         }
 
         switch (systemState) {

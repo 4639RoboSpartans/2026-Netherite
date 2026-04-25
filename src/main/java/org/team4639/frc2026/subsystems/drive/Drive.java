@@ -243,9 +243,9 @@ public class Drive extends SubsystemBase {
         // TODO: why is this an issue
         // Generate the next speeds for the robot
         // ChassisSpeeds speeds = new ChassisSpeeds(
-        //         sample.vx + xController.calculate(pose.getX(), sample.x),
-        //         sample.vy + yController.calculate(pose.getY(), sample.y),
-        //         sample.omega + headingController.calculate(pose.getRotation().getRadians(),
+        // sample.vx + xController.calculate(pose.getX(), sample.x),
+        // sample.vy + yController.calculate(pose.getY(), sample.y),
+        // sample.omega + headingController.calculate(pose.getRotation().getRadians(),
         // sample.heading));
 
         ChassisSpeeds speeds = new ChassisSpeeds(sample.vx, sample.vy, sample.omega);
@@ -258,7 +258,8 @@ public class Drive extends SubsystemBase {
     /**
      * Runs the drive at the desired velocity.
      *
-     * @param speeds Speeds in meters/sec
+     * @param speeds
+     *            Speeds in meters/sec
      */
     public void runVelocity(ChassisSpeeds speeds) {
         // Calculate module setpoints
@@ -298,8 +299,9 @@ public class Drive extends SubsystemBase {
     }
 
     /**
-     * Stops the drive and turns the modules to an X arrangement to resist movement. The modules will
-     * return to their normal orientations the next time a nonzero velocity is requested.
+     * Stops the drive and turns the modules to an X arrangement to resist movement.
+     * The modules will return to their normal orientations the next time a nonzero
+     * velocity is requested.
      */
     public void stopWithX() {
         Rotation2d[] headings = new Rotation2d[4];
@@ -336,7 +338,10 @@ public class Drive extends SubsystemBase {
         return run(() -> runCharacterizationAzimuth(0.0)).withTimeout(1.0).andThen(turnSysID.dynamic(direction));
     }
 
-    /** Returns the module states (turn angles and drive velocities) for all of the modules. */
+    /**
+     * Returns the module states (turn angles and drive velocities) for all of the
+     * modules.
+     */
     @AutoLogOutput(key = "SwerveStates/Measured")
     private SwerveModuleState[] getModuleStates() {
         SwerveModuleState[] states = new SwerveModuleState[4];
@@ -346,7 +351,10 @@ public class Drive extends SubsystemBase {
         return states;
     }
 
-    /** Returns the module positions (turn angles and drive positions) for all of the modules. */
+    /**
+     * Returns the module positions (turn angles and drive positions) for all of the
+     * modules.
+     */
     private SwerveModulePosition[] getModulePositions() {
         SwerveModulePosition[] states = new SwerveModulePosition[4];
         for (int i = 0; i < 4; i++) {
@@ -370,7 +378,10 @@ public class Drive extends SubsystemBase {
         return values;
     }
 
-    /** Returns the average velocity of the modules in rotations/sec (Phoenix native units). */
+    /**
+     * Returns the average velocity of the modules in rotations/sec (Phoenix native
+     * units).
+     */
     public double getFFCharacterizationVelocity() {
         double output = 0.0;
         for (int i = 0; i < 4; i++) {

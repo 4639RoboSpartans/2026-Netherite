@@ -24,7 +24,10 @@ public abstract class IntakeRollerSysID {
                             state -> SignalLogger.writeString("SysIDTestState", state.toString())),
                     new SysIdRoutine.Mechanism(
                             voltage -> intake.setRollerVoltage(voltage.in(Volts)),
-                            null, // Signal Logger handles it,
+                            null, // Signal
+                            // Logger
+                            // handles
+                            // it,
                             intake));
         }
     }

@@ -24,8 +24,8 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
     private final VelocityVoltage request = new VelocityVoltage(0);
 
     public IntakeRollerIOTalonFX(PortConfiguration ports) {
-        rollerMotor = Phoenix6Factory.createDefaultTalon(ports.intakeLeft, false);
-        follower = Phoenix6Factory.createDefaultTalon(ports.intakeRight, false);
+        rollerMotor = Phoenix6Factory.createDefaultTalon(ports.IntakeLeftID, false);
+        follower = Phoenix6Factory.createDefaultTalon(ports.IntakeRightID, false);
 
         config.CurrentLimits.SupplyCurrentLimit = 20;
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
@@ -85,18 +85,5 @@ public class IntakeRollerIOTalonFX implements IntakeRollerIO {
     @Override
     public void setVoltage(double volts) {
         rollerMotor.setVoltage(volts);
-    }
-
-    @Override
-    public void applyNewGains(double[] newGains) {
-        /*var config = new TalonFXConfiguration().Slot0;
-        config.kP = newGains[0];
-        config.kI = newGains[1];
-        config.kD = newGains[2];
-        config.kS = newGains[3];
-        config.kV = newGains[4];
-        config.kA = newGains[5];
-
-        rollerMotor.getConfigurator().apply(config);*/
     }
 }

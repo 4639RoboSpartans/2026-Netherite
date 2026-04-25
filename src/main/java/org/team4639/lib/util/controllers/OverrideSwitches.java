@@ -55,12 +55,18 @@ public class OverrideSwitches {
         return new Trigger(() -> getOperatorSwitch(index));
     }
 
-    /** Returns a trigger for when the multi-directional switch is pushed to the left. */
+    /**
+     * Returns a trigger for when the multi-directional switch is pushed to the
+     * left.
+     */
     public Trigger multiDirectionSwitchLeft() {
         return new Trigger(() -> getMultiDirectionSwitch() == MultiDirectionSwitchState.LEFT);
     }
 
-    /** Returns a trigger for when the multi-directional switch is pushed to the right. */
+    /**
+     * Returns a trigger for when the multi-directional switch is pushed to the
+     * right.
+     */
     public Trigger multiDirectionSwitchRight() {
         return new Trigger(() -> getMultiDirectionSwitch() == MultiDirectionSwitchState.RIGHT);
     }

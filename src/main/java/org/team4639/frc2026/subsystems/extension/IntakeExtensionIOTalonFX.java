@@ -27,9 +27,12 @@ public class IntakeExtensionIOTalonFX implements IntakeExtensionIO {
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
         config.CurrentLimits.StatorCurrentLimit = 15;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
-        // config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
         PhoenixUtil.tryUntilOk(5, () -> extensionMotor.getConfigurator().apply(config));
+
+        // sets the motor to coast mode while disabled for easier manual repositioning.
+        // Resets
+        // it back to brake (desired mode) for enabled operation.
 
         RobotState.disabled.onTrue(Commands.runOnce(() -> extensionMotor.setNeutralMode(NeutralModeValue.Coast))
                 .ignoringDisable(true));

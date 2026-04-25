@@ -10,33 +10,40 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import lombok.Setter;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
-import org.team4639.frc2026.subsystems.intake.Constants;
 import org.team4639.lib.util.FullSubsystem;
 
 public class Extension extends FullSubsystem {
 
-    public static final double INTAKE_NOT_MOVING_BACKWARD_RPS = -0.1;
     private final RobotState state;
     private final IntakeExtensionIO io;
     private final IntakeExtensionIOInputsAutoLogged inputs;
 
+    // any RPS greater than this is counted as not moving backwards. Used
+    // for calculating when the intake is no longer being pushed after a
+    // collision.
+    public static final double INTAKE_NOT_MOVING_BACKWARD_RPS = -0.1;
+    // rotor RPS tolerance for zeroing the intake against either of its hardstops.
     private final double ENDSTOP_ZERO_VELOCITY_THRESHOLD_ROTOR_ROTATIONS_PER_SECOND = 5;
+    // current thresholds at which we determine the motor has reached its hardstops.
     private final double ENDSTOP_CURRENT_THRESHOLD_OUT = 19;
     private final double ENDSTOP_CURRENT_THRESHOLD_IN = 19;
+    // minimum elapsed time for zeroing. Prevents initial current spikes from
+    // causing false positives.
     private final double ZERO_VELOCITY_TIME_PERIOD = 0.02;
     private final double ZERO_VOLTAGE_OUT = 4;
     private final double REZERO_VOLTAGE_OUT = 2;
     private final double ZERO_VOLTAGE_IN = 3;
     private final double ROTOR_SETPOINT_TOLERANCE = 5;
-    private final double EXTENDED_VOLTAGE = 0;
 
+    // maximum elapsed time for zeroing. Prevents intake from being unusable
+    // in case it never reaches its current threshold (eg; if the rack shears)
     private final double ZERO_TIMEOUT = 1.5;
 
     @Setter
     private double MANUAL_VOLTAGE = 0;
 
+    // whether a rezero is needed (collision detection)
     private boolean rezero = false;
-    private boolean runExtendedVoltage = true;
 
     private double zeroTimeStamp = Double.NaN;
 
@@ -59,6 +66,8 @@ public class Extension extends FullSubsystem {
 
     private SystemState systemState = SystemState.IDLE;
 
+    // initial estimates for rotor positions. These are updated when the
+    // intake is zeroed against its hardstops.
     private double retractedRotorPosition = 0.0;
     private double extendedRotorPosition = Constants.MOTOR_TO_RACK_GEAR_RATIO;
 
@@ -76,6 +85,11 @@ public class Extension extends FullSubsystem {
         Logger.recordOutput("Extension/SystemState", systemState.toString());
     }
 
+    /**
+     * Updates the idle and extended positions of the motor after a rezero. Uses a
+     * Double.NaN flag to determine which position is known and which should be
+     * calculated using the measured range of the motor.
+     */
     public void setHomedPositions(double retractedRotorPosition, double extendedRotorPosition) {
         if (Double.isNaN(retractedRotorPosition)) {
             this.extendedRotorPosition = extendedRotorPosition;
@@ -137,7 +151,7 @@ public class Extension extends FullSubsystem {
     }
 
     public void handleExtended() {
-        io.setVoltage(runExtendedVoltage ? EXTENDED_VOLTAGE : 0);
+        io.setVoltage(0);
         io.setBrakeMode(false);
     }
 
@@ -159,11 +173,9 @@ public class Extension extends FullSubsystem {
                                     rezero = true;
                                     return SystemState.EXTENDING;
                                 } else {
-                                    runExtendedVoltage = false;
                                     return SystemState.EXTENDED;
                                 }
                             }
-                            runExtendedVoltage = true;
                             return SystemState.EXTENDED;
                         } else if (!Double.isFinite(zeroTimeStamp)) {
                             zeroTimeStamp = Timer.getFPGATimestamp();
@@ -172,7 +184,6 @@ public class Extension extends FullSubsystem {
                             io.stop();
                             zeroTimeStamp = Double.NaN;
                             setHomedPositions(Double.NaN, inputs.rotations);
-                            runExtendedVoltage = true;
                             return SystemState.EXTENDED;
                         } else {
                             return SystemState.EXTENDING;

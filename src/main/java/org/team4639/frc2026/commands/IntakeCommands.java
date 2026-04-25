@@ -11,7 +11,7 @@ import org.team4639.frc2026.subsystems.extension.Extension;
 import org.team4639.frc2026.subsystems.intake.Intake;
 
 public class IntakeCommands {
-    private static final double AGITATE_PERIOD = 2;
+    private static final double AGITATE_PERIOD = 2.0;
 
     public static Command extend(Extension extension) {
         return extension.dummy.runOnce(() -> extension.setWantedState(Extension.WantedState.EXTENDED));

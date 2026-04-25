@@ -30,8 +30,6 @@ public class Constants {
 
     public static final double ROTOR_ROTATION_TOLERANCE = 4;
 
-    public static final double REZERO_ROTATION_TOLERANCE = 0.5;
-
     public static final double TURRET_FUDGE_SCALAR = 1;
 
     public static final double MAX_TURRET_EXTENSION_ROTATIONS = 305.0 / 360.0;

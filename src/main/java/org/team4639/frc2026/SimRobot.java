@@ -66,13 +66,15 @@ public class SimRobot extends VirtualSubsystem {
         RebuiltFuelOnFly fuelOnFly = new RebuiltFuelOnFly(
                 // Specify the position of the chassis when the note is launched
                 swerveDriveSimulation.getSimulatedDriveTrainPose().getTranslation(),
-                // Specify the translation of the shooter from the robot center (in the shooter’s
+                // Specify the translation of the shooter from the robot center (in the
+                // shooter’s
                 // reference frame)
                 new Translation2d(-Units.inchesToMeters(5.84), 0)
                         .rotateBy(swerveDriveSimulation
                                 .getSimulatedDriveTrainPose()
                                 .getRotation()),
-                // Specify the field-relative speed of the chassis, adding it to the initial velocity of
+                // Specify the field-relative speed of the chassis, adding it to the initial
+                // velocity of
                 // the projectile
                 swerveDriveSimulation.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
                 // The shooter facing direction is the same as the robot’s facing direction
@@ -82,7 +84,8 @@ public class SimRobot extends VirtualSubsystem {
                         .plus(Rotation2d.fromRotations(scoringState.turretRotations())),
                 // Initial height of the flying note
                 Meters.of(0.508),
-                // The launch speed is proportional to the RPM; assumed to be 16 meters/second at 6000
+                // The launch speed is proportional to the RPM; assumed to be 16 meters/second
+                // at 6000
                 // RPM
                 Meters.per(Second).of(Units.rotationsPerMinuteToRadiansPerSecond(scoringState.shooterRPM()) * 0.0508),
                 // The angle at which the note is launched

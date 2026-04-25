@@ -14,8 +14,6 @@ public interface TurretIO {
 
     default void updateInputs(TurretIOInputs inputs) {}
 
-    default void applyNewGains() {}
-
     @AutoLog
     class TurretIOInputs {
         public boolean connected = true;

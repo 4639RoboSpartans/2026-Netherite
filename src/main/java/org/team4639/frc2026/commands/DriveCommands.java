@@ -3,7 +3,6 @@
 package org.team4639.frc2026.commands;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -22,7 +21,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-import org.team4639.frc2026.RobotState;
 import org.team4639.frc2026.subsystems.drive.Drive;
 
 public class DriveCommands {
@@ -57,35 +55,8 @@ public class DriveCommands {
     }
 
     /**
-     * Field relative drive command using two joysticks (controlling linear and angular velocities).
+     * Field Relative Drive with wheel lock when zero inputs applied.
      */
-    public static Command joystickDrive(
-            Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier omegaSupplier) {
-        return Commands.run(
-                () -> {
-                    // Get linear velocity
-                    Translation2d linearVelocity =
-                            getLinearVelocityFromJoysticks(xSupplier.getAsDouble(), ySupplier.getAsDouble());
-
-                    // Apply rotation deadband
-                    double omega = MathUtil.applyDeadband(omegaSupplier.getAsDouble(), DEADBAND);
-
-                    // Square rotation value for more precise control
-                    omega = Math.copySign(omega * omega, omega);
-
-                    // Convert to field relative speeds & send command
-                    ChassisSpeeds speeds = new ChassisSpeeds(
-                            linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec(),
-                            linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec(),
-                            omega * drive.getMaxAngularSpeedRadPerSec());
-                    boolean isFlipped = false; // false since our field pose is relative to the alliance wall
-                    drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(
-                            speeds,
-                            isFlipped ? drive.getRotation().plus(new Rotation2d(Math.PI)) : drive.getRotation()));
-                },
-                drive);
-    }
-
     public static Command joystickDriveWithX(
             Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier omegaSupplier) {
         return Commands.run(
@@ -120,9 +91,9 @@ public class DriveCommands {
     }
 
     /**
-     * Field relative drive command using joystick for linear control and PID for angular control.
-     * Possible use cases include snapping to an angle, aiming at a vision target, or controlling
-     * absolute rotation with a joystick.
+     * Field relative drive command using joystick for linear control and PID for
+     * angular control. Possible use cases include snapping to an angle, aiming at a
+     * vision target, or controlling absolute rotation with a joystick.
      */
     public static Command joystickDriveAtAngle(
             Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier, Supplier<Rotation2d> rotationSupplier) {
@@ -165,7 +136,8 @@ public class DriveCommands {
     /**
      * Measures the velocity feedforward constants for the drive motors.
      *
-     * <p>This command should only be used in voltage control mode.
+     * <p>
+     * This command should only be used in voltage control mode.
      */
     public static Command feedforwardCharacterization(Drive drive) {
         List<Double> velocitySamples = new LinkedList<>();
@@ -278,11 +250,8 @@ public class DriveCommands {
                                     System.out.println("\tWheel Delta: " + formatter.format(wheelDelta) + " radians");
                                     System.out.println(
                                             "\tGyro Delta: " + formatter.format(state.gyroDelta) + " radians");
-                                    System.out.println("\tWheel Radius: "
-                                            + formatter.format(wheelRadius)
-                                            + " meters, "
-                                            + formatter.format(Units.metersToInches(wheelRadius))
-                                            + " inches");
+                                    System.out.println("\tWheel Radius: " + formatter.format(wheelRadius) + " meters, "
+                                            + formatter.format(Units.metersToInches(wheelRadius)) + " inches");
                                 })));
     }
 
@@ -290,46 +259,5 @@ public class DriveCommands {
         double[] positions = new double[4];
         Rotation2d lastAngle = Rotation2d.kZero;
         double gyroDelta = 0.0;
-    }
-
-    public static Command PIDToPose(
-            Drive drive, RobotState state, Pose2d destinationPose, double toleranceMeters, double velocityScaling) {
-        ProfiledPIDController pidX =
-                new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(5 * velocityScaling, 6));
-        ProfiledPIDController pidY =
-                new ProfiledPIDController(3, 0, 0, new TrapezoidProfile.Constraints(5 * velocityScaling, 6));
-        PIDController headingController = new PIDController(5, 0, 0);
-        headingController.enableContinuousInput(-Math.PI, Math.PI);
-        headingController.setSetpoint(destinationPose.getRotation().getRadians());
-
-        var startingPose = state.getEstimatedPose();
-
-        pidX.reset(startingPose.getX(), state.getChassisSpeeds().vxMetersPerSecond);
-        pidX.setGoal(destinationPose.getX());
-
-        pidY.reset(startingPose.getY(), state.getChassisSpeeds().vyMetersPerSecond);
-        pidY.setGoal(destinationPose.getY());
-
-        double kp = 6;
-
-        return drive.run(() -> {
-                    drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(
-                            new ChassisSpeeds(
-                                    ALIGN_FF * pidX.getSetpoint().velocity
-                                            + pidX.calculate(drive.getPose().getX()),
-                                    ALIGN_FF * pidY.getSetpoint().velocity
-                                            + pidY.calculate(drive.getPose().getY()),
-                                    headingController.calculate(
-                                            drive.getPose().getRotation().getRadians())),
-                            drive.getPose().getRotation()));
-
-                    state.setChoreoSetpoint(destinationPose);
-                })
-                .until(() -> state.getEstimatedPose().getTranslation().getDistance(destinationPose.getTranslation())
-                        < toleranceMeters);
-    }
-
-    public static Command PIDToPose(Drive drive, RobotState state, Pose2d destinationPose, double toleranceMeters) {
-        return PIDToPose(drive, state, destinationPose, toleranceMeters, 1.0);
     }
 }

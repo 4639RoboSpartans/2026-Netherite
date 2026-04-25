@@ -9,9 +9,9 @@ import com.ctre.phoenix6.signals.*;
 import org.team4639.frc2026.util.CanDeviceId;
 
 /**
- * Creates FXTalons objects and configures all the parameters we care about to factory defaults.
- * Closed-loop and sensor parameters are not set, as these are expected to be set by the
- * application.
+ * Creates FXTalons objects and configures all the parameters we care about to
+ * factory defaults. Closed-loop and sensor parameters are not set, as these are
+ * expected to be set by the application.
  */
 public class Phoenix6Factory {
 

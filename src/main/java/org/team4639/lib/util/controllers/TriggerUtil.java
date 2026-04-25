@@ -13,10 +13,12 @@ public class TriggerUtil {
     /**
      * Constantly starts the given command while the button is held.
      *
-     * <p>{@link Command#schedule()} will be called repeatedly while the trigger is active, and will
-     * be canceled when the trigger becomes inactive.
+     * <p>
+     * {@link Command#schedule()} will be called repeatedly while the trigger is
+     * active, and will be canceled when the trigger becomes inactive.
      *
-     * @param command The command to start.
+     * @param command
+     *            The command to start.
      * @return This trigger, so calls can be chained.
      */
     public static void whileTrueContinuous(Trigger trigger, final Command command) {
@@ -41,7 +43,8 @@ public class TriggerUtil {
     /**
      * Tracker that activates only when a button is pressed twice quickly.
      *
-     * @param baseTrigger The trigger to wrap.
+     * @param baseTrigger
+     *            The trigger to wrap.
      * @return The new trigger that activates on double press.
      */
     public static Trigger doublePress(Trigger baseTrigger) {

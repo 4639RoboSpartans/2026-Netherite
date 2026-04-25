@@ -13,7 +13,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
-import org.team4639.frc2026.Constants;
 import org.team4639.frc2026.RobotState;
 import org.team4639.lib.util.FullSubsystem;
 import org.team4639.lib.util.LoggedTunableNumber;
@@ -76,26 +75,7 @@ public class Shooter extends FullSubsystem {
     }
 
     @Override
-    public void periodic() {
-
-        if (Constants.tuningMode) {
-            LoggedTunableNumber.ifChanged(
-                    hashCode(),
-                    io::applyNewGains,
-                    PIDs.shooterKp,
-                    PIDs.shooterKi,
-                    PIDs.shooterKd,
-                    PIDs.shooterKs,
-                    PIDs.shooterKv,
-                    PIDs.shooterKa,
-                    PIDs.shooterKpSim,
-                    PIDs.shooterKiSim,
-                    PIDs.shooterKdSim,
-                    PIDs.shooterKsSim,
-                    PIDs.shooterKvSim,
-                    PIDs.shooterKaSim);
-        }
-    }
+    public void periodic() {}
 
     @Override
     public void periodicAfterScheduler() {
@@ -152,10 +132,11 @@ public class Shooter extends FullSubsystem {
     }
 
     /**
-     * Should not be called in comp code. All usages of setVoltage() needed for comp should be called
-     * internally.
+     * Should not be called in comp code. All usages of setVoltage() needed for comp
+     * should be called internally.
      *
-     * @param volts voltage to set shooter motors to
+     * @param volts
+     *            voltage to set shooter motors to
      */
     protected void setVoltage(Voltage volts) {
         io.setVoltage(volts.in(Volts));

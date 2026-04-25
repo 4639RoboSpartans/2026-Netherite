@@ -12,8 +12,6 @@ public interface ShooterIO {
 
     default void updateInputs(ShooterIOInputs inputs) {}
 
-    default void applyNewGains() {}
-
     @AutoLog
     class ShooterIOInputs {
         public boolean rightConnected = true;

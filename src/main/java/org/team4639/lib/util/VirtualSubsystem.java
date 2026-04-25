@@ -16,8 +16,8 @@ public abstract class VirtualSubsystem {
     public abstract void periodic();
 
     /**
-     * This method is called periodically after the command scheduler, and should be used for applying
-     * outputs.
+     * This method is called periodically after the command scheduler, and should be
+     * used for applying outputs.
      */
     public abstract void periodicAfterScheduler();
 

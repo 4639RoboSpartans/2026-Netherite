@@ -11,7 +11,7 @@ public class LEDKickerIOHardware extends LEDKickerIO {
     private final LEDStrip ledStrip;
 
     public LEDKickerIOHardware(PortConfiguration portConfiguration, Integer length) {
-        this.ledStrip = new PhysicalLEDStrip(portConfiguration.ledkicker, length);
+        this.ledStrip = new PhysicalLEDStrip(portConfiguration.KickerLEDOutputPort, length);
     }
 
     @Override

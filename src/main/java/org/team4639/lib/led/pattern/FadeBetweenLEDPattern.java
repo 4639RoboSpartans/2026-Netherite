@@ -9,9 +9,11 @@ public class FadeBetweenLEDPattern implements LEDPattern {
     private final Color[] colors;
 
     /**
-     * @param speed The speed of blinking, in transitions per second. The period of the entire cycle
-     *     will be (len(colors) - 1) / speed
-     * @param colors The list of colors to cycle between
+     * @param speed
+     *            The speed of blinking, in transitions per second. The period of
+     *            the entire cycle will be (len(colors) - 1) / speed
+     * @param colors
+     *            The list of colors to cycle between
      */
     public FadeBetweenLEDPattern(double speed, Color... colors) {
         this.speed = speed;

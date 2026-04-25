@@ -12,7 +12,6 @@ import lombok.Getter;
 import org.littletonrobotics.junction.Logger;
 import org.team4639.frc2026.RobotState;
 import org.team4639.lib.util.FullSubsystem;
-import org.team4639.lib.util.LoggedTunableNumber;
 
 public class Kicker extends FullSubsystem {
     private final RobotState state;
@@ -55,18 +54,7 @@ public class Kicker extends FullSubsystem {
     }
 
     @Override
-    public void periodic() {
-
-        LoggedTunableNumber.ifChanged(
-                hashCode(),
-                io::applyNewGains,
-                PIDs.kickerKP,
-                PIDs.kickerKI,
-                PIDs.kickerKD,
-                PIDs.kickerKS,
-                PIDs.kickerKV,
-                PIDs.kickerKA);
-    }
+    public void periodic() {}
 
     @Override
     public void periodicAfterScheduler() {
@@ -105,14 +93,14 @@ public class Kicker extends FullSubsystem {
     }
 
     private void handleIdle() {
-        io.setRotorVelocityRPM(IDLE_RPM);
+        io.setMechanismVelocityRPM(IDLE_RPM);
     }
 
     private void handleKick() {
         KICK_RPM = state.calculateScoringState(this).shooterRPM()
                 * Constants.SHOOTER_DIAMETER_TO_KICKER_DIAMETER
                 * Constants.SCALE_OF_SHOOTER;
-        io.setRotorVelocityRPM(KICK_RPM);
+        io.setMechanismVelocityRPM(KICK_RPM);
     }
 
     public void setWantedState(WantedState wantedState) {
